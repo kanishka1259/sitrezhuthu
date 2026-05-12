@@ -100,24 +100,24 @@ export default function ExperiencePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-cyan-950 to-slate-950 text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
       <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-cyan-400 transition">
             SITREZHUTHU
           </Link>
           <div className="flex gap-8">
             <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
             <Link href="/about" className="text-sm text-white/70 hover:text-white transition">About</Link>
-            <Link href="/experience" className="text-sm text-purple-400 transition font-medium">Experience</Link>
+            <Link href="/experience" className="text-sm text-cyan-400 transition font-medium">Experience</Link>
           </div>
         </div>
       </nav>
@@ -140,7 +140,7 @@ export default function ExperiencePage() {
             href="#"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="mt-4 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition font-medium flex items-center gap-2"
+            className="mt-4 px-6 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium flex items-center gap-2"
           >
             <Download size={18} /> Download Resume
           </motion.a>
@@ -158,7 +158,7 @@ export default function ExperiencePage() {
 
           <div className="space-y-8 relative">
             {/* Timeline line */}
-            <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-pink-500 to-blue-500" />
+            <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-500 via-cyan-500 to-blue-500" />
 
             {experiences.map((exp, idx) => (
               <motion.div
@@ -171,19 +171,19 @@ export default function ExperiencePage() {
               >
                 {/* Timeline dot */}
                 <div className="flex flex-col items-center mt-2">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl border-4 border-slate-950 relative z-10">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-500 flex items-center justify-center text-2xl border-4 border-slate-950 relative z-10">
                     {exp.logo}
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 bg-white/5 backdrop-blur border border-white/10 rounded-xl p-8 hover:border-purple-500/50 transition">
+                <div className="flex-1 bg-white/5 backdrop-blur border border-white/10 rounded-xl p-8 hover:border-cyan-500/50 transition">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-2xl font-bold text-purple-400">{exp.position}</h3>
+                      <h3 className="text-2xl font-bold text-cyan-400">{exp.position}</h3>
                       <p className="text-lg text-white/80">{exp.company}</p>
                     </div>
-                    <span className="px-3 py-1 bg-purple-500/20 text-purple-300 text-sm rounded-full">
+                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 text-sm rounded-full">
                       {exp.period}
                     </span>
                   </div>
@@ -195,7 +195,7 @@ export default function ExperiencePage() {
                     <ul className="space-y-2">
                       {exp.achievements.map((achievement, i) => (
                         <li key={i} className="flex items-start gap-3 text-white/80">
-                          <span className="text-purple-400 mt-1">▸</span>
+                          <span className="text-cyan-400 mt-1">▸</span>
                           <span>{achievement}</span>
                         </li>
                       ))}
@@ -226,13 +226,13 @@ export default function ExperiencePage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
                   viewport={{ once: true }}
-                  className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6 hover:border-purple-500/50 transition"
+                  className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6 hover:border-cyan-500/50 transition"
                 >
-                  <h3 className="font-bold text-lg text-purple-400">{edu.school}</h3>
+                  <h3 className="font-bold text-lg text-cyan-400">{edu.school}</h3>
                   <p className="text-white/80 mt-1">{edu.degree}</p>
                   <div className="flex justify-between items-center mt-4">
                     <span className="text-sm text-white/60">{edu.year}</span>
-                    <span className="text-sm text-pink-400 font-medium">{edu.grade}</span>
+                    <span className="text-sm text-cyan-400 font-medium">{edu.grade}</span>
                   </div>
                 </motion.div>
               ))}
@@ -250,14 +250,14 @@ export default function ExperiencePage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
                   viewport={{ once: true }}
-                  className="bg-gradient-to-r from-purple-500/20 to-pink-500/10 backdrop-blur border border-purple-500/30 rounded-lg p-6 hover:border-purple-500/60 transition"
+                  className="bg-gradient-to-r from-cyan-500/20 to-cyan-500/10 backdrop-blur border border-cyan-500/30 rounded-lg p-6 hover:border-cyan-500/60 transition"
                 >
                   <div className="flex items-start gap-4">
                     <span className="text-3xl">{cert.badge}</span>
                     <div>
                       <h3 className="font-bold text-lg text-white">{cert.title}</h3>
                       <p className="text-white/70 text-sm">{cert.issuer}</p>
-                      <p className="text-purple-400 text-sm mt-2">{cert.year}</p>
+                      <p className="text-cyan-400 text-sm mt-2">{cert.year}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -277,7 +277,7 @@ export default function ExperiencePage() {
           <h3 className="text-3xl font-bold mb-6">Let's create something amazing together</h3>
           <Link
             href="/contact"
-            className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"
           >
             Start a Project
           </Link>

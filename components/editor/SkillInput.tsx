@@ -17,30 +17,39 @@ export function SkillInput() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-3">
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
           placeholder="Add a skill (e.g., React, TypeScript)"
-          className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+          style={{ flex: 1, padding: '0.6rem 0.9rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', fontSize: 14, outline: 'none' }}
+          onFocus={e => { e.currentTarget.style.borderColor = '#3DAA7A'; }}
+          onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
         />
-        <button onClick={handleAddSkill} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition">
+        <button
+          onClick={handleAddSkill}
+          style={{ padding: '0.6rem 1.1rem', background: '#3DAA7A', border: 'none', borderRadius: 10, color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer', transition: 'opacity .2s' }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+        >
           Add
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {skills.map((skill) => (
-          <div key={skill} className="inline-flex items-center gap-2 bg-purple-500/30 text-purple-200 px-3 py-1 rounded-full border border-purple-500/50">
+          <div key={skill} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(61,170,122,0.1)', color: '#62C99A', padding: '4px 12px', borderRadius: 999, border: '1px solid rgba(61,170,122,0.25)', fontSize: 13, fontWeight: 500 }}>
             <span>{skill}</span>
             <button
               onClick={() => removeSkill(skill)}
-              className="hover:text-purple-100 transition"
+              style={{ background: 'none', border: 'none', color: '#62C99A', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', opacity: 0.7 }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; }}
               aria-label="Remove skill"
             >
-              <X size={16} />
+              <X size={14} />
             </button>
           </div>
         ))}

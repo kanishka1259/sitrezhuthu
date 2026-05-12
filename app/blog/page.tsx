@@ -105,23 +105,23 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-cyan-950 to-slate-950 text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
       <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-cyan-400 transition">
             SITREZHUTHU
           </Link>
           <div className="flex gap-8">
             <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
-            <Link href="/blog" className="text-sm text-purple-400 transition font-medium">Blog</Link>
+            <Link href="/blog" className="text-sm text-cyan-400 transition font-medium">Blog</Link>
             <Link href="/contact" className="text-sm text-white/70 hover:text-white transition">Contact</Link>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function BlogPage() {
               placeholder="Search articles..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
             />
           </div>
 
@@ -168,8 +168,8 @@ export default function BlogPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition ${
                   selectedCategory === cat
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50'
-                    : 'bg-white/10 text-white/70 hover:text-white border border-white/20 hover:border-purple-500/50'
+                    ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
+                    : 'bg-white/10 text-white/70 hover:text-white border border-white/20 hover:border-cyan-500/50'
                 }`}
               >
                 {cat}
@@ -187,7 +187,7 @@ export default function BlogPage() {
             className="mb-16"
           >
             <Link href={`/blog/${featuredPost.id}`}>
-              <div className="group relative h-96 rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition cursor-pointer">
+              <div className="group relative h-96 rounded-2xl overflow-hidden border border-white/10 hover:border-cyan-500/50 transition cursor-pointer">
                 <Image
                   src={featuredPost.image}
                   alt={featuredPost.title}
@@ -200,15 +200,15 @@ export default function BlogPage() {
 
                 {/* Featured Badge */}
                 <div className="absolute top-6 left-6">
-                  <span className="px-4 py-1 bg-purple-600 text-white text-xs font-bold rounded-full">
+                  <span className="px-4 py-1 bg-cyan-600 text-white text-xs font-bold rounded-full">
                     FEATURED
                   </span>
                 </div>
 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <div className="text-sm text-purple-400 mb-3">{featuredPost.category}</div>
-                  <h2 className="text-4xl font-bold mb-4 group-hover:text-purple-400 transition">
+                  <div className="text-sm text-cyan-400 mb-3">{featuredPost.category}</div>
+                  <h2 className="text-4xl font-bold mb-4 group-hover:text-cyan-400 transition">
                     {featuredPost.title}
                   </h2>
                   <p className="text-white/80 mb-6 line-clamp-2">{featuredPost.excerpt}</p>
@@ -243,7 +243,7 @@ export default function BlogPage() {
               variants={itemVariants}
             >
               <Link href={`/blog/${post.id}`}>
-                <div className="group bg-white/5 backdrop-blur border border-white/10 rounded-xl overflow-hidden hover:border-purple-500/50 transition cursor-pointer h-full flex flex-col">
+                <div className="group bg-white/5 backdrop-blur border border-white/10 rounded-xl overflow-hidden hover:border-cyan-500/50 transition cursor-pointer h-full flex flex-col">
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden">
                     <Image
@@ -256,8 +256,8 @@ export default function BlogPage() {
 
                   {/* Content */}
                   <div className="p-6 flex flex-col flex-1">
-                    <div className="text-xs text-purple-400 mb-3">{post.category}</div>
-                    <h3 className="text-lg font-bold mb-3 group-hover:text-purple-400 transition line-clamp-2">
+                    <div className="text-xs text-cyan-400 mb-3">{post.category}</div>
+                    <h3 className="text-lg font-bold mb-3 group-hover:text-cyan-400 transition line-clamp-2">
                       {post.title}
                     </h3>
                     <p className="text-white/70 text-sm mb-4 line-clamp-2 flex-1">{post.excerpt}</p>
@@ -305,9 +305,9 @@ export default function BlogPage() {
             <input
               type="email"
               placeholder="your@email.com"
-              className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
-            <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition font-medium">
+            <button className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium">
               Subscribe
             </button>
           </div>

@@ -63,23 +63,23 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-cyan-950 to-slate-950 text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
       <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-cyan-400 transition">
             SITREZHUTHU
           </Link>
           <div className="flex gap-8">
             <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
-            <Link href="/contact" className="text-sm text-purple-400 transition font-medium">Contact</Link>
+            <Link href="/contact" className="text-sm text-cyan-400 transition font-medium">Contact</Link>
             <Link href="/services" className="text-sm text-white/70 hover:text-white transition">Services</Link>
           </div>
         </div>
@@ -108,17 +108,17 @@ export default function ContactPage() {
             className="lg:col-span-2 space-y-8"
           >
             {/* Email */}
-            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-8 hover:border-purple-500/50 transition">
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-8 hover:border-cyan-500/50 transition">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                  <Mail size={24} className="text-purple-400" />
+                <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+                  <Mail size={24} className="text-cyan-400" />
                 </div>
                 <h3 className="text-lg font-bold">Email</h3>
               </div>
               <p className="text-white/60 mb-4">Reach out to me directly</p>
               <button
                 onClick={copyEmail}
-                className="text-purple-400 hover:text-purple-300 font-medium flex items-center gap-2 transition"
+                className="text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-2 transition"
               >
                 hello@sitrezhuthu.com
                 <Copy size={16} className={copied ? 'text-green-400' : ''} />
@@ -129,13 +129,13 @@ export default function ContactPage() {
             {/* Response Time */}
             <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-8">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-pink-500/20 rounded-lg flex items-center justify-center">
-                  <MessageSquare size={24} className="text-pink-400" />
+                <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+                  <MessageSquare size={24} className="text-cyan-400" />
                 </div>
                 <h3 className="text-lg font-bold">Response Time</h3>
               </div>
               <p className="text-white/60">I typically respond within</p>
-              <p className="text-purple-400 font-bold text-lg mt-2">24-48 hours</p>
+              <p className="text-cyan-400 font-bold text-lg mt-2">24-48 hours</p>
             </div>
 
             {/* Availability */}
@@ -147,9 +147,9 @@ export default function ContactPage() {
                 <h3 className="text-lg font-bold">Availability</h3>
               </div>
               <p className="text-white/60">Timezone:</p>
-              <p className="text-purple-400 font-bold mt-1">EST (UTC-5)</p>
+              <p className="text-cyan-400 font-bold mt-1">EST (UTC-5)</p>
               <p className="text-white/60 mt-4">Currently available for:</p>
-              <p className="text-pink-400 font-bold mt-1">New projects & consulting</p>
+              <p className="text-cyan-400 font-bold mt-1">New projects & consulting</p>
             </div>
 
             {/* Social Links */}
@@ -160,7 +160,7 @@ export default function ContactPage() {
                   <a
                     key={social}
                     href="#"
-                    className="w-10 h-10 bg-white/10 rounded-lg hover:bg-purple-600 transition flex items-center justify-center text-sm font-medium"
+                    className="w-10 h-10 bg-white/10 rounded-lg hover:bg-cyan-600 transition flex items-center justify-center text-sm font-medium"
                   >
                     {social[0]}
                   </a>
@@ -185,7 +185,7 @@ export default function ContactPage() {
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2 transition ${
                           s <= step
-                            ? 'bg-purple-600 text-white'
+                            ? 'bg-cyan-600 text-white'
                             : 'bg-white/10 text-white/50'
                         }`}
                       >
@@ -199,7 +199,7 @@ export default function ContactPage() {
                 </div>
                 <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                    className="h-full bg-gradient-to-r from-cyan-500 to-cyan-500"
                     animate={{ width: `${(step / 3) * 100}%` }}
                     transition={{ duration: 0.3 }}
                   />
@@ -249,7 +249,7 @@ export default function ContactPage() {
                                 onClick={() => handleServiceToggle(service.id)}
                                 className={`w-full p-4 rounded-lg border-2 text-left transition ${
                                   selectedServices.has(service.id)
-                                    ? 'border-purple-500 bg-purple-500/20'
+                                    ? 'border-cyan-500 bg-cyan-500/20'
                                     : 'border-white/10 bg-white/5 hover:border-white/20'
                                 }`}
                               >
@@ -257,7 +257,7 @@ export default function ContactPage() {
                                   <div
                                     className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                                       selectedServices.has(service.id)
-                                        ? 'border-purple-400 bg-purple-400'
+                                        ? 'border-cyan-400 bg-cyan-400'
                                         : 'border-white/30'
                                     }`}
                                   >
@@ -290,7 +290,7 @@ export default function ContactPage() {
                               placeholder="Your Name"
                               value={formData.name}
                               onChange={handleInputChange}
-                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                               required
                             />
                             <input
@@ -299,7 +299,7 @@ export default function ContactPage() {
                               placeholder="your@email.com"
                               value={formData.email}
                               onChange={handleInputChange}
-                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                               required
                             />
                             <input
@@ -308,13 +308,13 @@ export default function ContactPage() {
                               placeholder="Your Company (Optional)"
                               value={formData.company}
                               onChange={handleInputChange}
-                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                             />
                             <select
                               name="budget"
                               value={formData.budget}
                               onChange={handleInputChange}
-                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                             >
                               <option value="">Select a budget range</option>
                               <option value="under-5k">Under $5,000</option>
@@ -343,14 +343,14 @@ export default function ContactPage() {
                               value={formData.message}
                               onChange={handleInputChange}
                               rows={6}
-                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
                               required
                             />
                             <select
                               name="timeline"
                               value={formData.timeline}
                               onChange={handleInputChange}
-                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                             >
                               <option value="">When do you need this completed?</option>
                               <option value="asap">ASAP (1-2 weeks)</option>
@@ -379,14 +379,14 @@ export default function ContactPage() {
                           type="button"
                           onClick={() => setStep(step + 1)}
                           disabled={!canProceed}
-                          className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                         >
                           Next
                         </button>
                       ) : (
                         <button
                           type="submit"
-                          className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
+                          className="flex-1 px-4 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"
                         >
                           Send Message
                         </button>

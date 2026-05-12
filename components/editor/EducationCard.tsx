@@ -27,7 +27,7 @@ export function EducationCard() {
               value={edu.institution}
               onChange={(e) => updateEducation(idx, 'institution', e.target.value)}
               placeholder="Institution/University Name"
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
             />
 
             <input
@@ -35,7 +35,7 @@ export function EducationCard() {
               value={edu.degree}
               onChange={(e) => updateEducation(idx, 'degree', e.target.value)}
               placeholder="Degree/Certification"
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
             />
 
             <input
@@ -43,7 +43,7 @@ export function EducationCard() {
               value={edu.year}
               onChange={(e) => updateEducation(idx, 'year', e.target.value)}
               placeholder="Year/Duration (e.g., 2020-2024)"
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
             />
           </div>
         </div>
@@ -51,7 +51,7 @@ export function EducationCard() {
 
       <button
         onClick={addEducation}
-        className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-white/20 rounded-lg py-3 text-white/60 hover:border-purple-500 hover:text-purple-400 transition font-medium"
+        className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-white/20 rounded-lg py-3 text-white/60 hover:border-cyan-500 hover:text-cyan-400 transition font-medium"
       >
         <Plus size={20} /> Add Education
       </button>

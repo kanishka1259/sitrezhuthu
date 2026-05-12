@@ -1,43 +1,27 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Gotu } from "next/font/google";
-import { AuthProvider } from "@/components/common/AuthProvider";
+import { FirebaseAuthProvider } from "@/lib/firebase-auth-context";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const gotu = Gotu({
-  variable: "--font-gotu",
-  weight: "400",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "SITREZHUTHU - Create Your Own Portfolio",
-  description:
-    "Build a refined, personal portfolio with live editing, elegant layouts, and one-click sharing.",
-  keywords: ["portfolio", "resume", "showcase", "creator", "projects"],
+  title: "SITREZHUTHU — Portfolio Generator",
+  description: "Create stunning professional portfolios in minutes. Free forever.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${gotu.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
+    <html lang="en" className="h-full antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-black text-white font-sans">
+        <FirebaseAuthProvider>{children}</FirebaseAuthProvider>
       </body>
     </html>
   );

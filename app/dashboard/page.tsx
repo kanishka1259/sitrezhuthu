@@ -1,392 +1,158 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { Eye, Edit, Copy, Lock, Star, Zap, Layers } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useFirebaseAuth } from '@/lib/firebase-auth-context';
+import { Navbar } from '@/components/common/Navbar';
+import { Plus, Edit3, Trash2, ExternalLink, LayoutDashboard, Loader2, Clock, FileText, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const templates = [
-  {
-    id: 'minimal',
-    name: 'Minimal',
-    description: 'Clean and simple portfolio with focus on content',
-    category: 'Classic',
-    color: 'from-blue-500 to-cyan-500',
-    features: ['Minimalist Design', 'Fast Loading', 'SEO Optimized'],
-    preview: '🎯',
-    status: 'active',
-    usedCount: 234
-  },
-  {
-    id: 'modern-cards',
-    name: 'Modern Cards',
-    description: 'Contemporary design with card-based layout',
-    category: 'Modern',
-    color: 'from-purple-500 to-pink-500',
-    features: ['Card Layout', 'Animations', 'Responsive'],
-    preview: '✨',
-    status: 'active',
-    usedCount: 567
-  },
-  {
-    id: 'dark-theme',
-    name: 'Dark Theme',
-    description: 'Bold dark portfolio perfect for creative professionals',
-    category: 'Dark',
-    color: 'from-slate-600 to-slate-800',
-    features: ['Dark Mode', 'High Contrast', 'Modern Vibe'],
-    preview: '🌙',
-    status: 'active',
-    usedCount: 892
-  },
-  {
-    id: 'glassmorphism',
-    name: 'Glassmorphism',
-    description: 'Frosted glass effect with modern aesthetic',
-    category: 'Advanced',
-    color: 'from-indigo-400 to-purple-400',
-    features: ['Glass Effect', 'Blur Effects', 'Layered Design'],
-    preview: '💎',
-    status: 'new',
-    usedCount: 145
-  },
-  {
-    id: 'gradient-flow',
-    name: 'Gradient Flow',
-    description: 'Smooth gradient transitions with flowing animations',
-    category: 'Creative',
-    color: 'from-orange-400 to-red-500',
-    features: ['Gradients', 'Smooth Transitions', 'Dynamic'],
-    preview: '🌈',
-    status: 'active',
-    usedCount: 378
-  },
-  {
-    id: 'tech-minimal',
-    name: 'Tech Minimal',
-    description: 'Sleek tech-focused portfolio with tech aesthetics',
-    category: 'Tech',
-    color: 'from-green-500 to-emerald-600',
-    features: ['Tech Vibe', 'Code Blocks', 'Terminal Style'],
-    preview: '⚙️',
-    status: 'active',
-    usedCount: 456
-  },
-  {
-    id: 'portfolio-pro',
-    name: 'Portfolio Pro',
-    description: 'Professional portfolio with advanced features',
-    category: 'Professional',
-    color: 'from-amber-500 to-orange-600',
-    features: ['Pro Features', 'Analytics', 'CMS Ready'],
-    preview: '👔',
-    status: 'premium',
-    usedCount: 623
-  },
-  {
-    id: 'artistic-showcase',
-    name: 'Artistic Showcase',
-    description: 'Gallery-focused template for creative works',
-    category: 'Creative',
-    color: 'from-rose-400 to-pink-500',
-    features: ['Gallery Grid', 'Image Focused', 'Lightbox'],
-    preview: '🎨',
-    status: 'active',
-    usedCount: 289
-  }
-];
+const GOLD = '#3DAA7A';
+const GOLD_BRIGHT = '#62C99A';
 
-const categories = ['All', 'Classic', 'Modern', 'Dark', 'Advanced', 'Creative', 'Tech', 'Professional'];
+const TEMPLATE_ACCENTS: Record<string, string> = {
+  neon: '#6EE7B7', dark: '#A78BFA', glassmorphism: '#93C5FD',
+  creative: '#F9A8D4', executive: '#7DD3FC', bento: '#A5B4FC',
+  'tech-minimal': '#86EFAC', cards: '#67E8F9', minimal: GOLD_BRIGHT,
+  custom: '#FCD34D',
+};
 
-export default function DashboardPage() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
-
-  const filteredTemplates = selectedCategory === 'All'
-    ? templates
-    : templates.filter(t => t.category === selectedCategory);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
+function PortfolioCard({ p, onDelete }: { p: any; onDelete: (id: string, e: React.MouseEvent) => void }) {
+  const accent = TEMPLATE_ACCENTS[p.template] || GOLD_BRIGHT;
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
-      {/* Background gradients */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-      </div>
+    <motion.div layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
+      style={{ background: '#121D16', border: '1px solid rgba(240,230,211,0.07)', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.22s' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = `rgba(61,170,122,0.28)`; (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 36px rgba(0,0,0,0.4)'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(240,230,211,0.07)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
+    >
+      {/* Accent strip */}
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${accent}80, ${accent}20)` }} />
 
-      {/* Navigation */}
-      <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
-            SITREZHUTHU
-          </Link>
-          <div className="flex gap-8">
-            <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
-            <Link href="/dashboard" className="text-sm text-purple-400 transition font-medium">Templates</Link>
-            <Link href="/templates/create" className="text-sm text-white/70 hover:text-white transition">Create</Link>
-            <Link href="/templates/community" className="text-sm text-white/70 hover:text-white transition">Community</Link>
+      <Link href={`/editor?id=${p._id}`} style={{ display: 'block', padding: '20px 20px 0', textDecoration: 'none', flex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+          <div>
+            <h3 style={{ fontWeight: 600, fontSize: 15, color: '#D8EDE2', marginBottom: 6 }}>{p.name || p.username || 'Untitled Portfolio'}</h3>
+            <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 9px', borderRadius: 6, background: `${accent}12`, color: accent, border: `1px solid ${accent}28`, letterSpacing: '0.03em' }}>{p.template || 'minimal'}</span>
+          </div>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(61,170,122,0.08)', border: '1px solid rgba(61,170,122,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <FileText size={15} style={{ color: GOLD }} />
           </div>
         </div>
-      </nav>
 
-      <main className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8">
+        {p.bio && <p style={{ fontSize: 13, color: '#3E6050', lineHeight: 1.65, marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' as any }}>{p.bio}</p>}
+
+        {p.skills?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
+            {p.skills.slice(0, 4).map((s: string, i: number) => (
+              <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 5, background: 'rgba(240,230,211,0.04)', color: '#2E4A38', border: '1px solid rgba(240,230,211,0.06)' }}>{s}</span>
+            ))}
+            {p.skills.length > 4 && <span style={{ fontSize: 11, color: '#2E4A38' }}>+{p.skills.length - 4}</span>}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingBottom: 16, color: '#2E4A38', fontSize: 12 }}>
+          <Clock size={11} />
+          {new Date(p.updatedAt || p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          {p.isPublic && <span style={{ marginLeft: 'auto', fontSize: 11, color: GOLD_BRIGHT, background: 'rgba(61,170,122,0.08)', padding: '2px 8px', borderRadius: 5, border: `1px solid rgba(61,170,122,0.2)` }}>● Live</span>}
+        </div>
+      </Link>
+
+      <div style={{ padding: '12px 16px 16px', borderTop: '1px solid rgba(61,170,122,0.06)', display: 'flex', gap: 8 }}>
+        <Link href={`/editor?id=${p._id}`} className="btn-primary" style={{ flex: 1, padding: '9px', fontSize: 13, textDecoration: 'none', borderRadius: 8, gap: 6 }}>
+          <Edit3 size={13} /> Edit
+        </Link>
+        {p.slug && (
+          <a href={`/${p.slug}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="btn-ghost" style={{ padding: '9px 12px', borderRadius: 8, textDecoration: 'none' }}>
+            <ExternalLink size={14} />
+          </a>
+        )}
+        <button onClick={e => onDelete(p._id, e)} style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(192,80,80,0.14)', color: '#C05050', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(192,80,80,0.08)'; e.currentTarget.style.borderColor = 'rgba(192,80,80,0.28)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(192,80,80,0.14)'; }}
+          aria-label="Delete"
+        ><Trash2 size={14} /></button>
+      </div>
+    </motion.div>
+  );
+}
+
+export default function DashboardPage() {
+  const { user, loading, getIdToken } = useFirebaseAuth();
+  const [portfolios, setPortfolios] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) { router.push('/login'); return; }
+    if (user) fetchPortfolios();
+  }, [user, loading, router]);
+
+  const fetchPortfolios = async () => {
+    try {
+      const token = await getIdToken();
+      if (!token) return;
+      const res = await axios.get('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+      setPortfolios(Array.isArray(res.data) ? res.data : []);
+    } catch { console.error('Failed to fetch portfolios'); }
+    finally { setIsLoading(false); }
+  };
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    if (!confirm('Delete this portfolio? This cannot be undone.')) return;
+    try {
+      const token = await getIdToken();
+      await axios.delete(`/api/portfolio?id=${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      setPortfolios(prev => prev.filter(p => p._id !== id));
+    } catch { alert('Failed to delete portfolio'); }
+  };
+
+  if (loading || isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#070C09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 size={28} style={{ color: GOLD, animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#070C09', color: '#D8EDE2' }}>
+      <Navbar />
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 24px 80px' }}>
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
-        >
-          <h1 className="text-6xl lg:text-7xl font-bold mb-6">Portfolio Templates</h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Choose from our collection of professionally designed templates to create your unique portfolio
-          </p>
-        </motion.div>
-
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="grid md:grid-cols-4 gap-6 mb-16"
-        >
-          {[
-            { label: 'Templates', value: '8' },
-            { label: 'Active Users', value: '3.5K+' },
-            { label: 'Total Portfolios', value: '4,584' },
-            { label: 'Avg. Rating', value: '4.8★' }
-          ].map((stat, idx) => (
-            <div key={idx} className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6 text-center hover:border-purple-500/50 transition">
-              <div className="text-3xl font-bold text-purple-400 mb-2">{stat.value}</div>
-              <p className="text-white/60 text-sm">{stat.label}</p>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Category Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="mb-12 flex flex-wrap gap-3 justify-center"
-        >
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition ${
-                selectedCategory === cat
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/50'
-                  : 'bg-white/10 text-white/70 hover:text-white border border-white/20 hover:border-purple-500/50'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </motion.div>
-
-        {/* Templates Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20"
-        >
-          {filteredTemplates.map((template) => (
-            <motion.div
-              key={template.id}
-              variants={itemVariants}
-              className="group relative"
-            >
-              <div className="relative bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 hover:border-purple-500/50 transition overflow-hidden cursor-pointer h-full flex flex-col"
-                onMouseEnter={() => setPreviewTemplate(template.id)}
-                onMouseLeave={() => setPreviewTemplate(null)}
-              >
-                {/* Status Badge */}
-                {template.status === 'new' && (
-                  <div className="absolute top-3 right-3 px-3 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-500/50">
-                    NEW
-                  </div>
-                )}
-                {template.status === 'premium' && (
-                  <div className="absolute top-3 right-3 px-3 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-bold rounded-full border border-yellow-500/50 flex items-center gap-1">
-                    <Star size={12} /> PREMIUM
-                  </div>
-                )}
-
-                {/* Preview Circle */}
-                <div className={`w-16 h-16 rounded-lg bg-gradient-to-br ${template.color} flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition`}>
-                  {template.preview}
-                </div>
-
-                {/* Content */}
-                <h3 className="text-lg font-bold mb-2 group-hover:text-purple-400 transition">{template.name}</h3>
-                <p className="text-white/70 text-sm mb-4 flex-1">{template.description}</p>
-
-                {/* Features */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {template.features.slice(0, 2).map((feature, idx) => (
-                    <span key={idx} className="text-xs px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full">
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Usage Info */}
-                <div className="text-xs text-white/50 mb-4 flex items-center gap-1">
-                  <Zap size={14} /> {template.usedCount.toLocaleString()} portfolios created
-                </div>
-
-                {/* Buttons */}
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition duration-300">
-                  <button className="flex-1 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition">
-                    <Eye size={16} /> Preview
-                  </button>
-                  <button className="flex-1 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition border border-white/20">
-                    <Copy size={16} /> Use
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Featured Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mb-20"
-        >
-          <h2 className="text-4xl font-bold mb-8 text-center">Featured Template</h2>
-          <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur border border-purple-500/30 rounded-2xl p-12 grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="mb-6 text-6xl">👔</div>
-              <h3 className="text-3xl font-bold mb-4">Portfolio Pro</h3>
-              <p className="text-white/80 mb-6">
-                The most feature-rich template designed for professionals looking to make an impact. Includes advanced analytics, SEO optimization, and CMS integration.
-              </p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Built-in Analytics Dashboard',
-                  'SEO Optimization Tools',
-                  'Blog Integration',
-                  'Email Marketing',
-                  'Social Media Integration',
-                  '24/7 Premium Support'
-                ].map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-3 text-white/80">
-                    <span className="w-2 h-2 bg-purple-400 rounded-full" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex gap-4">
-                <button className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition font-medium">
-                  Try Pro Template
-                </button>
-                <button className="px-8 py-3 border border-white/20 text-white rounded-lg hover:border-white/40 transition font-medium">
-                  Learn More
-                </button>
-              </div>
-            </div>
-            <div className="bg-white/5 rounded-xl p-8 border border-white/10">
-              <div className="space-y-4">
-                <div className="h-32 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg opacity-50" />
-                <div className="h-4 bg-white/20 rounded w-3/4" />
-                <div className="h-4 bg-white/20 rounded w-1/2" />
-              </div>
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, flexWrap: 'wrap', gap: 16 }}>
+          <div>
+            <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 700, fontSize: 28, color: '#D8EDE2', marginBottom: 6, letterSpacing: '-0.02em' }}>My Projects</h1>
+            <p style={{ fontSize: 14, color: '#2E4A38' }}>{portfolios.length === 0 ? 'No portfolios yet.' : `${portfolios.length} portfolio${portfolios.length === 1 ? '' : 's'}`}</p>
           </div>
-        </motion.div>
+          <Link href="/templates" className="btn-primary" style={{ textDecoration: 'none', fontSize: 14, padding: '10px 22px', borderRadius: 10 }}>
+            <Plus size={15} /> New Portfolio
+          </Link>
+        </div>
 
-        {/* Comparison Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mb-20"
-        >
-          <h2 className="text-4xl font-bold mb-8 text-center">Features Comparison</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white/5 backdrop-blur border border-white/10 rounded-xl overflow-hidden">
-              <thead>
-                <tr className="border-b border-white/10">
-                  <th className="px-6 py-4 text-left font-bold">Feature</th>
-                  <th className="px-6 py-4 text-center font-bold">Minimal</th>
-                  <th className="px-6 py-4 text-center font-bold">Modern</th>
-                  <th className="px-6 py-4 text-center font-bold">Pro</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: 'Responsive Design', minimal: '✓', modern: '✓', pro: '✓' },
-                  { name: 'Animations', minimal: '✗', modern: '✓', pro: '✓' },
-                  { name: 'Dark Mode', minimal: '✓', modern: '✓', pro: '✓' },
-                  { name: 'Blog System', minimal: '✗', modern: '✗', pro: '✓' },
-                  { name: 'Analytics', minimal: '✗', modern: '✗', pro: '✓' },
-                  { name: 'Email Marketing', minimal: '✗', modern: '✗', pro: '✓' },
-                  { name: 'SEO Tools', minimal: '✗', modern: '✓', pro: '✓' },
-                  { name: 'Support', minimal: 'Community', modern: 'Email', pro: '24/7' }
-                ].map((row, idx) => (
-                  <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition">
-                    <td className="px-6 py-4 font-medium">{row.name}</td>
-                    <td className="px-6 py-4 text-center">{row.minimal === '✓' ? <span className="text-green-400">✓</span> : row.minimal === '✗' ? <span className="text-red-400">✗</span> : row.minimal}</td>
-                    <td className="px-6 py-4 text-center">{row.modern === '✓' ? <span className="text-green-400">✓</span> : row.modern === '✗' ? <span className="text-red-400">✗</span> : row.modern}</td>
-                    <td className="px-6 py-4 text-center">{row.pro === '✓' ? <span className="text-green-400">✓</span> : row.pro === '✗' ? <span className="text-red-400">✗</span> : row.pro}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <h3 className="text-4xl font-bold mb-6">Ready to create your portfolio?</h3>
-          <p className="text-xl text-white/70 mb-10 max-w-2xl mx-auto">
-            Pick a template, customize it to match your style, and launch your professional portfolio in minutes. Or create your own template!
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <button className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition font-medium">
-              Start Creating
-            </button>
-            <Link
-              href="/templates/create"
-              className="px-8 py-3 border border-white/20 text-white rounded-full hover:border-white/40 transition font-medium"
-            >
-              Create Template
-            </Link>
-            <Link
-              href="/templates/community"
-              className="px-8 py-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition font-medium"
-            >
-              Community Templates
+        {/* Empty state */}
+        {portfolios.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 24px', border: '1px solid rgba(61,170,122,0.1)', borderRadius: 20, background: '#0D1510', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: '30%', right: '30%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(61,170,122,0.3), transparent)' }} />
+            <div style={{ width: 64, height: 64, borderRadius: 18, background: 'rgba(61,170,122,0.08)', border: '1px solid rgba(61,170,122,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <LayoutDashboard size={28} style={{ color: GOLD, opacity: 0.7 }} />
+            </div>
+            <h2 style={{ fontWeight: 600, fontSize: 20, color: '#D8EDE2', marginBottom: 10 }}>No portfolios yet</h2>
+            <p style={{ fontSize: 14, color: '#2E4A38', maxWidth: 300, margin: '0 auto 28px', lineHeight: 1.7 }}>Browse our templates and create your first professional portfolio.</p>
+            <Link href="/templates" className="btn-primary" style={{ textDecoration: 'none' }}>
+              <Zap size={15} /> Explore Templates
             </Link>
           </div>
-        </motion.div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+            <AnimatePresence>
+              {portfolios.map(p => <PortfolioCard key={p._id} p={p} onDelete={handleDelete} />)}
+            </AnimatePresence>
+          </div>
+        )}
       </main>
     </div>
   );

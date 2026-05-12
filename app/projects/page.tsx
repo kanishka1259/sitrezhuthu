@@ -123,24 +123,24 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-cyan-950 to-slate-950 text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
       <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-cyan-400 transition">
             SITREZHUTHU
           </Link>
           <div className="flex gap-8">
             <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
             <Link href="/about" className="text-sm text-white/70 hover:text-white transition">About</Link>
-            <Link href="/projects" className="text-sm text-purple-400 transition font-medium">Projects</Link>
+            <Link href="/projects" className="text-sm text-cyan-400 transition font-medium">Projects</Link>
           </div>
         </div>
       </nav>
@@ -172,8 +172,8 @@ export default function ProjectsPage() {
               onClick={() => setActiveCategory(cat.value)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition ${
                 activeCategory === cat.value
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50'
-                  : 'bg-white/10 text-white/70 hover:text-white border border-white/20 hover:border-purple-500/50'
+                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/50'
+                  : 'bg-white/10 text-white/70 hover:text-white border border-white/20 hover:border-cyan-500/50'
               }`}
             >
               {cat.label}
@@ -197,18 +197,18 @@ export default function ProjectsPage() {
                 className={`group cursor-pointer ${project.featured && activeCategory === 'all' ? 'lg:col-span-2 lg:row-span-2' : ''}`}
                 onClick={() => setSelectedProject(project)}
               >
-                <div className="relative h-full bg-white/5 backdrop-blur border border-white/10 rounded-xl overflow-hidden hover:border-purple-500/50 transition group-hover:shadow-xl group-hover:shadow-purple-500/20">
+                <div className="relative h-full bg-white/5 backdrop-blur border border-white/10 rounded-xl overflow-hidden hover:border-cyan-500/50 transition group-hover:shadow-xl group-hover:shadow-cyan-500/20">
                   {/* Featured Badge */}
                   {project.featured && (
                     <div className="absolute top-3 left-3 z-10">
-                      <span className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-xs font-bold rounded-full">
+                      <span className="px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-600 text-xs font-bold rounded-full">
                         FEATURED
                       </span>
                     </div>
                   )}
 
                   {/* Image */}
-                  <div className={`relative overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/10 ${project.featured ? 'h-64' : 'h-40'}`}>
+                  <div className={`relative overflow-hidden bg-gradient-to-br from-cyan-500/20 to-cyan-500/10 ${project.featured ? 'h-64' : 'h-40'}`}>
                     <Image
                       src={project.image}
                       alt={project.title}
@@ -219,7 +219,7 @@ export default function ProjectsPage() {
 
                   {/* Content */}
                   <div className={`p-6 ${project.featured ? 'space-y-4' : 'space-y-3'}`}>
-                    <h3 className={`font-bold text-white group-hover:text-purple-400 transition ${project.featured ? 'text-2xl' : 'text-lg'}`}>
+                    <h3 className={`font-bold text-white group-hover:text-cyan-400 transition ${project.featured ? 'text-2xl' : 'text-lg'}`}>
                       {project.title}
                     </h3>
                     <p className="text-white/70 text-sm line-clamp-2">{project.description}</p>
@@ -227,7 +227,7 @@ export default function ProjectsPage() {
                     {/* Tech Stack */}
                     <div className="flex flex-wrap gap-2">
                       {project.tech.map((t, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-500/30">
+                        <span key={i} className="px-2 py-1 bg-cyan-500/20 text-cyan-300 text-xs rounded border border-cyan-500/30">
                           {t}
                         </span>
                       ))}
@@ -238,14 +238,14 @@ export default function ProjectsPage() {
                       <a
                         href={project.github}
                         onClick={(e) => e.stopPropagation()}
-                        className="p-2 bg-white/10 hover:bg-purple-600 rounded-lg transition"
+                        className="p-2 bg-white/10 hover:bg-cyan-600 rounded-lg transition"
                       >
                         <GitBranch size={16} />
                       </a>
                       <a
                         href={project.live}
                         onClick={(e) => e.stopPropagation()}
-                        className="p-2 bg-white/10 hover:bg-purple-600 rounded-lg transition"
+                        className="p-2 bg-white/10 hover:bg-cyan-600 rounded-lg transition"
                       >
                         <ExternalLink size={16} />
                       </a>
@@ -254,7 +254,7 @@ export default function ProjectsPage() {
                           e.stopPropagation();
                           setSelectedProject(project);
                         }}
-                        className="ml-auto px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:shadow-purple-500/50 rounded-lg text-sm transition"
+                        className="ml-auto px-3 py-2 bg-gradient-to-r from-cyan-600 to-cyan-600 hover:shadow-lg hover:shadow-cyan-500/50 rounded-lg text-sm transition"
                       >
                         Quick View
                       </button>
@@ -277,7 +277,7 @@ export default function ProjectsPage() {
           <h3 className="text-3xl font-bold mb-6">Interested in collaborating?</h3>
           <Link
             href="/contact"
-            className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"
           >
             Get In Touch
           </Link>
@@ -302,7 +302,7 @@ export default function ProjectsPage() {
               className="bg-slate-900 border border-white/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
               {/* Header Image */}
-              <div className="relative h-64 bg-gradient-to-br from-purple-500/20 to-pink-500/10">
+              <div className="relative h-64 bg-gradient-to-br from-cyan-500/20 to-cyan-500/10">
                 <Image
                   src={selectedProject.image}
                   alt={selectedProject.title}
@@ -326,23 +326,23 @@ export default function ProjectsPage() {
 
                 {/* Problem Solved */}
                 <div>
-                  <h3 className="text-sm font-bold text-purple-400 mb-2">PROBLEM SOLVED</h3>
+                  <h3 className="text-sm font-bold text-cyan-400 mb-2">PROBLEM SOLVED</h3>
                   <p className="text-white/80">{selectedProject.problemSolved}</p>
                 </div>
 
                 {/* Role */}
                 <div>
-                  <h3 className="text-sm font-bold text-purple-400 mb-2">MY ROLE</h3>
+                  <h3 className="text-sm font-bold text-cyan-400 mb-2">MY ROLE</h3>
                   <p className="text-white/80">{selectedProject.role}</p>
                 </div>
 
                 {/* Features */}
                 <div>
-                  <h3 className="text-sm font-bold text-purple-400 mb-3">KEY FEATURES</h3>
+                  <h3 className="text-sm font-bold text-cyan-400 mb-3">KEY FEATURES</h3>
                   <ul className="grid grid-cols-2 gap-2">
                     {selectedProject.features.map((feature, idx) => (
                       <li key={idx} className="text-white/80 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
+                        <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full" />
                         {feature}
                       </li>
                     ))}
@@ -351,10 +351,10 @@ export default function ProjectsPage() {
 
                 {/* Tech Stack */}
                 <div>
-                  <h3 className="text-sm font-bold text-purple-400 mb-3">TECH STACK</h3>
+                  <h3 className="text-sm font-bold text-cyan-400 mb-3">TECH STACK</h3>
                   <div className="flex flex-wrap gap-2">
                     {selectedProject.tech.map((t, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-300 text-sm rounded border border-purple-500/30">
+                      <span key={idx} className="px-3 py-1 bg-cyan-500/20 text-cyan-300 text-sm rounded border border-cyan-500/30">
                         {t}
                       </span>
                     ))}
@@ -371,7 +371,7 @@ export default function ProjectsPage() {
                   </a>
                   <a
                     href={selectedProject.live}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:shadow-purple-500/50 rounded-lg text-center transition flex items-center justify-center gap-2"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 hover:shadow-lg hover:shadow-cyan-500/50 rounded-lg text-center transition flex items-center justify-center gap-2"
                   >
                     <ExternalLink size={18} /> Live Demo
                   </a>

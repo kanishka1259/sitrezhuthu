@@ -3,7 +3,10 @@
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import {
+  ChevronLeft, ChevronRight, Star, User, Code, Shield, Briefcase, Palette, Camera,
+  Search, Monitor, Package, Smartphone, Play, Laptop
+} from 'lucide-react';
 
 const testimonials = [
   {
@@ -12,7 +15,7 @@ const testimonials = [
     author: 'Sarah Mitchell',
     role: 'UX Designer',
     company: 'Creative Studios',
-    avatar: '👩‍💼',
+    AvatarIcon: User,
     rating: 5
   },
   {
@@ -21,7 +24,7 @@ const testimonials = [
     author: 'James Chen',
     role: 'Full Stack Developer',
     company: 'Tech Innovations',
-    avatar: '👨‍💻',
+    AvatarIcon: Code,
     rating: 5
   },
   {
@@ -30,7 +33,7 @@ const testimonials = [
     author: 'Emma Rodriguez',
     role: 'Digital Strategist',
     company: 'Growth Marketing Co',
-    avatar: '👩‍🔬',
+    AvatarIcon: Shield,
     rating: 5
   },
   {
@@ -39,7 +42,7 @@ const testimonials = [
     author: 'Michael Thompson',
     role: 'Product Manager',
     company: 'StartUp Ventures',
-    avatar: '👨‍💼',
+    AvatarIcon: Briefcase,
     rating: 5
   },
   {
@@ -48,7 +51,7 @@ const testimonials = [
     author: 'Lisa Anderson',
     role: 'Brand Designer',
     company: 'Design Agency',
-    avatar: '👩‍🎨',
+    AvatarIcon: Palette,
     rating: 5
   },
   {
@@ -57,18 +60,18 @@ const testimonials = [
     author: 'David Kumar',
     role: 'Creative Director',
     company: 'Pixel Perfect Studios',
-    avatar: '👨‍🎨',
+    AvatarIcon: Camera,
     rating: 5
   }
 ];
 
 const companies = [
-  { name: 'Google', logo: '🔍' },
-  { name: 'Microsoft', logo: '🪟' },
-  { name: 'Amazon', logo: '📦' },
-  { name: 'Apple', logo: '🍎' },
-  { name: 'Meta', logo: '📱' },
-  { name: 'Netflix', logo: '🎬' }
+  { name: 'Google', Icon: Search },
+  { name: 'Microsoft', Icon: Laptop },
+  { name: 'Amazon', Icon: Package },
+  { name: 'Apple', Icon: Smartphone },
+  { name: 'Meta', Icon: Monitor },
+  { name: 'Netflix', Icon: Play }
 ];
 
 export default function TestimonialsPage() {
@@ -111,23 +114,23 @@ export default function TestimonialsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-cyan-950 to-slate-950 text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
       <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-cyan-400 transition">
             SITREZHUTHU
           </Link>
           <div className="flex gap-8">
             <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
-            <Link href="/testimonials" className="text-sm text-purple-400 transition font-medium">Testimonials</Link>
+            <Link href="/testimonials" className="text-sm text-cyan-400 transition font-medium">Testimonials</Link>
             <Link href="/contact" className="text-sm text-white/70 hover:text-white transition">Contact</Link>
           </div>
         </div>
@@ -174,7 +177,14 @@ export default function TestimonialsPage() {
 
                 {/* Author */}
                 <div className="pt-6 border-t border-white/10">
-                  <div className="text-2xl mb-3">{testimonials[currentIndex].avatar}</div>
+                  <div className="flex justify-center mb-4">
+                    <div className="p-3 bg-cyan-500/10 rounded-full border border-cyan-500/20">
+                      {(() => {
+                        const Icon = testimonials[currentIndex].AvatarIcon;
+                        return <Icon size={32} className="text-cyan-400" />;
+                      })()}
+                    </div>
+                  </div>
                   <h3 className="font-bold text-lg">{testimonials[currentIndex].author}</h3>
                   <p className="text-white/60 text-sm">
                     {testimonials[currentIndex].role} at {testimonials[currentIndex].company}
@@ -194,13 +204,13 @@ export default function TestimonialsPage() {
           {/* Navigation Buttons */}
           <button
             onClick={prev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-purple-600 rounded-full transition z-20"
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-cyan-600 rounded-full transition z-20"
           >
             <ChevronLeft size={20} />
           </button>
           <button
             onClick={next}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-purple-600 rounded-full transition z-20"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-cyan-600 rounded-full transition z-20"
           >
             <ChevronRight size={20} />
           </button>
@@ -215,7 +225,7 @@ export default function TestimonialsPage() {
                   setCurrentIndex(idx);
                 }}
                 className={`w-2 h-2 rounded-full transition ${
-                  idx === currentIndex ? 'bg-purple-500 w-6' : 'bg-white/30'
+                  idx === currentIndex ? 'bg-cyan-500 w-6' : 'bg-white/30'
                 }`}
               />
             ))}
@@ -241,9 +251,9 @@ export default function TestimonialsPage() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
               viewport={{ once: true }}
-              className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-8 text-center hover:border-purple-500/50 transition"
+              className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-8 text-center hover:border-cyan-500/50 transition"
             >
-              <div className="text-4xl font-bold text-purple-400 mb-2">{stat.value}</div>
+              <div className="text-4xl font-bold text-cyan-400 mb-2">{stat.value}</div>
               <p className="text-white/60">{stat.label}</p>
             </motion.div>
           ))}
@@ -265,9 +275,11 @@ export default function TestimonialsPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05, duration: 0.4 }}
                 viewport={{ once: true }}
-                className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6 text-center hover:border-purple-500/50 hover:bg-white/10 transition cursor-pointer group"
+                className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6 text-center hover:border-cyan-500/50 hover:bg-white/10 transition cursor-pointer group flex flex-col items-center justify-center"
               >
-                <div className="text-4xl mb-3 group-hover:scale-125 transition">{company.logo}</div>
+                <div className="mb-3 group-hover:scale-110 transition text-cyan-400/70 group-hover:text-cyan-400">
+                  <company.Icon size={32} />
+                </div>
                 <p className="text-sm text-white/60 group-hover:text-white transition">{company.name}</p>
               </motion.div>
             ))}
@@ -285,7 +297,7 @@ export default function TestimonialsPage() {
           <h3 className="text-3xl font-bold mb-6">Ready to join our community?</h3>
           <Link
             href="/signup"
-            className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"
           >
             Get Started Today
           </Link>

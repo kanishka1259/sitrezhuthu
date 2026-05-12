@@ -50,23 +50,23 @@ export default function AboutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-cyan-950 to-slate-950 text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
       <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-cyan-400 transition">
             SITREZHUTHU
           </Link>
           <div className="flex gap-8">
             <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
-            <Link href="/about" className="text-sm text-purple-400 transition font-medium">About</Link>
+            <Link href="/about" className="text-sm text-cyan-400 transition font-medium">About</Link>
             <Link href="/projects" className="text-sm text-white/70 hover:text-white transition">Projects</Link>
           </div>
         </div>
@@ -98,8 +98,8 @@ export default function AboutPage() {
         >
           {/* Left: Image with stats */}
           <motion.div variants={itemVariants} className="space-y-8">
-            <div className="relative h-96 rounded-2xl overflow-hidden border-2 border-purple-500/50 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20" />
+            <div className="relative h-96 rounded-2xl overflow-hidden border-2 border-cyan-500/50 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-cyan-500/20" />
               <Image
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
                 alt="Profile"
@@ -118,9 +118,9 @@ export default function AboutPage() {
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-4 text-center hover:border-purple-500/50 transition"
+                  className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-4 text-center hover:border-cyan-500/50 transition"
                 >
-                  <div className="text-2xl font-bold text-purple-400">{stat.value}</div>
+                  <div className="text-2xl font-bold text-cyan-400">{stat.value}</div>
                   <div className="text-xs text-white/60 mt-2">{stat.label}</div>
                 </motion.div>
               ))}
@@ -137,7 +137,7 @@ export default function AboutPage() {
                   onClick={() => setActiveTab(idx)}
                   className={`pb-3 text-sm font-medium transition border-b-2 ${
                     activeTab === idx
-                      ? 'border-purple-500 text-purple-400'
+                      ? 'border-cyan-500 text-cyan-400'
                       : 'border-transparent text-white/60 hover:text-white'
                   }`}
                 >
@@ -162,7 +162,7 @@ export default function AboutPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="border-l-4 border-purple-500 pl-6 py-4"
+              className="border-l-4 border-cyan-500 pl-6 py-4"
             >
               <p className="text-lg italic text-white/80">
                 "The best products are built with empathy, passion, and a relentless focus on user needs."
@@ -194,17 +194,17 @@ export default function AboutPage() {
               >
                 {/* Timeline dot */}
                 <div className="relative flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-purple-500 group-hover:bg-pink-500 transition relative z-10" />
+                  <div className="w-4 h-4 rounded-full bg-cyan-500 group-hover:bg-cyan-500 transition relative z-10" />
                   {idx !== milestones.length - 1 && (
-                    <div className="absolute top-4 w-1 h-12 bg-gradient-to-b from-purple-500 to-transparent -ml-1.5" />
+                    <div className="absolute top-4 w-1 h-12 bg-gradient-to-b from-cyan-500 to-transparent -ml-1.5" />
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 bg-white/5 border border-white/10 rounded-lg p-4 hover:border-purple-500/50 transition">
+                <div className="flex-1 bg-white/5 border border-white/10 rounded-lg p-4 hover:border-cyan-500/50 transition">
                   <div className="flex justify-between items-start">
                     <div>
-                      <div className="text-sm font-bold text-purple-400">{milestone.year}</div>
+                      <div className="text-sm font-bold text-cyan-400">{milestone.year}</div>
                       <div className="text-white font-medium">{milestone.event}</div>
                     </div>
                     <ChevronDown
@@ -230,13 +230,13 @@ export default function AboutPage() {
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/projects"
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
+              className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"
             >
               View My Work
             </Link>
             <Link
               href="/contact"
-              className="px-8 py-3 border border-white/20 text-white rounded-full hover:border-purple-500 transition font-medium"
+              className="px-8 py-3 border border-white/20 text-white rounded-full hover:border-cyan-500 transition font-medium"
             >
               Get In Touch
             </Link>

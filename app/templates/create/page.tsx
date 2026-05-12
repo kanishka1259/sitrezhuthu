@@ -1,471 +1,172 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { Plus, Palette, Settings, Eye, FileText } from 'lucide-react';
+import { usePortfolioStore } from '@/store/usePortfolioStore';
+import { ArrowRight, Palette, Zap, Upload, CheckCircle, Sparkles } from 'lucide-react';
+
+const BASE_TEMPLATES = [
+  { id: 'minimal',       name: 'Minimal Pro',     desc: 'Clean editorial layout, crisp typography.',        gradient: 'linear-gradient(135deg,#111,#222)', accent: '#3DAA7A' },
+  { id: 'cards',         name: 'Modern Cards',     desc: 'Bold cyan/cyan card-based design.',              gradient: 'linear-gradient(135deg,#111,#222)', accent: '#D97706' },
+  { id: 'dark',          name: 'Dark Pro',         desc: 'High-contrast dark with gradient accents.',        gradient: 'linear-gradient(135deg,#0d0d1a,#0f1a2e)', accent: '#3DAA7A' },
+  { id: 'glassmorphism', name: 'Glassmorphism',    desc: 'Frosted glass cards on deep indigo.',             gradient: 'linear-gradient(135deg,#1a1a2e,#533483)',  accent: '#3DAA7A' },
+  { id: 'tech-minimal',  name: 'Terminal',         desc: 'Monospace dev aesthetic with scanlines.',         gradient: 'linear-gradient(135deg,#050505,#0d1a10)',  accent: '#3DAA7A' },
+] as const;
+
+const steps = [
+  { num: '01', icon: Palette,       title: 'Choose a base template',   desc: 'Pick from 5 professionally designed base templates below.' },
+  { num: '02', icon: Zap,           title: 'Customize in the Editor',   desc: 'Use the Style panel to change colors, fonts, shapes and layout in real time.' },
+  { num: '03', icon: Upload,        title: 'Share with the Community',  desc: 'Hit "Share Design" in the editor and submit for admin review.' },
+  { num: '04', icon: CheckCircle,   title: 'Go live & get credited',    desc: 'Once approved your template appears in the gallery with your name.' },
+];
 
 export default function CreateTemplatePage() {
-  const [step, setStep] = useState(1);
-  const [templateData, setTemplateData] = useState({
-    name: '',
-    description: '',
-    category: 'Modern',
-    color: 'from-purple-500 to-pink-500',
-    features: [''],
-    targetAudience: 'Professional',
-    preview: '',
-    fullDescription: ''
-  });
+  const { setTemplate } = usePortfolioStore();
+  const router = useRouter();
 
-  const categories = ['Modern', 'Classic', 'Dark', 'Creative', 'Tech', 'Minimal', 'Professional'];
-  const colors = [
-    { name: 'Purple-Pink', value: 'from-purple-500 to-pink-500' },
-    { name: 'Blue-Cyan', value: 'from-blue-500 to-cyan-500' },
-    { name: 'Green-Emerald', value: 'from-green-500 to-emerald-600' },
-    { name: 'Orange-Red', value: 'from-orange-400 to-red-500' },
-    { name: 'Slate-Gray', value: 'from-slate-600 to-slate-800' },
-    { name: 'Rose-Pink', value: 'from-rose-400 to-pink-500' },
-    { name: 'Indigo-Purple', value: 'from-indigo-400 to-purple-400' },
-    { name: 'Amber-Orange', value: 'from-amber-500 to-orange-600' }
-  ];
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setTemplateData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleFeatureChange = (idx: number, value: string) => {
-    const newFeatures = [...templateData.features];
-    newFeatures[idx] = value;
-    setTemplateData(prev => ({ ...prev, features: newFeatures }));
-  };
-
-  const addFeature = () => {
-    setTemplateData(prev => ({ ...prev, features: [...prev.features, ''] }));
-  };
-
-  const removeFeature = (idx: number) => {
-    setTemplateData(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== idx)
-    }));
-  };
-
-  const handleSubmit = () => {
-    console.log('Template submitted:', templateData);
-    alert('Template submitted for approval! Our team will review it soon. 🎉');
-    setStep(1);
-    setTemplateData({
-      name: '',
-      description: '',
-      category: 'Modern',
-      color: 'from-purple-500 to-pink-500',
-      features: [''],
-      targetAudience: 'Professional',
-      preview: '',
-      fullDescription: ''
-    });
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  const handlePick = (id: string) => {
+    setTemplate(id as any);
+    router.push('/editor');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
-      {/* Background gradients */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#09050f,#12082a,#09050f)', color: '#3DAA7A' }}>
+      {/* Ambient blobs */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '-10%', left: '20%', width: 600, height: 600, background: 'radial-gradient(circle,rgba(124,58,237,.18) 0%,transparent 70%)', borderRadius: '50%' }} />
+        <div style={{ position: 'absolute', bottom: '-5%', right: '10%', width: 500, height: 500, background: 'radial-gradient(circle,rgba(168,85,247,.12) 0%,transparent 70%)', borderRadius: '50%' }} />
       </div>
 
-      {/* Navigation */}
-      <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+      {/* Nav */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 40, background: 'rgba(9,5,15,.8)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(61,170,122,.06)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 2rem', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link href="/" style={{ fontSize: '1rem', fontWeight: 800, letterSpacing: '.06em', textDecoration: 'none', background: 'linear-gradient(90deg,#3DAA7A,#3DAA7A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             SITREZHUTHU
           </Link>
-          <div className="flex gap-8">
-            <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
-            <Link href="/dashboard" className="text-sm text-white/70 hover:text-white transition">Templates</Link>
-            <Link href="/templates/community" className="text-sm text-purple-400 transition font-medium">Community</Link>
+          <div style={{ display: 'flex', gap: '.75rem' }}>
+            {[['/', 'Home'], ['/templates', 'Templates']].map(([href, label]) => (
+              <Link key={href} href={href} style={{ fontSize: '.82rem', fontWeight: 600, textDecoration: 'none', color: 'rgba(61,170,122,.5)', transition: 'color .2s' }}
+                onMouseEnter={e => e.currentTarget.style.color  = '#3DAA7A'}
+                onMouseLeave={e => e.currentTarget.style.color  = 'rgba(61,170,122,.5)'}>
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </nav>
 
-      <main className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
-        >
-          <h1 className="text-6xl lg:text-7xl font-bold mb-6">Create Your Template</h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Design a unique portfolio template and share it with our community
+      <main style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', padding: '0 2rem 6rem' }}>
+
+        {/* Hero */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+          style={{ textAlign: 'center', padding: '5rem 0 3.5rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '.4rem 1.25rem', background: 'rgba(61,170,122,.1)', border: '1px solid rgba(61,170,122,.25)', borderRadius: 999, fontSize: '.75rem', fontWeight: 700, color: '#62C99A', marginBottom: '1.5rem', letterSpacing: '0.02em' }}>
+            <Sparkles size={14} /> DESIGN YOUR OWN — FREE FOREVER
+          </div>
+          <h1 style={{ fontSize: 'clamp(2.5rem,6vw,4.5rem)', fontWeight: 800, letterSpacing: '-.03em', lineHeight: 1.08, marginBottom: '1.25rem', color: '#FAF9F6' }}>
+            Create Your{' '}
+            <span style={{ background: 'linear-gradient(135deg,#3DAA7A,#62C99A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Template
+            </span>
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: '#A0BCAE', maxWidth: 540, margin: '0 auto 2rem', lineHeight: 1.7 }}>
+            Pick a base template, then customize every color, font, and layout detail in the live editor. Submit your creation to the community gallery.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-12">
-          {/* Sidebar - Progress */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-1"
-          >
-            <div className="sticky top-32 bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-8">
-              <h3 className="text-lg font-bold mb-8">Creation Steps</h3>
-              <div className="space-y-4">
-                {[
-                  { num: 1, title: 'Basic Info', icon: '📋' },
-                  { num: 2, title: 'Design', icon: '🎨' },
-                  { num: 3, title: 'Features', icon: '⚡' },
-                  { num: 4, title: 'Preview', icon: '👁️' }
-                ].map((s) => (
-                  <button
-                    key={s.num}
-                    onClick={() => setStep(s.num)}
-                    className={`w-full px-4 py-3 rounded-lg text-left transition ${
-                      step === s.num
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                        : 'bg-white/10 hover:bg-white/20 text-white/70 hover:text-white'
-                    }`}
-                  >
-                    <div className="text-xl mb-1">{s.icon}</div>
-                    <div className="text-sm font-medium">Step {s.num}</div>
-                    <div className="text-xs opacity-70">{s.title}</div>
-                  </button>
-                ))}
+        {/* How it works */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15 }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.25rem', marginBottom: '4rem' }}>
+          {steps.map(s => {
+            const Icon = s.icon;
+            return (
+              <div key={s.num} style={{ background: 'rgba(255,255,255,.02)', border: '1px solid rgba(255,255,255,.05)', borderRadius: 20, padding: '1.75rem', transition: 'all 0.3s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,.04)'; e.currentTarget.style.borderColor = 'rgba(61,170,122,.2)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.05)'; }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginBottom: '1rem' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(61,170,122,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={18} style={{ color: '#3DAA7A' }} />
+                  </div>
+                  <span style={{ fontSize: '.7rem', fontWeight: 800, color: '#3DAA7A', letterSpacing: '.1em', textTransform: 'uppercase' }}>Step {s.num}</span>
+                </div>
+                <h3 style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '.5rem', color: '#FAF9F6' }}>{s.title}</h3>
+                <p style={{ fontSize: '.85rem', color: '#A0BCAE', lineHeight: 1.6 }}>{s.desc}</p>
               </div>
+            );
+          })}
+        </motion.div>
 
-              {/* Tips */}
-              <div className="mt-8 pt-8 border-t border-white/10">
-                <h4 className="font-bold mb-4 flex items-center gap-2">
-                  💡 Pro Tips
-                </h4>
-                <ul className="space-y-2 text-xs text-white/60">
-                  <li>• Use descriptive names and descriptions</li>
-                  <li>• Highlight unique features</li>
-                  <li>• Add a compelling preview</li>
-                  <li>• Target the right audience</li>
-                </ul>
-              </div>
-            </div>
-          </motion.div>
+        {/* Template picker */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .25 }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '-.02em', marginBottom: '.75rem', textAlign: 'center', color: '#FAF9F6' }}>
+            Choose your starting template
+          </h2>
+          <p style={{ textAlign: 'center', color: '#A0BCAE', fontSize: '0.95rem', marginBottom: '3rem' }}>
+            You can change everything in the editor — this is just the foundation.
+          </p>
 
-          {/* Main Content */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-2"
-          >
-            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-12">
-              {/* Step 1: Basic Info */}
-              {step === 1 && (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible">
-                  <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                    <FileText size={28} /> Basic Information
-                  </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
+            {BASE_TEMPLATES.map((tpl, idx) => (
+              <motion.div key={tpl.id}
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .3 + idx * .07 }}
+                style={{ borderRadius: 24, border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', background: 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'all .25s' }}
+                onClick={() => handlePick(tpl.id)}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(61,170,122,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}>
 
-                  <div className="space-y-6">
-                    {/* Template Name */}
-                    <div>
-                      <label className="block text-sm font-bold mb-2">Template Name *</label>
-                      <input
-                        type="text"
-                        name="name"
-                        placeholder="e.g., Modern Portfolio Pro"
-                        value={templateData.name}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <p className="text-xs text-white/50 mt-1">Make it memorable and descriptive</p>
-                    </div>
-
-                    {/* Short Description */}
-                    <div>
-                      <label className="block text-sm font-bold mb-2">Short Description *</label>
-                      <input
-                        type="text"
-                        name="description"
-                        placeholder="One line summary of your template"
-                        value={templateData.description}
-                        onChange={handleInputChange}
-                        maxLength={100}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <p className="text-xs text-white/50 mt-1">{templateData.description.length}/100 characters</p>
-                    </div>
-
-                    {/* Category */}
-                    <div>
-                      <label className="block text-sm font-bold mb-2">Category *</label>
-                      <select
-                        name="category"
-                        value={templateData.category}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      >
-                        {categories.map(cat => (
-                          <option key={cat} value={cat} className="bg-slate-950">{cat}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Target Audience */}
-                    <div>
-                      <label className="block text-sm font-bold mb-2">Target Audience *</label>
-                      <select
-                        name="targetAudience"
-                        value={templateData.targetAudience}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      >
-                        {['Professional', 'Creative', 'Tech', 'Startup', 'Freelancer', 'Agency'].map(aud => (
-                          <option key={aud} value={aud} className="bg-slate-950">{aud}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Navigation */}
-                    <div className="flex gap-4 pt-6">
-                      <button
-                        onClick={() => setStep(2)}
-                        disabled={!templateData.name || !templateData.description}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Continue to Design
-                      </button>
-                    </div>
+                {/* Thumbnail */}
+                <div style={{ height: 160, background: tpl.gradient, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '.5rem', position: 'relative' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ width: 40, height: 6, borderRadius: 3, background: tpl.accent, opacity: .8 }} />
+                    <div style={{ display: 'flex', gap: 4 }}>{[1,2,3].map(i => <div key={i} style={{ width: 16, height: 4, borderRadius: 2, background: tpl.accent, opacity: .3 }} />)}</div>
                   </div>
-                </motion.div>
-              )}
-
-              {/* Step 2: Design */}
-              {step === 2 && (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible">
-                  <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                    <Palette size={28} /> Design & Color
-                  </h2>
-
-                  <div className="space-y-8">
-                    {/* Color Scheme */}
-                    <div>
-                      <label className="block text-sm font-bold mb-4">Select Color Scheme *</label>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {colors.map((color) => (
-                          <button
-                            key={color.value}
-                            onClick={() => setTemplateData(prev => ({ ...prev, color: color.value }))}
-                            className={`relative group`}
-                          >
-                            <div
-                              className={`h-24 rounded-lg bg-gradient-to-br ${color.value} border-2 transition ${
-                                templateData.color === color.value
-                                  ? 'border-white'
-                                  : 'border-transparent hover:border-white/50'
-                              }`}
-                            />
-                            <p className="text-xs text-white/70 text-center mt-2">{color.name}</p>
-                            {templateData.color === color.value && (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-2xl">✓</span>
-                              </div>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Preview */}
-                    <div>
-                      <label className="block text-sm font-bold mb-4">Template Preview Image URL</label>
-                      <input
-                        type="url"
-                        name="preview"
-                        placeholder="https://example.com/preview.jpg"
-                        value={templateData.preview}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
-                      />
-                      {templateData.preview && (
-                        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                          <p className="text-xs text-white/50 mb-2">Preview:</p>
-                          <img src={templateData.preview} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Navigation */}
-                    <div className="flex gap-4 pt-6">
-                      <button
-                        onClick={() => setStep(1)}
-                        className="flex-1 px-6 py-3 border border-white/20 text-white rounded-lg hover:border-white/40 transition font-medium"
-                      >
-                        Back
-                      </button>
-                      <button
-                        onClick={() => setStep(3)}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
-                      >
-                        Continue to Features
-                      </button>
-                    </div>
+                  <div style={{ width: '70%', height: 8, borderRadius: 4, background: tpl.accent, opacity: .7 }} />
+                  <div style={{ width: '50%', height: 6, borderRadius: 3, background: tpl.accent, opacity: .35 }} />
+                  <div style={{ display: 'flex', gap: 4, marginTop: '.5rem' }}>
+                    {[1,2].map(i => <div key={i} style={{ flex: 1, borderRadius: 8, height: 40, background: 'rgba(255,255,255,0.1)', border: `1px solid ${tpl.accent}22`, backdropFilter: 'blur(4px)' }} />)}
                   </div>
-                </motion.div>
-              )}
+                </div>
 
-              {/* Step 3: Features */}
-              {step === 3 && (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible">
-                  <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                    <Settings size={28} /> Key Features
-                  </h2>
-
-                  <div className="space-y-6">
-                    <p className="text-white/70">List the main features that make your template special</p>
-
-                    <div className="space-y-4">
-                      {templateData.features.map((feature, idx) => (
-                        <div key={idx} className="flex gap-3">
-                          <input
-                            type="text"
-                            placeholder={`Feature ${idx + 1}`}
-                            value={feature}
-                            onChange={(e) => handleFeatureChange(idx, e.target.value)}
-                            className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
-                          {templateData.features.length > 1 && (
-                            <button
-                              onClick={() => removeFeature(idx)}
-                              className="px-4 py-3 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={addFeature}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition flex items-center justify-center gap-2"
-                    >
-                      <Plus size={18} /> Add Feature
-                    </button>
-
-                    {/* Full Description */}
-                    <div>
-                      <label className="block text-sm font-bold mb-2">Full Description</label>
-                      <textarea
-                        name="fullDescription"
-                        placeholder="Describe your template in detail, target audience, use cases..."
-                        value={templateData.fullDescription}
-                        onChange={handleInputChange}
-                        rows={6}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                      />
-                    </div>
-
-                    {/* Navigation */}
-                    <div className="flex gap-4 pt-6">
-                      <button
-                        onClick={() => setStep(2)}
-                        className="flex-1 px-6 py-3 border border-white/20 text-white rounded-lg hover:border-white/40 transition font-medium"
-                      >
-                        Back
-                      </button>
-                      <button
-                        onClick={() => setStep(4)}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
-                      >
-                        Review & Submit
-                      </button>
-                    </div>
+                {/* Body */}
+                <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(10,10,12,0.4)' }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '1rem', marginBottom: '.25rem', color: '#FAF9F6' }}>{tpl.name}</div>
+                    <div style={{ fontSize: '.8rem', color: '#A0BCAE', lineHeight: 1.4 }}>{tpl.desc}</div>
                   </div>
-                </motion.div>
-              )}
-
-              {/* Step 4: Preview */}
-              {step === 4 && (
-                <motion.div variants={containerVariants} initial="hidden" animate="visible">
-                  <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-                    <Eye size={28} /> Review Your Template
-                  </h2>
-
-                  <div className="space-y-8">
-                    {/* Preview Card */}
-                    <div className={`bg-gradient-to-br ${templateData.color} rounded-xl p-8 text-white`}>
-                      <div className="text-5xl mb-4">🎨</div>
-                      <h3 className="text-2xl font-bold mb-2">{templateData.name || 'Template Name'}</h3>
-                      <p className="text-white/90 mb-6">{templateData.description || 'Template description'}</p>
-                      
-                      <div className="space-y-3">
-                        <div className="text-sm">
-                          <span className="font-bold">Category:</span> {templateData.category}
-                        </div>
-                        <div className="text-sm">
-                          <span className="font-bold">Target Audience:</span> {templateData.targetAudience}
-                        </div>
-                        {templateData.features.filter(f => f).length > 0 && (
-                          <div className="text-sm">
-                            <span className="font-bold">Features:</span>
-                            <ul className="mt-2 space-y-1">
-                              {templateData.features.filter(f => f).map((feature, idx) => (
-                                <li key={idx}>• {feature}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Summary */}
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
-                      <h4 className="font-bold">Summary:</h4>
-                      <div className="text-sm text-white/70 space-y-2">
-                        <p>✓ Template Name: <span className="text-white">{templateData.name}</span></p>
-                        <p>✓ Category: <span className="text-white">{templateData.category}</span></p>
-                        <p>✓ Target Audience: <span className="text-white">{templateData.targetAudience}</span></p>
-                        <p>✓ Features: <span className="text-white">{templateData.features.filter(f => f).length}</span></p>
-                      </div>
-                    </div>
-
-                    {/* Terms */}
-                    <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <input type="checkbox" className="mt-1" />
-                      <p className="text-sm text-white/80">
-                        I agree that my template will be reviewed by our team and added to the community gallery if approved. I understand it will be available for other users to use.
-                      </p>
-                    </div>
-
-                    {/* Navigation */}
-                    <div className="flex gap-4 pt-6">
-                      <button
-                        onClick={() => setStep(3)}
-                        className="flex-1 px-6 py-3 border border-white/20 text-white rounded-lg hover:border-white/40 transition font-medium"
-                      >
-                        Back
-                      </button>
-                      <button
-                        onClick={handleSubmit}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition font-medium"
-                      >
-                        Submit for Approval
-                      </button>
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '.6rem 1rem', background: 'rgba(61,170,122,0.1)', border: '1px solid rgba(61,170,122,0.2)', borderRadius: 10, color: '#62C99A', fontSize: '.8rem', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    Customize <ArrowRight size={14} />
                   </div>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Bottom CTA */}
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(61,170,122,0.1)', borderRadius: 32, position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, rgba(61,170,122,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ width: 64, height: 64, borderRadius: 18, background: 'rgba(61,170,122,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+            <Palette size={32} style={{ color: '#3DAA7A' }} />
+          </div>
+          <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1rem', color: '#FAF9F6' }}>Already have a design in mind?</h2>
+          <p style={{ color: '#A0BCAE', maxWidth: 440, margin: '0 auto 2.5rem', lineHeight: 1.7, fontSize: '1rem' }}>
+            Head straight to the editor — choose any base and tweak it to perfection. Then submit it to the community.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/editor" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '1rem 2rem', background: 'linear-gradient(135deg,#3DAA7A,#2D8060)', border: 'none', borderRadius: 14, color: '#fff', fontWeight: 700, fontSize: '.95rem', textDecoration: 'none', boxShadow: '0 8px 30px rgba(61,170,122,0.3)', transition: 'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(61,170,122,0.4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(61,170,122,0.3)'; }}>
+              Open Editor <ArrowRight size={18} />
+            </Link>
+            <Link href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '1rem 2rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, color: '#FAF9F6', fontWeight: 700, fontSize: '.95rem', textDecoration: 'none', transition: 'all 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+              Browse Community
+            </Link>
+          </div>
+        </motion.div>
       </main>
     </div>
   );

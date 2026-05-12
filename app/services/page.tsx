@@ -127,23 +127,23 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-cyan-950 to-slate-950 text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
       <nav className="relative border-b border-white/10 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-purple-400 transition">
+          <Link href="/" className="text-lg font-gotu font-bold tracking-wider hover:text-cyan-400 transition">
             SITREZHUTHU
           </Link>
           <div className="flex gap-8">
             <Link href="/" className="text-sm text-white/70 hover:text-white transition">Home</Link>
-            <Link href="/services" className="text-sm text-purple-400 transition font-medium">Services</Link>
+            <Link href="/services" className="text-sm text-cyan-400 transition font-medium">Services</Link>
             <Link href="/contact" className="text-sm text-white/70 hover:text-white transition">Contact</Link>
           </div>
         </div>
@@ -176,8 +176,8 @@ export default function ServicesPage() {
               variants={itemVariants}
               className={`relative rounded-2xl p-8 transition transform ${
                 service.highlighted
-                  ? 'md:-translate-y-8 bg-gradient-to-br from-purple-600 to-pink-600 shadow-2xl shadow-purple-500/50'
-                  : 'bg-white/5 backdrop-blur border border-white/10 hover:border-purple-500/50'
+                  ? 'md:-translate-y-8 bg-gradient-to-br from-cyan-600 to-cyan-600 shadow-2xl shadow-cyan-500/50'
+                  : 'bg-white/5 backdrop-blur border border-white/10 hover:border-cyan-500/50'
               }`}
             >
               {/* Most Popular Badge */}
@@ -195,7 +195,7 @@ export default function ServicesPage() {
               </p>
 
               <div className="mb-8">
-                <div className={`text-4xl font-bold mb-2 ${service.highlighted ? 'text-white' : 'text-purple-400'}`}>
+                <div className={`text-4xl font-bold mb-2 ${service.highlighted ? 'text-white' : 'text-cyan-400'}`}>
                   {service.price}
                 </div>
                 {service.price !== 'Custom' && (
@@ -208,8 +208,8 @@ export default function ServicesPage() {
               <button
                 className={`w-full py-3 rounded-lg font-bold mb-8 transition ${
                   service.highlighted
-                    ? 'bg-white text-purple-600 hover:bg-white/90'
-                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                    ? 'bg-white text-cyan-600 hover:bg-white/90'
+                    : 'bg-cyan-600 text-white hover:bg-cyan-700'
                 }`}
               >
                 {service.cta}
@@ -220,7 +220,7 @@ export default function ServicesPage() {
                   <div key={i} className="flex items-start gap-3">
                     <Check
                       size={20}
-                      className={service.highlighted ? 'text-white flex-shrink-0' : 'text-purple-400 flex-shrink-0'}
+                      className={service.highlighted ? 'text-white flex-shrink-0' : 'text-cyan-400 flex-shrink-0'}
                     />
                     <span className={service.highlighted ? 'text-white/90' : 'text-white/70'}>
                       {feature}
@@ -254,13 +254,13 @@ export default function ServicesPage() {
                 variants={itemVariants}
                 className="relative"
               >
-                <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 hover:border-purple-500/50 transition h-full">
-                  <div className="text-4xl font-bold text-purple-400 mb-4">{step.step}</div>
+                <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 hover:border-cyan-500/50 transition h-full">
+                  <div className="text-4xl font-bold text-cyan-400 mb-4">{step.step}</div>
                   <h3 className="text-lg font-bold mb-3">{step.title}</h3>
                   <p className="text-white/70 text-sm">{step.description}</p>
                 </div>
                 {idx < workSteps.length - 1 && (
-                  <div className="hidden md:block absolute -right-3 top-1/2 w-6 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+                  <div className="hidden md:block absolute -right-3 top-1/2 w-6 h-1 bg-gradient-to-r from-cyan-500 to-cyan-500" />
                 )}
               </motion.div>
             ))}
@@ -284,7 +284,7 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05, duration: 0.3 }}
                 viewport={{ once: true }}
-                className="bg-white/5 backdrop-blur border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/50 transition"
+                className="bg-white/5 backdrop-blur border border-white/10 rounded-lg overflow-hidden hover:border-cyan-500/50 transition"
               >
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
@@ -325,13 +325,13 @@ export default function ServicesPage() {
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/contact"
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:shadow-lg hover:shadow-purple-500/50 transition font-medium"
+              className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"
             >
               Get a Custom Quote
             </Link>
             <Link
               href="/projects"
-              className="px-8 py-3 border border-white/20 text-white rounded-full hover:border-purple-500 transition font-medium"
+              className="px-8 py-3 border border-white/20 text-white rounded-full hover:border-cyan-500 transition font-medium"
             >
               View My Work
             </Link>

@@ -1,0 +1,177 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useFirebaseAuth } from '@/lib/firebase-auth-context';
+import { useState, useRef, useEffect } from 'react';
+import { LayoutDashboard, Settings, LogOut, ChevronDown, Menu, X, Zap } from 'lucide-react';
+import Image from 'next/image';
+
+const JADE       = '#3DAA7A';
+const JADE_BRIGHT = '#62C99A';
+const BG          = '#070C09';
+
+export function Navbar() {
+  const { user, signOut } = useFirebaseAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fn = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setUserOpen(false);
+    };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
+
+  const navLinks = [
+    { href: '/templates', label: 'Templates' },
+    ...(user ? [{ href: '/dashboard', label: 'My Projects' }] : []),
+  ];
+
+  const active = (href: string) => pathname === href || pathname.startsWith(href + '/');
+  const handleSignOut = async () => { await signOut(); setUserOpen(false); router.push('/'); };
+
+  return (
+    <header style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      borderBottom: '1px solid rgba(61,170,122,0.12)',
+      background: 'rgba(7,12,9,0.9)',
+      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 66, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+        {/* Logo */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 14, textDecoration: 'none' }}>
+          <div style={{ position: 'relative', width: 46, height: 46, flexShrink: 0 }}>
+            <Image 
+              src="/logo.png" 
+              alt="Sitrezhuthu" 
+              fill 
+              sizes="46px"
+              style={{ objectFit: 'contain', zIndex: 1 }} 
+            />
+          </div>
+          <div>
+            <span style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 800, fontSize: 15, letterSpacing: '0.1em', color: JADE_BRIGHT, textTransform: 'uppercase', display: 'block', lineHeight: 1.1 }}>SITREZHUTHU</span>
+            <span style={{ fontSize: 10, color: '#fff', letterSpacing: '0.18em', display: 'block', textTransform: 'uppercase', opacity: 0.8 }}>Portfolio Generator</span>
+          </div>
+        </Link>
+
+        {/* Center Desktop Nav (Glass Pill) */}
+        <nav style={{
+          display: 'flex', alignItems: 'center', gap: 4,
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 999, padding: '4px',
+          boxShadow: 'inset 0 0 10px rgba(61,170,122,0.1), 0 0 20px rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(10px)'
+        }} className="hide-mobile">
+          {navLinks.map(({ href, label }) => (
+            <Link key={href} href={href} style={{
+              padding: '6px 16px', borderRadius: 999, fontSize: 13,
+              fontWeight: active(href) ? 600 : 400,
+              color: active(href) ? '#fff' : 'rgba(216,237,226,0.6)',
+              textDecoration: 'none', transition: 'all 0.15s',
+              background: active(href) ? 'rgba(255,255,255,0.1)' : 'transparent',
+              border: active(href) ? `1px solid rgba(255,255,255,0.15)` : '1px solid transparent',
+              boxShadow: active(href) ? '0 2px 10px rgba(0,0,0,0.2)' : 'none'
+            }}
+              onMouseEnter={e => { if (!active(href)) { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; } }}
+              onMouseLeave={e => { if (!active(href)) { e.currentTarget.style.color = 'rgba(216,237,226,0.6)'; e.currentTarget.style.background = 'transparent'; } }}
+            >{label}</Link>
+          ))}
+        </nav>
+
+        {/* Right */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {user ? (
+            <>
+              <Link href="/editor" style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 20px', borderRadius: 999, background: 'linear-gradient(180deg, rgba(98,201,154,0.6) 0%, rgba(45,128,96,0.9) 100%)', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s', boxShadow: 'inset 0 1px 5px rgba(255,255,255,0.4), 0 4px 15px rgba(61,170,122,0.4)', border: '1px solid rgba(216,237,226,0.5)', letterSpacing: '0.01em', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = 'inset 0 1px 8px rgba(255,255,255,0.6), 0 6px 20px rgba(61,170,122,0.6)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'inset 0 1px 5px rgba(255,255,255,0.4), 0 4px 15px rgba(61,170,122,0.4)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                <Zap size={14} /> Open Editor
+              </Link>
+
+              <div style={{ position: 'relative' }} ref={dropRef}>
+                <button id="user-menu-btn" onClick={() => setUserOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                >
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#3DAA7A,#1A5C42)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#060D09', flexShrink: 0 }}>
+                    {(user.displayName || user.email || 'U')[0].toUpperCase()}
+                  </div>
+                  <span style={{ fontSize: 13, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.displayName || user.email?.split('@')[0]}</span>
+                  <ChevronDown size={13} style={{ opacity: 0.4, transition: 'transform 0.2s', transform: userOpen ? 'rotate(180deg)' : 'none' }} />
+                </button>
+
+                {userOpen && (
+                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 210, borderRadius: 14, background: '#0D1510', border: '1px solid rgba(61,170,122,0.15)', boxShadow: '0 20px 60px rgba(0,0,0,0.7)', overflow: 'hidden', zIndex: 200 }}>
+                    <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(61,170,122,0.08)' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: JADE_BRIGHT }}>{user.displayName || 'User'}</div>
+                      <div style={{ fontSize: 12, color: '#2E4A38', marginTop: 2 }}>{user.email}</div>
+                    </div>
+                    {[{ icon: LayoutDashboard, label: 'My Projects', href: '/dashboard' }, { icon: Settings, label: 'Settings', href: '/settings' }].map(({ icon: Icon, label, href }) => (
+                      <Link key={href} href={href} onClick={() => setUserOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 18px', fontSize: 14, color: 'rgba(216,237,226,0.65)', textDecoration: 'none', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(61,170,122,0.08)'; (e.currentTarget as HTMLElement).style.color = JADE_BRIGHT; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(216,237,226,0.65)'; }}
+                      >
+                        <Icon size={15} style={{ color: JADE, opacity: 0.7 }} /> {label}
+                      </Link>
+                    ))}
+                    <div style={{ borderTop: '1px solid rgba(61,170,122,0.08)' }}>
+                      <button onClick={handleSignOut} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '11px 18px', fontSize: 14, color: '#B05555', background: 'transparent', border: 'none', cursor: 'pointer', transition: 'background 0.15s', textAlign: 'left' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(176,85,85,0.08)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                      ><LogOut size={15} /> Sign Out</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <Link href="/login" style={{ fontSize: 14, color: 'rgba(216,237,226,0.5)', textDecoration: 'none', padding: '8px 14px', borderRadius: 8, transition: 'color 0.15s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = JADE_BRIGHT; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(216,237,226,0.5)'; }}
+              >Sign In</Link>
+              <Link href="/signup" style={{ padding: '9px 20px', borderRadius: 9, background: 'linear-gradient(140deg,#3DAA7A,#2D8060)', color: '#060D09', fontSize: 14, fontWeight: 700, textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 2px 12px rgba(61,170,122,0.28)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 22px rgba(61,170,122,0.48)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(61,170,122,0.28)'; }}
+              >Get Started</Link>
+            </>
+          )}
+          <button onClick={() => setMenuOpen(v => !v)} className="show-mobile" aria-label="Menu"
+            style={{ display: 'none', padding: 8, background: 'transparent', border: 'none', color: JADE_BRIGHT, cursor: 'pointer' }}>
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div style={{ borderTop: '1px solid rgba(61,170,122,0.1)', background: 'rgba(7,12,9,0.98)', padding: '16px 24px 24px' }}>
+          {navLinks.map(({ href, label }) => (
+            <Link key={href} href={href} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '11px 0', fontSize: 15, color: active(href) ? JADE_BRIGHT : 'rgba(216,237,226,0.6)', textDecoration: 'none', borderBottom: '1px solid rgba(61,170,122,0.06)' }}>{label}</Link>
+          ))}
+          {!user && (
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <Link href="/login" onClick={() => setMenuOpen(false)} style={{ flex: 1, padding: '11px', textAlign: 'center', border: '1px solid rgba(61,170,122,0.22)', borderRadius: 8, color: JADE_BRIGHT, textDecoration: 'none', fontSize: 14 }}>Sign In</Link>
+              <Link href="/signup" onClick={() => setMenuOpen(false)} style={{ flex: 1, padding: '11px', textAlign: 'center', background: 'linear-gradient(140deg,#3DAA7A,#2D8060)', borderRadius: 8, color: '#060D09', textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>Get Started</Link>
+            </div>
+          )}
+        </div>
+      )}
+      <style>{`
+        @media (max-width: 768px) {
+          .hide-mobile { display: none !important; }
+          .show-mobile { display: flex !important; }
+        }
+      `}</style>
+    </header>
+  );
+}
