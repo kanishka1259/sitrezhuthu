@@ -38,9 +38,10 @@ export async function POST(req: NextRequest) {
     // Return the data URL. The frontend will save this string into MongoDB.
     return NextResponse.json({ url: dataUrl });
     
-  } catch (err: any) {
-    console.error('Upload Error:', err);
-    const status = err.message?.includes('Authorization') ? 401 : 500;
-    return NextResponse.json({ error: err.message || 'Upload failed' }, { status });
+  } catch (err: unknown) {
+    const error = err as Error;
+    console.error('Upload Error:', error);
+    const status = error.message?.includes('Authorization') ? 401 : 500;
+    return NextResponse.json({ error: error.message || 'Upload failed' }, { status });
   }
 }

@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState } from 'react';
 import { usePortfolioStore, CustomElement } from '@/store/usePortfolioStore';
 import { Trash2, Copy, Upload } from 'lucide-react';
 
@@ -64,7 +64,7 @@ export function CanvasElement({ el, isSelected, snapToGrid, gridSize }: CanvasEl
     outlineOffset: 2,
     boxSizing: 'border-box',
     transition: 'transform 0.15s, opacity 0.15s, outline 0.1s',
-    userSelect: 'none',
+    userSelect: editing ? 'auto' : 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   };
 
@@ -171,11 +171,12 @@ export function CanvasElement({ el, isSelected, snapToGrid, gridSize }: CanvasEl
             onChange={handleImageFileChange}
           />
           {el.src ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={el.src}
               alt=""
               draggable={false}
-              style={{ width: '100%', height: '100%', objectFit: (el as any).objectFit || 'cover', borderRadius: el.borderRadius || 0, border: borderStr, boxShadow: el.shadow, display: 'block' }}
+              style={{ width: '100%', height: '100%', objectFit: el.objectFit || 'cover', borderRadius: el.borderRadius || 0, border: borderStr, boxShadow: el.shadow, display: 'block' }}
             />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(99,102,241,0.1)', border: '2px dashed rgba(99,102,241,0.4)', borderRadius: el.borderRadius || 0, gap: 8, color: '#3DAA7A' }}>
@@ -216,7 +217,6 @@ export function CanvasElement({ el, isSelected, snapToGrid, gridSize }: CanvasEl
         return <div style={{ width: (el.width || 80) * 0.7, height: (el.height || 80) * 0.7, background: el.bgGradient || el.bgColor || el.color || '#3DAA7A', transform: 'rotate(45deg)', borderRadius: el.borderRadius || 4, boxShadow: el.shadow }} />;
       }
       if (el.shapeType === 'pentagon') {
-        const sz = Math.min(el.width || 80, el.height || 80);
         return (
           <svg width={el.width || 80} height={el.height || 80} viewBox="0 0 100 100" style={{ overflow: 'visible' }}>
             <polygon points="50,5 95,35 80,90 20,90 5,35" fill={el.bgColor || el.color || '#3DAA7A'} stroke={el.borderColor || 'none'} strokeWidth={el.borderWidth || 0} />

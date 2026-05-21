@@ -4,18 +4,22 @@ import { PortfolioStore, TemplateStyles, TEMPLATE_DEFAULTS } from '@/store/usePo
 import { Mail, ArrowUpRight } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, TwitterIcon } from '@/components/icons/SocialIcons';
 import Image from 'next/image';
+import { contrastColor } from '@/lib/colorUtils';
 
 interface Props { data: PortfolioStore; }
 
 export function ExecutiveTemplate({ data }: Props) {
   const year = new Date().getFullYear();
-  const s: TemplateStyles = data.templateStyles ?? TEMPLATE_DEFAULTS['executive'];
-  const fonts = [s.headingFont, s.bodyFont]
+  const s: TemplateStyles = { ...TEMPLATE_DEFAULTS['executive'], ...(data.templateStyles || {}) };
+  const hFont = s.headingFont || 'Plus Jakarta Sans';
+  const bFont = s.bodyFont || 'Inter';
+
+  const fonts = [hFont, bFont]
     .filter((f, i, a) => a.indexOf(f) === i && f !== 'system-ui')
-    .map(f => `family=${f.replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
+    .map(f => `family=${(f || '').replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
 
   return (
-    <div style={{ minHeight:'100vh', background:s.bgColor, color:s.textColor, fontFamily:`'${s.bodyFont}',sans-serif` }}>
+    <div style={{ minHeight:'100vh', background:s.bgColor, color:s.textColor, fontFamily:`'${bFont}',sans-serif` }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?${fonts}&display=swap');
         .ex * { box-sizing:border-box; margin:0; }
@@ -37,10 +41,10 @@ export function ExecutiveTemplate({ data }: Props) {
         <div style={{ display:'grid', gridTemplateColumns:'300px 1fr', minHeight:'100vh' }}>
 
           {/* ── Sidebar ── */}
-          <aside style={{ background:s.primaryColor, color:'#3DAA7A', display:'flex', flexDirection:'column', padding:'3rem 2rem', position:'sticky', top:0, height:'100vh', overflowY:'auto' }}>
+          <aside style={{ background:s.primaryColor, color:'#fff', display:'flex', flexDirection:'column', padding:'3rem 2rem', position:'sticky', top:0, height:'100vh', overflowY:'auto' }}>
             {/* Avatar */}
             {data.avatar && s.showAvatar ? (
-              <div style={{ position: 'relative', width:100, height:100, borderRadius: s.avatarShape==='circle'?'50%':s.avatarShape==='rounded'?`${s.borderRadius}px`:'4px', overflow: 'hidden', marginBottom:'1.5rem', border:'3px solid rgba(61,170,122,0.3)' }}>
+              <div style={{ position: 'relative', width:100, height:100, borderRadius: s.avatarShape==='circle'?'50%':s.avatarShape==='rounded'?`${s.borderRadius}px`:'4px', overflow: 'hidden', marginBottom:'1.5rem', border:'3px solid rgba(255,255,255,0.35)' }}>
                 <Image 
                   src={data.avatar} 
                   alt={data.name || 'Avatar'} 
@@ -50,35 +54,35 @@ export function ExecutiveTemplate({ data }: Props) {
                 />
               </div>
             ) : (
-              <div style={{ width:100, height:100, borderRadius:'50%', background:'rgba(61,170,122,0.15)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.5rem', fontSize:'2rem', fontWeight:700 }}>
+              <div style={{ width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.5rem', fontSize:'2rem', fontWeight:700 }}>
                 {(data.name||'P').charAt(0)}
               </div>
             )}
 
             <h1 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.6rem', fontWeight:800, lineHeight:1.2, marginBottom:'.5rem', letterSpacing:'-.02em' }}>{data.name || 'Your Name'}</h1>
 
-            <div style={{ width:32, height:3, background:'rgba(61,170,122,0.4)', borderRadius:2, marginBottom:'1.25rem' }} />
+            <div style={{ width:32, height:3, background:'rgba(255,255,255,0.4)', borderRadius:2, marginBottom:'1.25rem' }} />
 
             <p style={{ fontSize:'.88rem', lineHeight:1.7, opacity:.85, marginBottom:'2rem' }}>{data.bio || 'A passionate professional with a strong focus on delivering results.'}</p>
 
             {/* Nav links */}
             <nav style={{ display:'flex', flexDirection:'column', gap:'.6rem', marginBottom:'2.5rem' }}>
               {['About','Experience','Skills','Contact'].map(l => (
-                <a key={l} href={`#${l.toLowerCase()}`} style={{ fontSize:'.82rem', fontWeight:600, color:'rgba(61,170,122,0.7)', textDecoration:'none', letterSpacing:'.04em', display:'flex', alignItems:'center', gap:8, transition:'color .2s, transform .2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.color='#3DAA7A'; e.currentTarget.style.transform='translateX(4px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color='rgba(61,170,122,0.7)'; e.currentTarget.style.transform='none'; }}>
-                  <span style={{ width:20, height:1.5, background:'rgba(61,170,122,0.4)', display:'inline-block' }} />{l}
+                <a key={l} href={`#${l.toLowerCase()}`} style={{ fontSize:'.82rem', fontWeight:600, color:'rgba(255,255,255,0.7)', textDecoration:'none', letterSpacing:'.04em', display:'flex', alignItems:'center', gap:8, transition:'color .2s, transform .2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.color='#fff'; e.currentTarget.style.transform='translateX(4px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color='rgba(255,255,255,0.7)'; e.currentTarget.style.transform='none'; }}>
+                  <span style={{ width:20, height:1.5, background:'rgba(255,255,255,0.4)', display:'inline-block' }} />{l}
                 </a>
               ))}
             </nav>
 
             {/* Contact info */}
             <div style={{ marginTop:'auto', display:'flex', flexDirection:'column', gap:'.75rem' }}>
-              <div style={{ width:'100%', height:1, background:'rgba(61,170,122,0.15)', marginBottom:'.5rem' }} />
-              {data.contact.email && <a href={`mailto:${data.contact.email}`} style={{ fontSize:'.78rem', color:'rgba(61,170,122,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8, wordBreak:'break-all' }}><Mail size={13}/>{data.contact.email}</a>}
-              {data.contact.linkedin && <a href={data.contact.linkedin} target="_blank" rel="noopener" style={{ fontSize:'.78rem', color:'rgba(61,170,122,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}><LinkedinIcon size={13}/>LinkedIn</a>}
-              {data.contact.github && <a href={data.contact.github} target="_blank" rel="noopener" style={{ fontSize:'.78rem', color:'rgba(61,170,122,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}><GithubIcon size={13}/>GitHub</a>}
-              {data.contact.twitter && <a href={data.contact.twitter} target="_blank" rel="noopener" style={{ fontSize:'.78rem', color:'rgba(61,170,122,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}><TwitterIcon size={13}/>Twitter</a>}
+              <div style={{ width:'100%', height:1, background:'rgba(255,255,255,0.15)', marginBottom:'.5rem' }} />
+              {data.contact.email && <a href={`mailto:${data.contact.email}`} style={{ fontSize:'.78rem', color:'rgba(255,255,255,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8, wordBreak:'break-all' }}><Mail size={13}/>{data.contact.email}</a>}
+              {data.contact.linkedin && <a href={data.contact.linkedin} target="_blank" rel="noopener" style={{ fontSize:'.78rem', color:'rgba(255,255,255,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}><LinkedinIcon size={13}/>LinkedIn</a>}
+              {data.contact.github && <a href={data.contact.github} target="_blank" rel="noopener" style={{ fontSize:'.78rem', color:'rgba(255,255,255,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}><GithubIcon size={13}/>GitHub</a>}
+              {data.contact.twitter && <a href={data.contact.twitter} target="_blank" rel="noopener" style={{ fontSize:'.78rem', color:'rgba(255,255,255,0.75)', textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}><TwitterIcon size={13}/>Twitter</a>}
             </div>
           </aside>
 
@@ -86,7 +90,7 @@ export function ExecutiveTemplate({ data }: Props) {
           <main style={{ padding:'3.5rem', overflowY:'auto' }}>
 
             {/* ── About ── */}
-            <section id="about" style={{ marginBottom:'4rem' }}>
+            <section id="about" style={{ marginBottom: s.sectionGap }}>
               <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1.5rem' }}>
                 <div style={{ width:3, height:28, background:s.primaryColor, borderRadius:2 }} />
                 <h2 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.4rem', fontWeight:700, letterSpacing:'-.01em' }}>Professional Summary</h2>
@@ -98,7 +102,7 @@ export function ExecutiveTemplate({ data }: Props) {
 
             {/* ── Projects / Experience ── */}
             {data.projects.length > 0 && (
-              <section id="experience" style={{ marginBottom:'4rem' }}>
+              <section id="experience" style={{ marginBottom: s.sectionGap }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1.5rem' }}>
                   <div style={{ width:3, height:28, background:s.primaryColor, borderRadius:2 }} />
                   <h2 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.4rem', fontWeight:700, letterSpacing:'-.01em' }}>Selected Projects</h2>
@@ -132,7 +136,7 @@ export function ExecutiveTemplate({ data }: Props) {
 
             {/* ── Skills ── */}
             {data.skills.length > 0 && (
-              <section id="skills" style={{ marginBottom:'4rem' }}>
+              <section id="skills" style={{ marginBottom: s.sectionGap }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1.5rem' }}>
                   <div style={{ width:3, height:28, background:s.primaryColor, borderRadius:2 }} />
                   <h2 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.4rem', fontWeight:700, letterSpacing:'-.01em' }}>Core Competencies</h2>
@@ -145,7 +149,7 @@ export function ExecutiveTemplate({ data }: Props) {
 
             {/* ── Education ── */}
             {data.education.length > 0 && (
-              <section style={{ marginBottom:'4rem' }}>
+              <section style={{ marginBottom: s.sectionGap }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1.5rem' }}>
                   <div style={{ width:3, height:28, background:s.primaryColor, borderRadius:2 }} />
                   <h2 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.4rem', fontWeight:700, letterSpacing:'-.01em' }}>Education</h2>
@@ -167,9 +171,9 @@ export function ExecutiveTemplate({ data }: Props) {
             {/* ── Contact CTA ── */}
             <section id="contact" style={{ padding:'2.5rem', background:`${s.primaryColor}08`, border:`1px solid ${s.primaryColor}22`, borderRadius:s.borderRadius, textAlign:'center' }}>
               <h2 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.5rem', fontWeight:700, marginBottom:'0.75rem' }}>Open to Opportunities</h2>
-              <p style={{ color:s.mutedColor, marginBottom:'1.5rem', fontSize:'.95rem', lineHeight:1.6 }}>Looking for the right fit? Let's have a conversation.</p>
+              <p style={{ color:s.mutedColor, marginBottom:'1.5rem', fontSize:'.95rem', lineHeight:1.6 }}>Looking for the right fit? Let&apos;s have a conversation.</p>
               {data.contact.email && (
-                <a href={`mailto:${data.contact.email}`} style={{ display:'inline-flex', alignItems:'center', gap:'.5rem', padding:'.85rem 2rem', background:s.primaryColor, color:'#3DAA7A', borderRadius:s.buttonRadius+'px', fontWeight:700, fontSize:'.9rem', textDecoration:'none' }}>
+                <a href={`mailto:${data.contact.email}`} style={{ display:'inline-flex', alignItems:'center', gap:'.5rem', padding:'.85rem 2rem', background:s.primaryColor, color:contrastColor(s.primaryColor), borderRadius:s.buttonRadius+'px', fontWeight:700, fontSize:'.9rem', textDecoration:'none' }}>
                   <Mail size={16}/>Get in touch
                 </a>
               )}

@@ -165,7 +165,7 @@ export default function AboutPage() {
               className="border-l-4 border-cyan-500 pl-6 py-4"
             >
               <p className="text-lg italic text-white/80">
-                "The best products are built with empathy, passion, and a relentless focus on user needs."
+                &quot;The best products are built with empathy, passion, and a relentless focus on user needs.&quot;
               </p>
             </motion.div>
           </motion.div>

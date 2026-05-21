@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { CheckCircle, XCircle, Clock, ShieldCheck, Eye, ArrowLeft, RefreshCw, X } from 'lucide-react';
@@ -10,6 +10,22 @@ import { DarkThemeTemplate } from '@/components/templates/DarkTheme';
 import { GlassmorphismTemplate } from '@/components/templates/Glassmorphism';
 import { TechMinimalTemplate } from '@/components/templates/TechMinimal';
 import { FreeformCanvas } from '@/components/templates/FreeformCanvas';
+import { type CustomElement, type PortfolioStore } from '@/store/usePortfolioStore';
+
+interface CommunityTemplate {
+  _id: string;
+  templateName: string;
+  authorName: string;
+  authorEmail: string;
+  status: 'pending' | 'approved' | 'rejected';
+  votes: number;
+  baseTemplate: string;
+  description?: string;
+  createdAt?: string;
+  templateStyles?: Record<string, string | undefined>;
+  customElements?: CustomElement[];
+  previewData?: Record<string, unknown>;
+}
 
 function StatusBadge({ status }: { status: string }) {
   const config = {
@@ -26,7 +42,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function TemplatePreviewCard({ s }: { s: any }) {
+function TemplatePreviewCard({ s }: { s: Record<string, string | undefined> | undefined }) {
   const primary = s?.primaryColor || '#3DAA7A';
   const bg      = s?.bgColor      || '#f8f7ff';
   return (
@@ -45,13 +61,13 @@ function TemplatePreviewCard({ s }: { s: any }) {
 }
 
 export default function AdminPage() {
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<CommunityTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [previewTemplate, setPreviewTemplate] = useState<any>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<CommunityTemplate | null>(null);
 
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
       const params = filter === 'all' ? '' : `?status=${filter}`;
@@ -62,9 +78,9 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
 
-  useEffect(() => { fetchTemplates(); }, [filter]);
+  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
   const handleAction = async (id: string, action: 'approve' | 'reject') => {
     setActionLoading(id + action);
@@ -113,7 +129,7 @@ export default function AdminPage() {
             <div style={{ flex: 1, position: 'relative', overflowY: 'auto' }}>
               {(() => {
                 const p = previewTemplate;
-                const data = { ...p.previewData, template: p.baseTemplate, templateStyles: p.templateStyles, customElements: p.customElements || [] };
+                const data = { ...p.previewData, template: p.baseTemplate, templateStyles: p.templateStyles, customElements: p.customElements || [] } as unknown as PortfolioStore;
                 switch (p.baseTemplate) {
                   case 'minimal':       return <MinimalTemplate data={data} />;
                   case 'cards':         return <ModernCardsTemplate data={data} />;

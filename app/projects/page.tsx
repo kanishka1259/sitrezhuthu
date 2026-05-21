@@ -155,7 +155,7 @@ export default function ProjectsPage() {
         >
           <h1 className="text-6xl lg:text-7xl font-bold mb-6">My Projects</h1>
           <p className="text-xl text-white/80 max-w-2xl">
-            A selection of projects I'm proud of. Each one taught me something new.
+            A selection of projects I&apos;m proud of. Each one taught me something new.
           </p>
         </motion.div>
 
@@ -189,7 +189,7 @@ export default function ProjectsPage() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20 auto-rows-max"
         >
           <AnimatePresence mode="wait">
-            {filteredProjects.map((project, idx) => (
+            {filteredProjects.map((project) => (
               <motion.div
                 key={project.id}
                 variants={itemVariants}

@@ -9,13 +9,16 @@ interface Props { data: PortfolioStore; }
 
 export function CreativeTemplate({ data }: Props) {
   const year = new Date().getFullYear();
-  const s: TemplateStyles = data.templateStyles ?? TEMPLATE_DEFAULTS['creative'];
-  const fonts = [s.headingFont, s.bodyFont]
+  const s: TemplateStyles = { ...TEMPLATE_DEFAULTS['creative'], ...(data.templateStyles || {}) };
+  const hFont = s.headingFont || 'Outfit';
+  const bFont = s.bodyFont || 'Inter';
+
+  const fonts = [hFont, bFont]
     .filter((f, i, a) => a.indexOf(f) === i && f !== 'system-ui')
-    .map(f => `family=${f.replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
+    .map(f => `family=${(f || '').replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
 
   return (
-    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${s.bodyFont}', sans-serif`, overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${bFont}', sans-serif`, overflowX: 'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?${fonts}&display=swap');
         .cr-wrap * { box-sizing: border-box; margin: 0; }
@@ -90,7 +93,7 @@ export function CreativeTemplate({ data }: Props) {
 
         {/* ── Skills ── */}
         {data.skills.length > 0 && (
-          <section id="skills" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'4rem 3rem', borderTop:`1px solid ${s.borderColor}` }}>
+          <section id="skills" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem`, borderTop:`1px solid ${s.borderColor}` }}>
             <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'2rem' }}>
               <div style={{ width:40, height:4, background:s.primaryColor, borderRadius:2 }} />
               <h2 style={{ fontSize:'1.75rem', fontWeight:800, fontFamily:`'${s.headingFont}',sans-serif`, letterSpacing:'-.02em' }}>Tech Stack</h2>
@@ -103,7 +106,7 @@ export function CreativeTemplate({ data }: Props) {
 
         {/* ── Projects ── */}
         {data.projects.length > 0 && (
-          <section id="work" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'4rem 3rem' }}>
+          <section id="work" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem` }}>
             <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'2.5rem' }}>
               <div style={{ width:40, height:4, background:s.primaryColor, borderRadius:2 }} />
               <h2 style={{ fontSize:'1.75rem', fontWeight:800, fontFamily:`'${s.headingFont}',sans-serif`, letterSpacing:'-.02em' }}>Selected Work</h2>
@@ -146,7 +149,7 @@ export function CreativeTemplate({ data }: Props) {
 
         {/* ── Education ── */}
         {data.education.length > 0 && (
-          <section style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'4rem 3rem', borderTop:`1px solid ${s.borderColor}` }}>
+          <section style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem`, borderTop:`1px solid ${s.borderColor}` }}>
             <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'2rem' }}>
               <div style={{ width:40, height:4, background:s.primaryColor, borderRadius:2 }} />
               <h2 style={{ fontSize:'1.75rem', fontWeight:800, fontFamily:`'${s.headingFont}',sans-serif`, letterSpacing:'-.02em' }}>Education</h2>
@@ -166,10 +169,10 @@ export function CreativeTemplate({ data }: Props) {
         )}
 
         {/* ── Contact ── */}
-        <section id="contact" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'5rem 3rem 6rem' }}>
+        <section id="contact" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem` }}>
           <div style={{ background:`linear-gradient(135deg, ${s.primaryColor}18, ${s.secondaryColor}10)`, border:`1px solid ${s.primaryColor}30`, borderRadius:s.borderRadius+8, padding:'3.5rem', textAlign:'center' }}>
             <h2 style={{ fontSize:'clamp(2rem,5vw,3rem)', fontWeight:800, letterSpacing:'-.03em', fontFamily:`'${s.headingFont}',sans-serif`, marginBottom:'1rem' }}>
-              Let's build something<br/><span style={{ color:s.primaryColor }}>amazing together</span>
+              Let&apos;s build something<br/><span style={{ color:s.primaryColor }}>amazing together</span>
             </h2>
             <p style={{ color:s.mutedColor, marginBottom:'2rem', fontSize:'1.05rem', lineHeight:1.7 }}>Open to exciting opportunities, collaborations and projects.</p>
             {data.contact.email && (

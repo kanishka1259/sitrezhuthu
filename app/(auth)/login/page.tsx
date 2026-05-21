@@ -35,12 +35,13 @@ export default function LoginPage() {
     try {
       await signIn(email, password);
       router.push('/dashboard');
-    } catch (err: any) {
-      const code = err?.code as string;
+    } catch (err) {
+      const errorObj = err as { code?: string; message?: string };
+      const code = errorObj?.code;
       if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
         setError('Invalid email or password. Please try again.');
       } else {
-        setError(err?.message || 'Sign-in failed. Please try again.');
+        setError(errorObj?.message || 'Sign-in failed. Please try again.');
       }
     } finally { setLoading(false); }
   };
@@ -49,12 +50,15 @@ export default function LoginPage() {
     setError('');
     setGLoading(true);
     try { await signInGoogle(); router.push('/dashboard'); }
-    catch (err: any) { setError(err?.message || 'Google sign-in failed.'); }
+    catch (err) {
+      const errorObj = err as { message?: string };
+      setError(errorObj?.message || 'Google sign-in failed.');
+    }
     finally { setGLoading(false); }
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#070C09', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative', overflow: 'hidden' }}>
       {/* Glow */}
       <div style={{ position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)', width: 550, height: 400, background: 'radial-gradient(ellipse, rgba(61,170,122,0.09) 0%, transparent 65%)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: 300, height: 300, background: 'radial-gradient(ellipse, rgba(120,68,20,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -78,9 +82,9 @@ export default function LoginPage() {
         </Link>
 
         {/* Card */}
-        <div style={{ background: '#0D1510', border: '1px solid rgba(61,170,122,0.14)', borderRadius: 20, padding: '36px 32px', boxShadow: '0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(61,170,122,0.06)' }}>
-          <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 700, fontSize: 22, color: '#D8EDE2', textAlign: 'center', marginBottom: 8 }}>Welcome back</h1>
-          <p style={{ fontSize: 14, color: '#3E6050', textAlign: 'center', marginBottom: 28 }}>Sign in to continue to your portfolios</p>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-lit)', borderRadius: 20, padding: '36px 32px', boxShadow: '0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(61,170,122,0.06)' }}>
+          <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 700, fontSize: 22, color: 'var(--text)', textAlign: 'center', marginBottom: 8 }}>Welcome back</h1>
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', textAlign: 'center', marginBottom: 28 }}>Sign in to continue to your portfolios</p>
 
           {error && (
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.2)', borderRadius: 10, padding: '12px 14px', marginBottom: 20, color: '#D07070', fontSize: 13 }}>
@@ -98,19 +102,19 @@ export default function LoginPage() {
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <div style={{ flex: 1, height: 1, background: 'rgba(61,170,122,0.08)' }} />
-            <span style={{ fontSize: 12, color: '#2E4A38', fontWeight: 500, letterSpacing: '0.05em' }}>OR</span>
-            <div style={{ flex: 1, height: 1, background: 'rgba(61,170,122,0.08)' }} />
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+            <span style={{ fontSize: 12, color: 'var(--text-dim)', fontWeight: 500, letterSpacing: '0.05em' }}>OR</span>
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#4E7060', marginBottom: 8 }}>Email Address</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-muted)', marginBottom: 8 }}>Email Address</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required className="field" />
             </div>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#4E7060' }}>Password</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-muted)' }}>Password</label>
                 <Link href="/forgot-password" style={{ fontSize: 12, color: '#3DAA7A', textDecoration: 'none', opacity: 0.85 }}>Forgot password?</Link>
               </div>
               <div style={{ position: 'relative' }}>
@@ -126,8 +130,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: '#2E4A38' }}>
-            Don't have an account?{' '}
+          <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text-dim)' }}>
+            Don&apos;t have an account?{' '}
             <Link href="/signup" style={{ color: '#3DAA7A', fontWeight: 600, textDecoration: 'none' }}>Create one free</Link>
           </p>
         </div>

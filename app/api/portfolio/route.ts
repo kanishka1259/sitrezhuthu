@@ -4,7 +4,7 @@ import { verifyFirebaseToken } from '@/lib/firebase-admin';
 import { NextRequest, NextResponse } from 'next/server';
 import { portfolioSchema } from '@/lib/validations';
 
-const serialize = (obj: any) => JSON.parse(JSON.stringify(obj));
+const serialize = (obj: unknown) => JSON.parse(JSON.stringify(obj));
 
 async function getUserId(req: NextRequest): Promise<string> {
   const token = await verifyFirebaseToken(req.headers.get('authorization'));
@@ -27,9 +27,10 @@ export async function GET(req: NextRequest) {
       const portfolios = await Portfolio.find({ userId: uid }).sort({ updatedAt: -1 }).lean();
       return NextResponse.json(serialize(portfolios));
     }
-  } catch (err: any) {
-    const status = err.message?.includes('Authorization') ? 401 : 500;
-    return NextResponse.json({ error: err.message || 'Failed to fetch portfolio(s)' }, { status });
+  } catch (err: unknown) {
+    const error = err as Error;
+    const status = error.message?.includes('Authorization') ? 401 : 500;
+    return NextResponse.json({ error: error.message || 'Failed to fetch portfolio(s)' }, { status });
   }
 }
 
@@ -49,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     // Helper to check uniqueness
     async function checkUnique(field: string, value: string, excludeId?: string) {
-      const query: any = { [field]: value };
+      const query: Record<string, unknown> = { [field]: value };
       if (excludeId) query._id = { $ne: excludeId };
       return await Portfolio.findOne(query);
     }
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     if (data.username) {
       data.username = data.username.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-      let baseUsername = data.username;
+      const baseUsername = data.username;
       let counter = 1;
       while (await checkUnique('username', data.username, data._id)) {
         data.username = `${baseUsername}-${counter}`;
@@ -86,9 +87,10 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(serialize(portfolio));
-  } catch (err: any) {
-    const status = err.message?.includes('Authorization') ? 401 : 500;
-    return NextResponse.json({ error: err.message || 'Failed to save portfolio' }, { status });
+  } catch (err: unknown) {
+    const error = err as Error;
+    const status = error.message?.includes('Authorization') ? 401 : 500;
+    return NextResponse.json({ error: error.message || 'Failed to save portfolio' }, { status });
   }
 }
 
@@ -104,8 +106,9 @@ export async function DELETE(req: NextRequest) {
 
     await Portfolio.deleteOne({ _id: id, userId: uid });
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    const status = err.message?.includes('Authorization') ? 401 : 500;
-    return NextResponse.json({ error: err.message || 'Failed to delete portfolio' }, { status });
+  } catch (err: unknown) {
+    const error = err as Error;
+    const status = error.message?.includes('Authorization') ? 401 : 500;
+    return NextResponse.json({ error: error.message || 'Failed to delete portfolio' }, { status });
   }
 }

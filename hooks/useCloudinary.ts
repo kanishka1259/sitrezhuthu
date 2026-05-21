@@ -1,7 +1,17 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { CldUploadWidget } from 'next-cloudinary';
+
+declare global {
+  interface Window {
+    cloudinary?: {
+      createUploadWidget: (
+        options: Record<string, unknown>,
+        callback: (error: unknown, result: { event: string; info: { secure_url: string } }) => void
+      ) => { open: () => void };
+    };
+  }
+}
 
 interface UseCloudinaryReturn {
   imageUrl: string | null;
@@ -13,19 +23,19 @@ interface UseCloudinaryReturn {
 
 export function useCloudinary(): UseCloudinaryReturn {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const openWidget = useCallback(() => {
-    const widget = (window as any).cloudinary?.createUploadWidget(
+    const widget = window.cloudinary?.createUploadWidget(
       {
-        cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-        uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'portfolio_gen_preset',
+        cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME as string,
+        uploadPreset: (process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'portfolio_gen_preset') as string,
         folder: 'portfolio-gen',
         resourceType: 'auto',
         maxFileSize: 5000000,
       },
-      (err: any, result: any) => {
+      (err, result) => {
         if (err) {
           setError('Upload failed');
           console.error(err);

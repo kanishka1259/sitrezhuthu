@@ -24,9 +24,8 @@ export function SkillInput() {
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
           placeholder="Add a skill (e.g., React, TypeScript)"
-          style={{ flex: 1, padding: '0.6rem 0.9rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', fontSize: 14, outline: 'none' }}
-          onFocus={e => { e.currentTarget.style.borderColor = '#3DAA7A'; }}
-          onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+          className="editor-input"
+          style={{ flex: 1 }}
         />
         <button
           onClick={handleAddSkill}

@@ -8,17 +8,17 @@ interface TechMinimalTemplateProps { data: PortfolioStore; }
 
 export function TechMinimalTemplate({ data }: TechMinimalTemplateProps) {
   const year = new Date().getFullYear();
-  const s: TemplateStyles = data.templateStyles ?? TEMPLATE_DEFAULTS['tech-minimal'];
-  const r = s.borderRadius;
+  const s: TemplateStyles = { ...TEMPLATE_DEFAULTS['tech-minimal'], ...(data.templateStyles || {}) };
   const bR = s.buttonRadius;
   const maxW = s.maxWidth;
   const p = s.primaryColor;
-  const sec = s.secondaryColor;
+
+  const bFont = s.bodyFont || 'Inter';
 
   return (
-    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${s.bodyFont}', sans-serif` }}>
+    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${bFont}', sans-serif` }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=${s.bodyFont.replace(/ /g,'+')}:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=${bFont.replace(/ /g,'+')}:wght@400;500;600&display=swap');
         .tk-mono { font-family: 'JetBrains Mono', monospace; }
         .tk-grid-bg { position:fixed;inset:0;background-image:linear-gradient(${p}0a 1px,transparent 1px),linear-gradient(90deg,${p}0a 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0; }
         .tk-scanline { position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,${p}04 2px,${p}04 4px);pointer-events:none;z-index:9999; }
@@ -98,7 +98,7 @@ export function TechMinimalTemplate({ data }: TechMinimalTemplateProps) {
 
         {/* Skills */}
         {data.skills.length > 0 && (
-          <section id="skills" style={{ maxWidth: maxW, margin: '0 auto', padding: '3.5rem 2rem', borderTop: `1px solid ${s.borderColor}` }}>
+          <section id="skills" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem`, borderTop: `1px solid ${s.borderColor}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
               <span className="tk-mono" style={{ fontSize: '.7rem', color: p }}>01.</span>
               <h2 style={{ fontSize: '1.3rem', fontWeight: 700, letterSpacing: '-.01em', fontFamily: `'${s.headingFont}', sans-serif` }}>Skills & Tools</h2>
@@ -112,7 +112,7 @@ export function TechMinimalTemplate({ data }: TechMinimalTemplateProps) {
 
         {/* Projects */}
         {data.projects.length > 0 && (
-          <section id="projects" style={{ maxWidth: maxW, margin: '0 auto', padding: '3.5rem 2rem', borderTop: `1px solid ${s.borderColor}` }}>
+          <section id="projects" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem`, borderTop: `1px solid ${s.borderColor}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
               <span className="tk-mono" style={{ fontSize: '.7rem', color: p }}>02.</span>
               <h2 style={{ fontSize: '1.3rem', fontWeight: 700, letterSpacing: '-.01em', fontFamily: `'${s.headingFont}', sans-serif` }}>Projects</h2>
@@ -148,7 +148,7 @@ export function TechMinimalTemplate({ data }: TechMinimalTemplateProps) {
 
         {/* Education */}
         {data.education.length > 0 && (
-          <section id="education" style={{ maxWidth: maxW, margin: '0 auto', padding: '3.5rem 2rem', borderTop: `1px solid ${s.borderColor}` }}>
+          <section id="education" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem`, borderTop: `1px solid ${s.borderColor}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
               <span className="tk-mono" style={{ fontSize: '.7rem', color: p }}>03.</span>
               <h2 style={{ fontSize: '1.3rem', fontWeight: 700, fontFamily: `'${s.headingFont}', sans-serif` }}>Education</h2>
@@ -169,16 +169,16 @@ export function TechMinimalTemplate({ data }: TechMinimalTemplateProps) {
         )}
 
         {/* Contact */}
-        <section id="contact" style={{ maxWidth: maxW, margin: '0 auto', padding: '4rem 2rem 5rem' }}>
+        <section id="contact" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
             <span className="tk-mono" style={{ fontSize: '.7rem', color: p }}>04.</span>
             <h2 style={{ fontSize: '1.3rem', fontWeight: 700, fontFamily: `'${s.headingFont}', sans-serif` }}>Contact</h2>
             <div style={{ flex: 1, height: 1, background: `${p}20` }} />
           </div>
           <div className="tk-contact-box" style={{ border: `1px solid ${p}33`, padding: '3rem', background: `${p}05` }}>
-            <p className="tk-mono" style={{ fontSize: '.78rem', color: `${p}99`, marginBottom: '.5rem' }}># Let's collaborate</p>
-            <h3 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 700, letterSpacing: '-.02em', marginBottom: '.75rem', fontFamily: `'${s.headingFont}', sans-serif` }}>Got a project? Let's talk.</h3>
-            <p style={{ fontSize: '.9rem', color: s.mutedColor, maxWidth: 440, lineHeight: 1.75, marginBottom: '1.5rem' }}>I'm always up for discussing interesting technical challenges and new projects.</p>
+            <p className="tk-mono" style={{ fontSize: '.78rem', color: `${p}99`, marginBottom: '.5rem' }}># Let&apos;s collaborate</p>
+            <h3 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 700, letterSpacing: '-.02em', marginBottom: '.75rem', fontFamily: `'${s.headingFont}', sans-serif` }}>Got a project? Let&apos;s talk.</h3>
+            <p style={{ fontSize: '.9rem', color: s.mutedColor, maxWidth: 440, lineHeight: 1.75, marginBottom: '1.5rem' }}>I&apos;m always up for discussing interesting technical challenges and new projects.</p>
             {data.contact.email && <a href={`mailto:${data.contact.email}`} className="tk-btn-primary"><Mail size={14} /> {data.contact.email}</a>}
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
               {data.contact.linkedin && <a href={data.contact.linkedin} target="_blank" rel="noopener noreferrer" className="tk-social-link"><LinkedinIcon size={12} /> linkedin</a>}

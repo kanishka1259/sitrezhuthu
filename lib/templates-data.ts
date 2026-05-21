@@ -1,5 +1,5 @@
 // ─── demo data shown inside the preview modal ───────────────────────────────
-export const DEMO: any = {
+export const DEMO: Record<string, unknown> = {
   name: 'Alex Rivera',
   bio: 'Full-stack developer & designer crafting elegant digital experiences. Passionate about clean code, accessibility, and pixel-perfect interfaces.',
   avatar: '',

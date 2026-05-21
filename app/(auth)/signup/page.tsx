@@ -45,12 +45,13 @@ export default function SignupPage() {
     try {
       await signUp(email, password, name);
       router.push('/dashboard');
-    } catch (err: any) {
-      const code = err?.code as string;
+    } catch (err) {
+      const errorObj = err as { code?: string; message?: string };
+      const code = errorObj?.code;
       if (code === 'auth/email-already-in-use') {
         setError('Email already registered. Sign in instead.');
       } else {
-        setError(err?.message || 'Failed to create account. Try again.');
+        setError(errorObj?.message || 'Failed to create account. Try again.');
       }
     } finally {
       setLoading(false);
@@ -63,18 +64,19 @@ export default function SignupPage() {
     try {
       await signInGoogle();
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err?.message || 'Google sign-in failed.');
+    } catch (err) {
+      const errorObj = err as { message?: string };
+      setError(errorObj?.message || 'Google sign-in failed.');
     } finally {
       setGLoading(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#000', display: 'flex', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', overflow: 'hidden' }}>
 
       {/* Left panel */}
-      <div style={{ width: '44%', flexShrink: 0, background: '#050505', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 56px' }}
+      <div style={{ width: '44%', flexShrink: 0, background: 'var(--bg-surface)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 56px' }}
         className="hide-on-mobile">
         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 56 }}>
           <div style={{ position: 'relative', width: 48, height: 48, flexShrink: 0 }}>
@@ -86,22 +88,22 @@ export default function SignupPage() {
               style={{ objectFit: 'contain' }} 
             />
           </div>
-          <span style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 15, letterSpacing: '0.06em', color: '#fff', textTransform: 'uppercase' }}>SITREZHUTHU</span>
+          <span style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 15, letterSpacing: '0.06em', color: 'var(--text)', textTransform: 'uppercase' }}>SITREZHUTHU</span>
         </Link>
 
-        <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 36, color: '#fff', lineHeight: 1.2, letterSpacing: '-0.02em', marginBottom: 16 }}>
+        <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 36, color: 'var(--text)', lineHeight: 1.2, letterSpacing: '-0.02em', marginBottom: 16 }}>
           Your portfolio,<br />
           <span className="grad-text">live in minutes.</span>
         </h2>
-        <p style={{ fontSize: 15, color: '#666', lineHeight: 1.7, maxWidth: 340, marginBottom: 48 }}>
-          Join developers and designers who've built beautiful, professional portfolios with Sitrezhuthu.
+        <p style={{ fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 340, marginBottom: 48 }}>
+          Join developers and designers who&apos;ve built beautiful, professional portfolios with Sitrezhuthu.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {PERKS.map(perk => (
             <div key={perk} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <CheckCircle2 size={17} style={{ color: '#3DAA7A', flexShrink: 0 }} />
-              <span style={{ fontSize: 14, color: '#aaa' }}>{perk}</span>
+              <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>{perk}</span>
             </div>
           ))}
         </div>
@@ -123,15 +125,15 @@ export default function SignupPage() {
                 style={{ objectFit: 'contain' }} 
               />
             </div>
-            <span style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 15, letterSpacing: '0.06em', color: '#fff', textTransform: 'uppercase' }}>SITREZHUTHU</span>
+            <span style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 15, letterSpacing: '0.06em', color: 'var(--text)', textTransform: 'uppercase' }}>SITREZHUTHU</span>
           </Link>
         </div>
 
         <div style={{ width: '100%', maxWidth: 400, position: 'relative' }}>
-          <h1 style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 22, color: '#fff', textAlign: 'center', marginBottom: 8 }}>
+          <h1 style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 22, color: 'var(--text)', textAlign: 'center', marginBottom: 8 }}>
             Create your account
           </h1>
-          <p style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 28 }}>
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', textAlign: 'center', marginBottom: 28 }}>
             Free forever. No credit card needed.
           </p>
 
@@ -144,23 +146,23 @@ export default function SignupPage() {
           <button
             onClick={handleGoogle}
             disabled={gLoading}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%', padding: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', fontWeight: 500, fontSize: 14, cursor: gLoading ? 'not-allowed' : 'pointer', marginBottom: 20, transition: 'all .2s' }}
-            onMouseEnter={e => { if (!gLoading) { e.currentTarget.style.background  = 'rgba(255,255,255,0.07)'; e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.18)'; } }}
-            onMouseLeave={e => { e.currentTarget.style.background  = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.1)'; }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%', padding: '12px', background: 'var(--bg-hover)', border: '1px solid var(--border)', borderRadius: 10, color: 'var(--text)', fontWeight: 500, fontSize: 14, cursor: gLoading ? 'not-allowed' : 'pointer', marginBottom: 20, transition: 'all .2s' }}
+            onMouseEnter={e => { if (!gLoading) { e.currentTarget.style.background  = 'var(--bg-surface)'; e.currentTarget.style.borderColor  = 'var(--border-lit)'; } }}
+            onMouseLeave={e => { e.currentTarget.style.background  = 'var(--bg-hover)'; e.currentTarget.style.borderColor  = 'var(--border)'; }}
           >
             {gLoading ? <Loader2 size={16} className="spin" /> : <GoogleIcon />}
             Continue with Google
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-            <span style={{ fontSize: 12, color: '#444', fontWeight: 500 }}>OR</span>
-            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>OR</span>
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#aaa', marginBottom: 8 }}>Full Name</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-muted)', marginBottom: 8 }}>Full Name</label>
               <input
                 type="text"
                 value={name}
@@ -171,7 +173,7 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#aaa', marginBottom: 8 }}>Email Address</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-muted)', marginBottom: 8 }}>Email Address</label>
               <input
                 type="email"
                 value={email}
@@ -182,7 +184,7 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#aaa', marginBottom: 8 }}>Password</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-muted)', marginBottom: 8 }}>Password</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPass ? 'text' : 'password'}
@@ -194,13 +196,13 @@ export default function SignupPage() {
                   style={{ paddingRight: 44 }}
                 />
                 <button type="button" onClick={() => setShowPass(v => !v)}
-                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#555', cursor: 'pointer', padding: 0 }}>
+                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', padding: 0 }}>
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {password.length > 0 && (
                 <div style={{ marginTop: 6 }}>
-                  <div style={{ height: 3, borderRadius: 999, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                  <div style={{ height: 3, borderRadius: 999, background: 'var(--border)', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: password.length < 6 ? '30%' : password.length < 10 ? '65%' : '100%', background: password.length < 6 ? '#ff4d4d' : password.length < 10 ? '#ffd700' : '#3DAA7A', borderRadius: 999, transition: 'all 0.3s' }} />
                   </div>
                   <span style={{ fontSize: 11, color: password.length < 6 ? '#ff4d4d' : password.length < 10 ? '#ffd700' : '#3DAA7A', marginTop: 4, display: 'block' }}>
@@ -215,7 +217,7 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: '#555' }}>
+          <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text-dim)' }}>
             Already have an account?{' '}
             <Link href="/login" style={{ color: '#3DAA7A', fontWeight: 500, textDecoration: 'none' }}>Sign in</Link>
           </p>

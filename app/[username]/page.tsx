@@ -16,7 +16,7 @@ import { ErrorBoundary }          from '@/components/common/ErrorBoundary';
 import { notFound }               from 'next/navigation';
 import Link                       from 'next/link';
 import type { Metadata }          from 'next';
-import { TEMPLATE_DEFAULTS, type TemplateId }      from '@/store/usePortfolioStore';
+import { TEMPLATE_DEFAULTS, type TemplateId, type PortfolioStore }      from '@/store/usePortfolioStore';
 import { Lock, Mail }                   from 'lucide-react';
 
 interface PageProps {
@@ -136,7 +136,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
   /* ── Merge template styles ────────────────────────────────── */
   const baseStyles   = TEMPLATE_DEFAULTS[portfolio.template as TemplateId] ?? TEMPLATE_DEFAULTS['minimal'];
   const mergedStyles = { ...baseStyles, ...(portfolio.templateStyles || {}) };
-  const data         = { ...portfolio, templateStyles: mergedStyles } as any;
+  const data         = { ...portfolio, templateStyles: mergedStyles } as PortfolioStore;
 
   const renderTemplate = () => {
     switch (portfolio.template) {

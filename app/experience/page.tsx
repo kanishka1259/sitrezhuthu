@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Download, ExternalLink } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 const experiences = [
   {
@@ -86,13 +86,7 @@ const certifications = [
 ];
 
 export default function ExperiencePage() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
-    }
-  };
+
 
   const itemVariants = {
     hidden: { opacity: 0, x: -20 },
@@ -274,7 +268,7 @@ export default function ExperiencePage() {
           viewport={{ once: true }}
           className="mt-20 text-center"
         >
-          <h3 className="text-3xl font-bold mb-6">Let's create something amazing together</h3>
+          <h3 className="text-3xl font-bold mb-6">Let&apos;s create something amazing together</h3>
           <Link
             href="/contact"
             className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"

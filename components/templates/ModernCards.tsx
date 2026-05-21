@@ -4,22 +4,26 @@ import { PortfolioStore, TemplateStyles, TEMPLATE_DEFAULTS } from '@/store/usePo
 import { Mail, ArrowUpRight } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, TwitterIcon } from '@/components/icons/SocialIcons';
 import Image from 'next/image';
+import { contrastColor } from '@/lib/colorUtils';
 
 interface ModernCardsTemplateProps { data: PortfolioStore; }
 
 export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
   const year = new Date().getFullYear();
-  const s: TemplateStyles = data.templateStyles ?? TEMPLATE_DEFAULTS['cards'];
+  const s: TemplateStyles = { ...TEMPLATE_DEFAULTS['cards'], ...(data.templateStyles || {}) };
   const r = s.borderRadius;
   const bR = s.buttonRadius;
   const maxW = s.maxWidth;
   const p = s.primaryColor;
   const sec = s.secondaryColor;
 
+  const hFont = s.headingFont || 'Space Grotesk';
+  const bFont = s.bodyFont || 'Inter';
+
   return (
-    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${s.bodyFont}', sans-serif` }}>
+    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${bFont}', sans-serif` }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=${s.headingFont.replace(/ /g,'+')}:wght@400;700;800&family=${s.bodyFont.replace(/ /g,'+')}:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=${hFont.replace(/ /g,'+')}:wght@400;700;800&family=${bFont.replace(/ /g,'+')}:wght@400;500;600&display=swap');
         .mc-nav-link { font-size:.82rem;font-weight:600;color:${s.mutedColor};text-decoration:none;transition:color .2s; }
         .mc-nav-link:hover { color:${p}; }
         .mc-skill { padding:.55rem 1.1rem;background:${s.cardBg};border:1.5px solid ${s.borderColor};border-radius:${r}px;font-size:.85rem;font-weight:600;color:${s.textColor};transition:all .2s;cursor:default; }
@@ -27,7 +31,7 @@ export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
         .mc-proj { background:${s.cardBg};border-radius:${r}px;padding:1.75rem;border:1.5px solid ${s.borderColor};transition:all .3s;display:flex;flex-direction:column;gap:.875rem; }
         .mc-proj:hover { border-color:${p}4d;box-shadow:0 12px 40px ${p}22;transform:translateY(-4px); }
         .mc-edu-card { background:${s.cardBg};border-radius:${r}px;padding:1.5rem;border:1.5px solid ${s.borderColor};display:flex;flex-direction:column;gap:.5rem; }
-        .mc-btn-primary { display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;background:${p};border-radius:${bR}px;font-weight:700;font-size:.875rem;color:#fff;text-decoration:none;transition:all .2s;border:none;cursor:pointer; }
+        .mc-btn-primary { display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;background:${p};border-radius:${bR}px;font-weight:700;font-size:.875rem;color:${contrastColor(p)};text-decoration:none;transition:all .2s;border:none;cursor:pointer; }
         .mc-btn-primary:hover { opacity:.88;transform:translateY(-2px);box-shadow:0 12px 30px ${p}55; }
         .mc-btn-ghost { display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;background:${s.cardBg};border-radius:${bR}px;font-weight:700;font-size:.875rem;color:${s.textColor};text-decoration:none;border:1.5px solid ${s.borderColor};transition:all .2s;cursor:pointer; }
         .mc-btn-ghost:hover { border-color:${p};color:${p};transform:translateY(-2px); }
@@ -50,7 +54,7 @@ export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
       `}</style>
 
       {/* Nav */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: s.bgColor + 'cc', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${s.borderColor}`, padding: '1rem 0' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: s.bgColor, backdropFilter: 'blur(16px)', borderBottom: `1px solid ${s.borderColor}`, padding: '1rem 0' }}>
         <div style={{ maxWidth: maxW, margin: '0 auto', padding: '0 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-.02em', color: s.textColor, fontFamily: `'${s.headingFont}', sans-serif` }}>
             {data.name || 'Portfolio'}<span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: p, marginLeft: 2, verticalAlign: 'super' }} />
@@ -62,27 +66,27 @@ export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
       </nav>
 
       {/* Hero */}
-      <section style={{ maxWidth: maxW, margin: '0 auto', padding: '5rem 2rem 3rem' }}>
+      <section style={{ maxWidth: maxW, margin: '0 auto', padding: '6rem 2rem 3rem' }}>
         <div className="mc-hero-grid" style={{ display: 'grid', gridTemplateColumns: s.heroLayout === 'split' && data.avatar && s.showAvatar ? '1fr 1fr' : '1fr', gap: '4rem', alignItems: 'center' }}>
-          <div>
+          <div style={{ textAlign: s.heroLayout === 'center' ? 'center' : 'left', display: 'flex', flexDirection: 'column', alignItems: s.heroLayout === 'center' ? 'center' : 'flex-start' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '.45rem', padding: '.4rem 1rem', background: `${p}14`, border: `1px solid ${p}33`, borderRadius: '999px', fontSize: '.75rem', fontWeight: 600, color: p, marginBottom: '1.5rem' }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: p, display: 'inline-block' }} /> Available for work
             </div>
             <h1 style={{ fontSize: 'clamp(2.2rem,5vw,3.5rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-.03em', color: s.textColor, marginBottom: '1.25rem', fontFamily: `'${s.headingFont}', sans-serif` }}>
-              I'm <span style={{ background: `linear-gradient(135deg, ${p} 0%, ${sec} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{data.name || 'Your Name'}</span>,<br />a creative developer
+              I&apos;m <span style={{ display: 'inline-block', backgroundImage: `linear-gradient(135deg, ${p} 0%, ${sec} 100%)`, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}>{data.name || 'Your Name'}</span>,<br />a creative developer
             </h1>
-            <p style={{ fontSize: '1rem', color: s.mutedColor, lineHeight: 1.75, marginBottom: '2rem' }}>{data.bio || 'I build beautiful, performant digital products that make an impact.'}</p>
-            <div className="mc-btn-group" style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
+            <p style={{ fontSize: '1rem', color: s.mutedColor, lineHeight: 1.75, marginBottom: '2rem', maxWidth: s.heroLayout === 'center' ? 600 : 'none' }}>{data.bio || 'I build beautiful, performant digital products that make an impact.'}</p>
+            <div className="mc-btn-group" style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', justifyContent: s.heroLayout === 'center' ? 'center' : 'flex-start' }}>
               {data.contact.email && <a href={`mailto:${data.contact.email}`} className="mc-btn-primary"><Mail size={16} /> Get in Touch</a>}
               {data.contact.github && <a href={data.contact.github} target="_blank" rel="noopener noreferrer" className="mc-btn-ghost"><GithubIcon size={16} /> GitHub</a>}
             </div>
-            <div className="mc-social-group" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+            <div className="mc-social-group" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap', justifyContent: s.heroLayout === 'center' ? 'center' : 'flex-start' }}>
               {data.contact.linkedin && <a href={data.contact.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: s.mutedColor, display: 'flex', alignItems: 'center', gap: 5, fontSize: '.82rem', fontWeight: 600, textDecoration: 'none' }}><LinkedinIcon size={15} /> LinkedIn</a>}
               {data.contact.twitter && <a href={data.contact.twitter} target="_blank" rel="noopener noreferrer" style={{ color: s.mutedColor, display: 'flex', alignItems: 'center', gap: 5, fontSize: '.82rem', fontWeight: 600, textDecoration: 'none' }}><TwitterIcon size={15} /> Twitter</a>}
             </div>
           </div>
           {data.avatar && s.showAvatar && (
-            <div style={{ width: '100%', maxWidth: 360, aspectRatio: '1', position: 'relative' }}>
+            <div style={{ width: '100%', maxWidth: 360, aspectRatio: '1', position: 'relative', margin: s.heroLayout === 'center' ? '0 auto' : '0' }}>
               <Image 
                 src={data.avatar} 
                 alt={data.name || 'Avatar'} 
@@ -108,7 +112,7 @@ export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
 
       {/* Skills */}
       {data.skills.length > 0 && (
-        <section id="skills" style={{ maxWidth: maxW, margin: '0 auto', padding: '3rem 2rem' }}>
+        <section id="skills" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem` }}>
           <div className="mc-section-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <span style={{ padding: '.3rem .9rem', background: `${p}1a`, borderRadius: '999px', fontSize: '.72rem', fontWeight: 700, color: p, textTransform: 'uppercase', letterSpacing: '.06em' }}>Skills</span>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: s.textColor, letterSpacing: '-.02em', fontFamily: `'${s.headingFont}', sans-serif` }}>My Toolkit</h2>
@@ -121,15 +125,14 @@ export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
 
       {/* Projects */}
       {data.projects.length > 0 && (
-        <section id="projects" style={{ maxWidth: maxW, margin: '0 auto', padding: '3rem 2rem' }}>
+        <section id="projects" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem` }}>
           <div className="mc-section-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <span style={{ padding: '.3rem .9rem', background: `${p}1a`, borderRadius: '999px', fontSize: '.72rem', fontWeight: 700, color: p, textTransform: 'uppercase', letterSpacing: '.06em' }}>Projects</span>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: s.textColor, letterSpacing: '-.02em', fontFamily: `'${s.headingFont}', sans-serif` }}>Things I've Built</h2>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: s.textColor, letterSpacing: '-.02em', fontFamily: `'${s.headingFont}', sans-serif` }}>Things I&apos;ve Built</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(310px,1fr))', gap: '1.25rem' }}>
             {data.projects.map((project, idx) => (
               <div key={idx} className="mc-proj">
-                <div style={{ width: 46, height: 46, borderRadius: r, background: `linear-gradient(135deg, ${p}1f, ${sec}1f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>🚀</div>
                 <div style={{ fontSize: '1.05rem', fontWeight: 800, color: s.textColor, fontFamily: `'${s.headingFont}', sans-serif` }}>{project.title || `Project ${idx + 1}`}</div>
                 <p style={{ fontSize: '.875rem', color: s.mutedColor, lineHeight: 1.65, flex: 1 }}>{project.description}</p>
                 {project.proficiency != null && (
@@ -154,7 +157,7 @@ export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
 
       {/* Education */}
       {data.education.length > 0 && (
-        <section id="education" style={{ maxWidth: maxW, margin: '0 auto', padding: '3rem 2rem' }}>
+        <section id="education" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem` }}>
           <div className="mc-section-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <span style={{ padding: '.3rem .9rem', background: `${p}1a`, borderRadius: '999px', fontSize: '.72rem', fontWeight: 700, color: p, textTransform: 'uppercase', letterSpacing: '.06em' }}>Education</span>
             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: s.textColor, letterSpacing: '-.02em', fontFamily: `'${s.headingFont}', sans-serif` }}>Academic Background</h2>
@@ -172,17 +175,17 @@ export function ModernCardsTemplate({ data }: ModernCardsTemplateProps) {
       )}
 
       {/* CTA */}
-      <section id="contact" style={{ maxWidth: maxW, margin: '0 auto', padding: '3rem 2rem 5rem' }}>
-        <div className="mc-cta-box" style={{ background: `linear-gradient(135deg, ${p}, ${sec})`, borderRadius: r, padding: '4rem', textAlign: 'center', color: '#3DAA7A', position: 'relative', overflow: 'hidden' }}>
+      <section id="contact" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem` }}>
+        <div className="mc-cta-box" style={{ background: `linear-gradient(135deg, ${p}, ${sec})`, borderRadius: r, padding: '4rem', textAlign: 'center', color: '#fff', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: '-40%', right: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(61,170,122,.08)', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <p style={{ fontSize: '.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.1em', opacity: .7, marginBottom: '.75rem' }}>Let's connect</p>
+            <p style={{ fontSize: '.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.1em', opacity: .7, marginBottom: '.75rem' }}>Let&apos;s connect</p>
             <h2 style={{ fontSize: 'clamp(1.75rem,4vw,2.75rem)', fontWeight: 800, letterSpacing: '-.02em', marginBottom: '.75rem', fontFamily: `'${s.headingFont}', sans-serif` }}>Ready to work together?</h2>
-            <p style={{ opacity: .75, maxWidth: 420, margin: '0 auto', lineHeight: 1.7, fontSize: '.95rem' }}>I'm always excited to take on new challenges and bring creative ideas to life.</p>
+            <p style={{ opacity: .75, maxWidth: 420, margin: '0 auto', lineHeight: 1.7, fontSize: '.95rem' }}>I&apos;m always excited to take on new challenges and bring creative ideas to life.</p>
           </div>
           <div className="mc-cta-group" style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1, marginTop: '1.75rem' }}>
-            {data.contact.email && <a href={`mailto:${data.contact.email}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '.45rem', padding: '.8rem 1.5rem', background: '#3DAA7A', color: p, borderRadius: bR, fontWeight: 700, fontSize: '.875rem', textDecoration: 'none' }}><Mail size={16} /> Email Me</a>}
-            {data.contact.linkedin && <a href={data.contact.linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '.45rem', padding: '.8rem 1.5rem', background: 'rgba(61,170,122,.15)', color: '#3DAA7A', borderRadius: bR, fontWeight: 700, fontSize: '.875rem', textDecoration: 'none', border: '1.5px solid rgba(61,170,122,.3)' }}><LinkedinIcon size={16} /> LinkedIn</a>}
+            {data.contact.email && <a href={`mailto:${data.contact.email}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '.45rem', padding: '.8rem 1.5rem', background: 'rgba(255,255,255,0.95)', color: p, borderRadius: bR, fontWeight: 700, fontSize: '.875rem', textDecoration: 'none' }}><Mail size={16} /> Email Me</a>}
+            {data.contact.linkedin && <a href={data.contact.linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '.45rem', padding: '.8rem 1.5rem', background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: bR, fontWeight: 700, fontSize: '.875rem', textDecoration: 'none', border: '1.5px solid rgba(255,255,255,0.35)' }}><LinkedinIcon size={16} /> LinkedIn</a>}
           </div>
         </div>
       </section>

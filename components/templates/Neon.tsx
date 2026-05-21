@@ -2,22 +2,25 @@
 
 import { PortfolioStore, TemplateStyles, TEMPLATE_DEFAULTS } from '@/store/usePortfolioStore';
 import { ArrowUpRight, Mail } from 'lucide-react';
-import { GithubIcon, LinkedinIcon, TwitterIcon } from '@/components/icons/SocialIcons';
+import { GithubIcon, LinkedinIcon } from '@/components/icons/SocialIcons';
 import Image from 'next/image';
 
 interface Props { data: PortfolioStore; }
 
 export function NeonTemplate({ data }: Props) {
   const year = new Date().getFullYear();
-  const s: TemplateStyles = data.templateStyles ?? TEMPLATE_DEFAULTS['neon'];
-  const fonts = [s.headingFont, s.bodyFont]
+  const s: TemplateStyles = { ...TEMPLATE_DEFAULTS['neon'], ...(data.templateStyles || {}) };
+  const hFont = s.headingFont || 'Space Grotesk';
+  const bFont = s.bodyFont || 'Inter';
+
+  const fonts = [hFont, bFont]
     .filter((f, i, a) => a.indexOf(f) === i && f !== 'system-ui')
-    .map(f => `family=${f.replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
+    .map(f => `family=${(f || '').replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
   const neon = s.primaryColor;
   const neon2 = s.secondaryColor;
 
   return (
-    <div style={{ minHeight:'100vh', background:s.bgColor, color:s.textColor, fontFamily:`'${s.bodyFont}',sans-serif`, overflowX:'hidden' }}>
+    <div style={{ minHeight:'100vh', background:s.bgColor, color:s.textColor, fontFamily:`'${bFont}',sans-serif`, overflowX:'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?${fonts}&display=swap');
         .nn * { box-sizing:border-box; margin:0; }
@@ -59,7 +62,7 @@ export function NeonTemplate({ data }: Props) {
 
           <div style={{ position:'relative', display:'grid', gridTemplateColumns: data.avatar && s.showAvatar ? '1fr 280px' : '1fr', gap:'3rem', alignItems:'center' }}>
             <div>
-              <div style={{ fontFamily:`'${s.headingFont}',monospace`, fontSize:'.82rem', color:neon, letterSpacing:'.15em', textTransform:'uppercase', marginBottom:'1rem', opacity:.8 }}>// Available for opportunities</div>
+              <div style={{ fontFamily:`'${s.headingFont}',monospace`, fontSize:'.82rem', color:neon, letterSpacing:'.15em', textTransform:'uppercase', marginBottom:'1rem', opacity:.8 }}>{"// Available for opportunities"}</div>
               <h1 style={{ fontSize:'clamp(2.8rem,7vw,5rem)', fontWeight:800, letterSpacing:'-.02em', lineHeight:1.05, fontFamily:`'${s.headingFont}',sans-serif`, marginBottom:'1rem' }}>
                 {data.name || 'Your Name'}
               </h1>
@@ -85,9 +88,9 @@ export function NeonTemplate({ data }: Props) {
 
         {/* ── Skills ── */}
         {data.skills.length > 0 && (
-          <section id="stack" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'4rem 3rem', position:'relative', zIndex:2 }}>
+          <section id="stack" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem`, position:'relative', zIndex:2 }}>
             <h2 style={{ fontFamily:`'${s.headingFont}',monospace`, fontSize:'1.5rem', fontWeight:800, color:neon, letterSpacing:'.08em', marginBottom:'1.75rem', textTransform:'uppercase' }}>
-              <span style={{ color:s.mutedColor }}>//</span> Tech Stack
+              <span style={{ color:s.mutedColor }}>{"//"}</span> Tech Stack
             </h2>
             <div style={{ display:'flex', flexWrap:'wrap', gap:'.6rem' }}>
               {data.skills.map(sk => <span key={sk} className="nn-skill"><span style={{ color:neon2 }}>▸</span>{sk}</span>)}
@@ -97,9 +100,9 @@ export function NeonTemplate({ data }: Props) {
 
         {/* ── Projects ── */}
         {data.projects.length > 0 && (
-          <section id="projects" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'4rem 3rem', position:'relative', zIndex:2 }}>
+          <section id="projects" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem`, position:'relative', zIndex:2 }}>
             <h2 style={{ fontFamily:`'${s.headingFont}',monospace`, fontSize:'1.5rem', fontWeight:800, color:neon, letterSpacing:'.08em', marginBottom:'1.75rem', textTransform:'uppercase' }}>
-              <span style={{ color:s.mutedColor }}>//</span> Projects
+              <span style={{ color:s.mutedColor }}>{"//"}</span> Projects
             </h2>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:'1.25rem' }}>
               {data.projects.map((p, i) => (
@@ -121,9 +124,9 @@ export function NeonTemplate({ data }: Props) {
 
         {/* ── Education ── */}
         {data.education.length > 0 && (
-          <section style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'3rem 3rem', position:'relative', zIndex:2 }}>
+          <section style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem`, position:'relative', zIndex:2 }}>
             <h2 style={{ fontFamily:`'${s.headingFont}',monospace`, fontSize:'1.5rem', fontWeight:800, color:neon, letterSpacing:'.08em', marginBottom:'1.5rem', textTransform:'uppercase' }}>
-              <span style={{ color:s.mutedColor }}>//</span> Education
+              <span style={{ color:s.mutedColor }}>{"//"}</span> Education
             </h2>
             {data.education.map((edu, i) => (
               <div key={i} style={{ display:'flex', alignItems:'center', gap:'1.25rem', padding:'1rem 1.25rem', border:`1px solid ${neon}22`, borderRadius:s.borderRadius, marginBottom:'.75rem', background:`${neon}05` }}>
@@ -139,12 +142,12 @@ export function NeonTemplate({ data }: Props) {
         )}
 
         {/* ── Contact ── */}
-        <section id="contact" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:'5rem 3rem 7rem', position:'relative', zIndex:2, textAlign:'center' }}>
+        <section id="contact" style={{ maxWidth:s.maxWidth, margin:'0 auto', padding:`${s.sectionGap}px 3rem`, position:'relative', zIndex:2, textAlign:'center' }}>
           <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:400, height:200, background:`radial-gradient(ellipse, ${neon}15, transparent 70%)`, pointerEvents:'none' }} />
           <h2 style={{ fontFamily:`'${s.headingFont}',monospace`, fontSize:'clamp(2rem,5vw,3.5rem)', fontWeight:800, marginBottom:'1rem', letterSpacing:'-.01em', position:'relative' }}>
             <span style={{ color:neon, textShadow:`0 0 40px ${neon}77` }}>Ready</span> to build?
           </h2>
-          <p style={{ color:s.mutedColor, marginBottom:'2.5rem', fontSize:'1.05rem', position:'relative' }}>Let's collaborate and ship something great.</p>
+          <p style={{ color:s.mutedColor, marginBottom:'2.5rem', fontSize:'1.05rem', position:'relative' }}>Let&apos;s collaborate and ship something great.</p>
           {data.contact.email && (
             <a href={`mailto:${data.contact.email}`} className="nn-solid-btn" style={{ position:'relative', fontSize:'1rem', padding:'1.1rem 2.5rem' }}>
               <Mail size={18}/>{data.contact.email}

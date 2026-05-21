@@ -1,11 +1,12 @@
 'use client';
+/* eslint-disable react-hooks/refs */
 import { useState, useRef } from 'react';
-import { usePortfolioStore } from '@/store/usePortfolioStore';
+import { usePortfolioStore, type CustomElement } from '@/store/usePortfolioStore';
 import {
   Type, MousePointerClick, Square, Circle, Triangle,
   Image as ImageIcon, Minus, Star, LayoutTemplate, Undo2, Redo2,
-  Grid3x3, Magnet, Shapes, Smile, Upload, Diamond,
-  User, Briefcase, Code2, GraduationCap, Phone, ChevronRight,
+  Grid3x3, Magnet, Shapes, Smile, Diamond,
+  User, Briefcase, Code2, GraduationCap,
   Hash, Globe, Layers
 } from 'lucide-react';
 
@@ -32,17 +33,19 @@ const EMOJI_GROUPS = {
   'Symbols': ['❤️', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⬛', '🌈', '#️⃣'],
 };
 
+const getRandomPosition = () => 180 + Math.random() * 120;
+
 export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap }: CanvasToolbarProps) {
   const { addCustomElement, templateStyles: s, undo, redo } = usePortfolioStore();
   const [activeMenu, setActiveMenu] = useState<'shapes' | 'emoji' | 'portfolio' | null>(null);
   const [activeEmojiGroup, setActiveEmojiGroup] = useState<string>('Popular');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const add = (type: string, extra: any = {}) => {
+  const add = (type: CustomElement['type'], extra: Partial<CustomElement> = {}) => {
     addCustomElement({
-      type: type as any,
-      x: 180 + Math.random() * 120,
-      y: 180 + Math.random() * 120,
+      type,
+      x: getRandomPosition(),
+      y: getRandomPosition(),
       width: extra.width || 200,
       height: extra.height || 60,
       zIndex: 10,
@@ -66,6 +69,10 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
     e.target.value = '';
   };
 
+  const handleTriggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   const tools = [
     {
       label: 'Text', icon: <Type size={18}/>,
@@ -82,7 +89,7 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
     },
     {
       label: 'Image', icon: <ImageIcon size={18}/>,
-      action: () => fileInputRef.current?.click()
+      action: handleTriggerFileInput
     },
     {
       label: 'Emoji', icon: <Smile size={18}/>,

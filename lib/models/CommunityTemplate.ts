@@ -6,9 +6,9 @@ export interface ICommunityTemplate extends Document {
   templateName: string;
   description: string;
   baseTemplate: string;
-  templateStyles: Record<string, any>;
-  customElements?: any[];
-  previewData: Record<string, any>;
+  templateStyles: Record<string, unknown>;
+  customElements?: unknown[];
+  previewData: Record<string, unknown>;
   status: 'pending' | 'approved' | 'rejected';
   votes: number;
   createdAt: Date;

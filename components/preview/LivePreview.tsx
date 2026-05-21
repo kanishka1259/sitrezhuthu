@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePortfolioStore, TEMPLATE_DEFAULTS, type TemplateId } from '@/store/usePortfolioStore';
+import { usePortfolioStore, TEMPLATE_DEFAULTS, type TemplateId, type PortfolioStore } from '@/store/usePortfolioStore';
 import { MinimalTemplate } from '@/components/templates/Minimal';
 import { ModernCardsTemplate } from '@/components/templates/ModernCards';
 import { DarkThemeTemplate } from '@/components/templates/DarkTheme';
@@ -22,28 +22,30 @@ const VIEWPORT_WIDTHS: Record<Viewport, string> = {
   mobile: '390px',
 };
 
-export function LivePreview() {
+export function LivePreview(props: { nightMode?: boolean }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { nightMode } = props;
   const portfolio = usePortfolioStore();
   const [viewport, setViewport] = useState<Viewport>('desktop');
 
   // Merge stored templateStyles with the template's defaults so all tokens are present
   const baseStyles = TEMPLATE_DEFAULTS[portfolio.template as TemplateId] ?? TEMPLATE_DEFAULTS['minimal'];
   const mergedStyles = { ...baseStyles, ...(portfolio.templateStyles || {}) };
-  const data = { ...portfolio, templateStyles: mergedStyles } as any;
+  const data = { ...portfolio, templateStyles: mergedStyles } as PortfolioStore;
 
   const renderTemplate = () => {
     switch (portfolio.template) {
-      case 'minimal':       return <MinimalTemplate data={data} />;
-      case 'cards':         return <ModernCardsTemplate data={data} />;
-      case 'dark':          return <DarkThemeTemplate data={data} />;
+      case 'minimal': return <MinimalTemplate data={data} />;
+      case 'cards': return <ModernCardsTemplate data={data} />;
+      case 'dark': return <DarkThemeTemplate data={data} />;
       case 'glassmorphism': return <GlassmorphismTemplate data={data} />;
-      case 'tech-minimal':  return <TechMinimalTemplate data={data} />;
-      case 'creative':      return <CreativeTemplate data={data} />;
-      case 'neon':          return <NeonTemplate data={data} />;
-      case 'executive':     return <ExecutiveTemplate data={data} />;
-      case 'bento':         return <BentoTemplate data={data} />;
-      case 'custom':        return <FreeformCanvas data={data} isEditor={true} />;
-      default:              return <MinimalTemplate data={data} />;
+      case 'tech-minimal': return <TechMinimalTemplate data={data} />;
+      case 'creative': return <CreativeTemplate data={data} />;
+      case 'neon': return <NeonTemplate data={data} />;
+      case 'executive': return <ExecutiveTemplate data={data} />;
+      case 'bento': return <BentoTemplate data={data} />;
+      case 'custom': return <FreeformCanvas data={data} isEditor={true} />;
+      default: return <MinimalTemplate data={data} />;
     }
   };
 
@@ -78,7 +80,8 @@ export function LivePreview() {
         <div style={{ display: 'flex', gap: 2, background: 'rgba(61,170,122,0.05)', borderRadius: 8, padding: '0.2rem' }}>
           {([['desktop', Monitor], ['tablet', Tablet], ['mobile', Smartphone]] as const).map(([vp, Icon]) => (
             <button key={vp} onClick={() => setViewport(vp)}
-              style={{ padding: '0.3rem 0.6rem', borderRadius: 6, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.7rem', fontWeight: 600, transition: 'all .2s',
+              style={{
+                padding: '0.3rem 0.6rem', borderRadius: 6, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.7rem', fontWeight: 600, transition: 'all .2s',
                 background: viewport === vp ? 'rgba(124,58,237,0.5)' : 'transparent',
                 color: viewport === vp ? '#3DAA7A' : 'rgba(61,170,122,0.35)',
               }}>

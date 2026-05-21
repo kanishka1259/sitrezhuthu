@@ -6,13 +6,13 @@ export interface IPortfolio extends Document {
   slug?: string;   // custom short URL e.g. "kani"
   isPublic: boolean;
   template: string;
-  templateStyles?: Record<string, any>;
+  templateStyles?: Record<string, unknown>;
   name: string;
   bio: string;
   avatar?: string;
   skills: string[];
   canvasPositions?: Record<string, { x: number, y: number }>;
-  customElements?: Array<any>;
+  customElements?: Array<unknown>;
   projects: Array<{
     title: string;
     description: string;

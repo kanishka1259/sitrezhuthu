@@ -30,20 +30,21 @@ export function ProjectCard() {
       }
       const data = await res.json();
       updateProject(idx, 'image', data.url);
-    } catch (err: any) {
-      alert(err.message || 'Failed to upload project image');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to upload project image';
+      alert(message);
     } finally {
       setUploadingIdx(null);
     }
   };
 
-  const inputCls = 'w-full px-4 py-3 bg-[rgba(61,170,122,0.03)] border border-[rgba(61,170,122,0.1)] rounded-xl text-white placeholder-[#6b7280] text-[14px] font-medium focus:outline-none focus:border-[#3DAA7A] focus:bg-[rgba(61,170,122,0.06)] transition-all';
-  const labelCls = 'block text-[12px] font-semibold text-[#3DAA7A] tracking-wide mb-1.5 mt-5';
+  const inputCls = 'editor-input';
+  const labelCls = 'editor-label';
 
   return (
     <div className="space-y-6">
       {projects.map((project, idx) => (
-        <div key={idx} style={{ padding: '1.5rem', background: 'rgba(61,170,122,0.02)', border: '1px solid rgba(61,170,122,0.05)', borderRadius: 20 }}>
+        <div key={idx} style={{ padding: '1.5rem', background: 'var(--editor-card-bg)', border: '1px solid var(--editor-card-border)', borderRadius: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <h3 style={{ fontWeight: 600, fontSize: '1rem', color: '#3DAA7A' }}>Project {idx + 1}</h3>
             <button
@@ -71,11 +72,12 @@ export function ProjectCard() {
             {/* Image Upload */}
             <div>
               <label className={labelCls}>Cover Image (Optional)</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(61,170,122,0.02)', border: '1px solid rgba(61,170,122,0.05)', borderRadius: 16, padding: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--editor-input-bg)', border: '1px solid var(--editor-input-border)', borderRadius: 16, padding: '1rem' }}>
                 {project.image ? (
-                  <img src={project.image} alt="Project Cover" style={{ width: 80, height: 60, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(61,170,122,0.1)' }} />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={project.image} alt="Project Cover" style={{ width: 80, height: 60, borderRadius: 10, objectFit: 'cover', border: '1px solid var(--editor-border)' }} />
                 ) : (
-                  <div style={{ width: 80, height: 60, borderRadius: 10, background: 'rgba(61,170,122,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 80, height: 60, borderRadius: 10, background: 'var(--editor-card-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ImageIcon size={24} color="#3DAA7A" />
                   </div>
                 )}
@@ -103,9 +105,9 @@ export function ProjectCard() {
 
       <button
         onClick={addProject}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', gap: 8, padding: '1rem', border: '2px dashed rgba(61,170,122,0.1)', borderRadius: 20, color: '#3DAA7A', fontWeight: 600, fontSize: '0.9rem', background: 'transparent', cursor: 'pointer', transition: 'all .2s' }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor  = '#3DAA7A'; e.currentTarget.style.color  = '#3DAA7A'; e.currentTarget.style.background  = 'rgba(91,184,255,0.05)'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor  = 'rgba(61,170,122,0.1)'; e.currentTarget.style.color  = '#3DAA7A'; e.currentTarget.style.background  = 'transparent'; }}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', gap: 8, padding: '1rem', border: '2px dashed var(--editor-border-strong)', borderRadius: 20, color: '#3DAA7A', fontWeight: 600, fontSize: '0.9rem', background: 'transparent', cursor: 'pointer', transition: 'all .2s' }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor  = '#3DAA7A'; e.currentTarget.style.color  = '#3DAA7A'; e.currentTarget.style.background  = 'var(--editor-card-bg)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor  = 'var(--editor-border-strong)'; e.currentTarget.style.color  = '#3DAA7A'; e.currentTarget.style.background  = 'transparent'; }}
       >
         <Plus size={18} /> Add New Project
       </button>

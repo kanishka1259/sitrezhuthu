@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/lib/firebase-auth-context';
 import { Navbar } from '@/components/common/Navbar';
 import {
-  User, Mail, Lock, Bell, Shield, Monitor, LogOut, Trash2,
-  Check, Loader2, AlertCircle, ChevronRight, Moon, Eye, EyeOff,
-  UserPlus, Users, Globe, Download
+  User, Lock, Bell, LogOut, Trash2,
+  Check, Loader2, UserPlus, Users, Globe, Download
 } from 'lucide-react';
 
 // ─── Reusable section card ──────────────────────────────────────
@@ -84,10 +83,6 @@ export default function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
 
-  const [oldPass, setOldPass] = useState('');
-  const [newPass, setNewPass] = useState('');
-  const [showOld, setShowOld] = useState(false);
-  const [showNew, setShowNew] = useState(false);
   const [passMsg, setPassMsg] = useState('');
 
   const [notifications, setNotifications] = useState({ updates: true, tips: false, security: true });
@@ -131,8 +126,9 @@ export default function SettingsPage() {
     try {
       await signInGoogle();
       setSavedAccounts(getSavedAccounts());
-    } catch (err: any) {
-      alert(err?.message || 'Failed to add account.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to add account.';
+      alert(msg);
     }
   };
 

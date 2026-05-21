@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { usePortfolioStore } from '@/store/usePortfolioStore';
+import { usePortfolioStore, type CustomElement, type TemplateStyles, type PortfolioStore } from '@/store/usePortfolioStore';
 import { CanvasToolbar } from '@/components/canvas/CanvasToolbar';
 import { PropertiesPanel } from '@/components/canvas/PropertiesPanel';
 import { LayersPanel } from '@/components/canvas/LayersPanel';
@@ -19,7 +19,7 @@ const ANIM_CSS = `
 @keyframes canvasScaleIn { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
 `;
 
-function animStyle(el: any): React.CSSProperties {
+function animStyle(el: CustomElement): React.CSSProperties {
   if (!el.animation || el.animation.type === 'none') return {};
   const map: Record<string, string> = {
     fade: 'canvasFadeIn', slideUp: 'canvasSlideUp', slideLeft: 'canvasSlideLeft',
@@ -31,20 +31,32 @@ function animStyle(el: any): React.CSSProperties {
 }
 
 // ─── Public read-only render (for /[username] page) ─────────────────────
-export function FreeformCanvas({ data, isEditor = false }: { data: any; isEditor?: boolean }) {
+export function FreeformCanvas({ data, isEditor = false }: { data: PortfolioStore; isEditor?: boolean }) {
   if (isEditor) return <FreeformEditor />;
   return <FreeformPublic data={data} />;
 }
 
 // ─── Public view ────────────────────────────────────────────────────────
-function FreeformPublic({ data }: { data: any }) {
+function FreeformPublic({ data }: { data: PortfolioStore }) {
   const s = data.templateStyles || {};
   const els = data.customElements || [];
+
+  const handleElClick = (el: CustomElement) => {
+    if (!el.clickAction || el.clickAction === 'none') return;
+    if (el.clickAction === 'link' && el.clickTarget) {
+      window.open(el.clickTarget, '_blank');
+    } else if (el.clickAction === 'scroll' && el.clickTarget) {
+      const target = document.querySelector(el.clickTarget);
+      target?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   return (
     <div style={{ width: '100%', minHeight: '100vh', background: s.canvasBg || s.bgColor || '#FAF9F6', position: 'relative', overflow: 'hidden', fontFamily: s.bodyFont || 'Inter' }}>
       <style>{ANIM_CSS}</style>
-      {els.filter((e: any) => !e.hidden).sort((a: any, b: any) => (a.zIndex || 0) - (b.zIndex || 0)).map((el: any) => (
-        <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, opacity: el.opacity ?? 1, transform: `rotate(${el.rotation || 0}deg)`, zIndex: el.zIndex || 1, ...animStyle(el) }}>
+      {els.filter((e: CustomElement) => !e.hidden).sort((a: CustomElement, b: CustomElement) => (a.zIndex || 0) - (b.zIndex || 0)).map((el: CustomElement) => (
+        <div key={el.id}
+          onClick={() => handleElClick(el)}
+          style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, opacity: el.opacity ?? 1, transform: `rotate(${el.rotation || 0}deg)`, zIndex: el.zIndex || 1, ...animStyle(el), cursor: (el.clickAction && el.clickAction !== 'none') ? 'pointer' : 'default' }}>
           <PublicElementRenderer el={el} s={s} />
         </div>
       ))}
@@ -52,7 +64,7 @@ function FreeformPublic({ data }: { data: any }) {
   );
 }
 
-function PublicElementRenderer({ el, s }: { el: any; s: any }) {
+function PublicElementRenderer({ el, s }: { el: CustomElement; s: TemplateStyles }) {
   const border = el.borderWidth ? `${el.borderWidth}px ${el.borderStyle || 'solid'} ${el.borderColor || 'transparent'}` : 'none';
   if (el.type === 'text') return (
     <div style={{ width: '100%', height: '100%', color: el.color || '#f1f5f9', fontSize: el.fontSize || 24, fontWeight: el.fontWeight || '600', fontFamily: el.fontFamily || s.bodyFont || 'Inter', fontStyle: el.fontStyle || 'normal', textDecoration: el.textDecoration || 'none', letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : undefined, lineHeight: el.lineHeight || 1.4, textAlign: el.textAlign || 'left', background: el.bgGradient || el.bgColor || 'transparent', borderRadius: el.borderRadius || 0, border, boxShadow: el.shadow, padding: el.padding ? `${el.padding}px` : '4px 8px', whiteSpace: 'pre-wrap' }}>
@@ -60,18 +72,26 @@ function PublicElementRenderer({ el, s }: { el: any; s: any }) {
     </div>
   );
   if (el.type === 'button') {
-    const Tag: any = el.clickAction === 'link' ? 'a' : 'div';
-    return <Tag href={el.clickAction === 'link' ? el.clickTarget : undefined} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', background: el.bgGradient || el.bgColor || '#3DAA7A', color: el.color || '#3DAA7A', fontSize: el.fontSize || 15, fontWeight: el.fontWeight || '600', fontFamily: el.fontFamily || 'Inter', borderRadius: el.borderRadius || 8, border, boxShadow: el.shadow, padding: el.padding ? `${el.padding}px` : '8px 20px', textDecoration: 'none', cursor: 'pointer', letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : undefined }}>{el.content}</Tag>;
+    if (el.clickAction === 'link') {
+      return <a href={el.clickTarget} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', background: el.bgGradient || el.bgColor || '#3DAA7A', color: el.color || '#3DAA7A', fontSize: el.fontSize || 15, fontWeight: el.fontWeight || '600', fontFamily: el.fontFamily || 'Inter', borderRadius: el.borderRadius || 8, border, boxShadow: el.shadow, padding: el.padding ? `${el.padding}px` : '8px 20px', textDecoration: 'none', cursor: 'pointer', letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : undefined }}>{el.content}</a>;
+    }
+    return <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', background: el.bgGradient || el.bgColor || '#3DAA7A', color: el.color || '#3DAA7A', fontSize: el.fontSize || 15, fontWeight: el.fontWeight || '600', fontFamily: el.fontFamily || 'Inter', borderRadius: el.borderRadius || 8, border, boxShadow: el.shadow, padding: el.padding ? `${el.padding}px` : '8px 20px', textDecoration: 'none', cursor: 'pointer', letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : undefined }}>{el.content}</div>;
   }
   if (el.type === 'image') return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <Image 
-        src={el.src} 
-        alt="" 
-        fill
-        sizes={`${el.width || 300}px`}
-        style={{ objectFit: el.objectFit || 'cover', borderRadius: el.borderRadius || 0, border, boxShadow: el.shadow, display: 'block' }} 
-      />
+      {el.src ? (
+        <Image 
+          src={el.src} 
+          alt="" 
+          fill
+          sizes={`${el.width || 300}px`}
+          style={{ objectFit: el.objectFit || 'cover', borderRadius: el.borderRadius || 0, border, boxShadow: el.shadow, display: 'block' }} 
+        />
+      ) : (
+        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(61,170,122,0.05)', color: '#3DAA7A' }}>
+          No Image
+        </div>
+      )}
     </div>
   );
   if (el.type === 'shape') {
@@ -104,12 +124,21 @@ function FreeformEditor() {
   const [zoom, setZoom] = useState(0.6);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
-  const [showBgInput, setShowBgInput] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const panStart = useRef({ mx: 0, my: 0, px: 0, py: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const canvasW = s.canvasWidth || 1440;
   const canvasH = s.canvasHeight || 900;
+
+  // Adaptive grid color based on canvas background luminance
+  const gridColor = (() => {
+    const hex = (s.canvasBg || s.bgColor || '#FAF9F6').replace('#', '');
+    if (hex.length < 6) return 'rgba(0,0,0,0.05)';
+    const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+    const lum = (r*0.299 + g*0.587 + b*0.114) / 255;
+    return lum > 0.5 ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.06)';
+  })();
 
   // ── Keyboard shortcuts ──────────────────────────────────────────────
   useEffect(() => {
@@ -134,7 +163,7 @@ function FreeformEditor() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [selectedElementId, customElements]);
+  }, [selectedElementId, customElements, pushHistory, redo, setSelectedElementId, undo]);
 
   // ── Middle-mouse / Alt+drag pan ──────────────────────────────────
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
@@ -165,30 +194,31 @@ function FreeformEditor() {
   const visibleCount = customElements.filter(e => !e.hidden).length;
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', background: '#05050a', overflow: 'hidden', userSelect: 'none' }}>
+    <div style={{ width: '100%', height: '100%', position: 'relative', background: '#05050a', overflow: 'hidden' }}>
       <style>{ANIM_CSS}</style>
       <style>{`
         .canvas-scrollable::-webkit-scrollbar { width: 8px; height: 8px; }
         .canvas-scrollable::-webkit-scrollbar-track { background: #07070d; }
         .canvas-scrollable::-webkit-scrollbar-thumb { background: rgba(61,170,122,0.08); border-radius: 4px; }
         .canvas-scrollable::-webkit-scrollbar-thumb:hover { background: rgba(61,170,122,0.14); }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       {/* ── Left: Toolbar ── */}
       <CanvasToolbar showGrid={showGrid} snapToGrid={snapToGrid} onToggleGrid={() => setShowGrid(v => !v)} onToggleSnap={() => setSnapToGrid(v => !v)} />
 
       {/* ── Right: Properties ── */}
-      <PropertiesPanel />
+      {!isFullscreen && <PropertiesPanel />}
 
       {/* ── Bottom-left: Layers (positioned above bottom bar) ── */}
-      <LayersPanel />
+      {!isFullscreen && <LayersPanel />}
 
       {/* ── Top-center: Canvas Controls Bar ── */}
       <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 100, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(12,12,18,0.97)', backdropFilter: 'blur(16px)', border: '1px solid rgba(61,170,122,0.08)', borderRadius: 12, padding: '5px 10px', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
         {/* Canvas size presets */}
         <div style={{ display: 'flex', gap: 2 }}>
           {CANVAS_PRESETS.map(p => (
-            <button key={p.label} onClick={() => { setTemplateStyle('canvasWidth' as any, p.w); setTemplateStyle('canvasHeight' as any, p.h); }}
+            <button key={p.label} onClick={() => { setTemplateStyle('canvasWidth', p.w); setTemplateStyle('canvasHeight', p.h); }}
               title={`${p.label}: ${p.w}×${p.h}`}
               style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 7, background: (canvasW === p.w && canvasH === p.h) ? 'rgba(99,102,241,0.2)' : 'transparent', border: '1px solid', borderColor: (canvasW === p.w && canvasH === p.h) ? 'rgba(99,102,241,0.5)' : 'transparent', color: (canvasW === p.w && canvasH === p.h) ? '#818cf8' : '#475569', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 600 }}
               onMouseEnter={e => { if (canvasW !== p.w || canvasH !== p.h) { e.currentTarget.style.background = 'rgba(61,170,122,0.05)'; e.currentTarget.style.color = '#94a3b8'; } }}
@@ -212,9 +242,18 @@ function FreeformEditor() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ fontSize: '0.62rem', color: '#334155', fontWeight: 600 }}>BG</span>
           <input type="color" value={s.canvasBg || s.bgColor || '#FAF9F6'}
-            onChange={e => setTemplateStyle('canvasBg' as any, e.target.value)}
+            onChange={e => setTemplateStyle('canvasBg', e.target.value)}
             style={{ width: 22, height: 22, border: '1px solid rgba(61,170,122,0.1)', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
         </div>
+
+        <div style={{ width: 1, height: 20, background: 'rgba(61,170,122,0.06)' }} />
+
+        {/* Fullscreen toggle */}
+        <button onClick={() => setIsFullscreen(f => !f)} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen canvas'}
+          style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 7, background: isFullscreen ? 'rgba(99,102,241,0.2)' : 'transparent', border: `1px solid ${isFullscreen ? 'rgba(99,102,241,0.5)' : 'transparent'}`, color: isFullscreen ? '#818cf8' : '#475569', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 600 }}>
+          <Maximize2 size={13}/>
+          <span>{isFullscreen ? 'Exit' : 'Full'}</span>
+        </button>
       </div>
 
       {/* ── Bottom: Zoom controls & Info ── */}
@@ -265,13 +304,13 @@ function FreeformEditor() {
               width: canvasW,
               height: canvasH,
               position: 'relative',
-              background: s.canvasBg || s.bgColor || '#FAF9F6',
+              backgroundColor: s.canvasBg || s.bgColor || '#FAF9F6',
               transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
               transformOrigin: 'top left',
               flexShrink: 0,
               boxShadow: '0 0 0 1px rgba(61,170,122,0.05), 0 40px 100px rgba(0,0,0,0.9)',
               backgroundImage: showGrid
-                ? `linear-gradient(rgba(61,170,122,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(61,170,122,0.025) 1px, transparent 1px)`
+                ? `linear-gradient(${gridColor} 1px, transparent 1px), linear-gradient(90deg, ${gridColor} 1px, transparent 1px)`
                 : undefined,
               backgroundSize: showGrid ? `${GRID_SIZE}px ${GRID_SIZE}px` : undefined,
             }}

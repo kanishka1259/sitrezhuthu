@@ -63,6 +63,7 @@ export interface CustomElement {
   hoverEffect?: HoverEffect;
   clickAction?: 'none' | 'link' | 'scroll';
   clickTarget?: string;
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none';
 }
 
 export interface Project {
@@ -101,6 +102,7 @@ export interface PortfolioData {
   contact: Contact;
   template: TemplateId;
   templateStyles: TemplateStyles;
+  allowedEmails?: string[];
   canvasPositions: Record<string, { x: number, y: number }>;
   customElements: CustomElement[];
 }

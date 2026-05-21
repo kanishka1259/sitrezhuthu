@@ -52,7 +52,6 @@ type CategoryKey = keyof typeof skillsByCategory;
 
 export default function SkillsPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('frontend');
-  const [selectedSkill, setSelectedSkill] = useState<typeof skillsByCategory.frontend[0] | null>(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -143,7 +142,6 @@ export default function SkillsPage() {
               key={cat}
               onClick={() => {
                 setActiveCategory(cat);
-                setSelectedSkill(null);
               }}
               className={`px-5 py-2 rounded-full text-sm font-medium transition capitalize ${
                 activeCategory === cat
@@ -168,7 +166,6 @@ export default function SkillsPage() {
               key={idx}
               variants={itemVariants}
               layoutId={`skill-${skill.name}`}
-              onClick={() => setSelectedSkill(skill)}
               className="group cursor-pointer h-full"
             >
               <div className="relative h-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur border border-white/20 rounded-xl p-6 hover:border-cyan-500/50 transition transform hover:scale-105 overflow-hidden">
@@ -267,7 +264,7 @@ export default function SkillsPage() {
             href="/contact"
             className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-600 text-white rounded-full hover:shadow-lg hover:shadow-cyan-500/50 transition font-medium"
           >
-            Let's Talk
+            Let&apos;s Talk
           </Link>
         </motion.div>
       </main>

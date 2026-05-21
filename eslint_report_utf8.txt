@@ -1,0 +1,219 @@
+﻿
+> portfolio-gen@0.1.0 npx
+> eslint .
+
+
+E:\project_sitrezhuthu\portfolio-gen\__tests__\api\edgeCases.test.ts
+  14:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\__tests__\api\portfolio.test.ts
+  20:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\__tests__\setup\api.setup.ts
+  10:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\__tests__\setup\jest.setup.ts
+   7:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   8:21  error  A `require()` style import is forbidden   @typescript-eslint/no-require-imports
+  12:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\__tests__\unit\components\CanvasElement.test.tsx
+  8:37  warning  'waitFor' is defined but never used  @typescript-eslint/no-unused-vars
+
+E:\project_sitrezhuthu\portfolio-gen\__tests__\unit\components\LayersPanel.test.tsx
+  11:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\__tests__\unit\store\usePortfolioStore.test.ts
+   7:10  warning  'act' is defined but never used          @typescript-eslint/no-unused-vars
+  23:26  error    A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+E:\project_sitrezhuthu\portfolio-gen\app\(auth)\login\page.tsx
+   38:19  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+   52:17  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  130:16  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+E:\project_sitrezhuthu\portfolio-gen\app\(auth)\signup\page.tsx
+  48:19  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  66:19  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  97:44  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+E:\project_sitrezhuthu\portfolio-gen\app\(editor)\editor\page.tsx
+  259:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  260:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  261:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  262:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  263:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  264:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  265:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  266:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  267:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  268:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  269:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  270:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  271:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  272:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  273:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  274:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  275:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\app\[username]\loading.tsx
+  1:10  warning  'Loader2' is defined but never used  @typescript-eslint/no-unused-vars
+
+E:\project_sitrezhuthu\portfolio-gen\app\[username]\page.tsx
+  139:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\app\about\page.tsx
+  168:17   error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  168:106  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+E:\project_sitrezhuthu\portfolio-gen\app\admin\page.tsx
+  29:42  error    Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  48:46  error    Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  52:58  error    Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  67:42  warning  React Hook useEffect has a missing dependency: 'fetchTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\project_sitrezhuthu\portfolio-gen\app\api\portfolio\check-slug\route.ts
+  16:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\app\api\portfolio\route.ts
+    7:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   30:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   89:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  107:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\app\api\upload\route.ts
+  41:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\app\contact\page.tsx
+   98:16  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  223:52  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+E:\project_sitrezhuthu\portfolio-gen\app\dashboard\page.tsx
+  22:46   error    Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
+  44:204  error    Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
+  83:48   error    Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
+  90:6    warning  React Hook useEffect has a missing dependency: 'fetchPortfolios'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\project_sitrezhuthu\portfolio-gen\app\experience\page.tsx
+    5:20  warning  'ExternalLink' is defined but never used                         @typescript-eslint/no-unused-vars
+   89:9   warning  'containerVariants' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  277:54  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+E:\project_sitrezhuthu\portfolio-gen\app\layout.tsx
+  18:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+E:\project_sitrezhuthu\portfolio-gen\app\not-found.tsx
+  9:73  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+E:\project_sitrezhuthu\portfolio-gen\app\projects\page.tsx
+  158:38  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  192:45  warning  'idx' is defined but never used                                  @typescript-eslint/no-unused-vars
+
+E:\project_sitrezhuthu\portfolio-gen\app\settings\page.tsx
+    8:9   warning  'Mail' is defined but never used                 @typescript-eslint/no-unused-vars
+    8:27  warning  'Shield' is defined but never used               @typescript-eslint/no-unused-vars
+    8:35  warning  'Monitor' is defined but never used              @typescript-eslint/no-unused-vars
+    9:19  warning  'AlertCircle' is defined but never used          @typescript-eslint/no-unused-vars
+    9:32  warning  'ChevronRight' is defined but never used         @typescript-eslint/no-unused-vars
+    9:46  warning  'Moon' is defined but never used                 @typescript-eslint/no-unused-vars
+    9:52  warning  'Eye' is defined but never used                  @typescript-eslint/no-unused-vars
+    9:57  warning  'EyeOff' is defined but never used               @typescript-eslint/no-unused-vars
+   87:10  warning  'oldPass' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   87:19  warning  'setOldPass' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   88:10  warning  'newPass' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   88:19  warning  'setNewPass' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   89:10  warning  'showOld' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   89:19  warning  'setShowOld' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   90:10  warning  'showNew' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   90:19  warning  'setShowNew' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  134:19  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\app\skills\page.tsx
+   55:10  warning  'selectedSkill' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  270:16  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+E:\project_sitrezhuthu\portfolio-gen\app\templates\create\page.tsx
+  29:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\app\templates\page.tsx
+  313:25   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  430:36   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  433:59   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  461:41   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  461:109  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  461:132  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  463:44   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  463:90   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\components\Logo.tsx
+  4:7  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+E:\project_sitrezhuthu\portfolio-gen\components\canvas\CanvasElement.tsx
+    2:28  warning  'useCallback' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  174:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  178:73  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  219:15  warning  'sz' is assigned a value but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+
+E:\project_sitrezhuthu\portfolio-gen\components\canvas\CanvasToolbar.tsx
+   7:35  warning  'Upload' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   8:42  warning  'Phone' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   8:49  warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  41:37  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  43:21  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  44:16  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+E:\project_sitrezhuthu\portfolio-gen\components\canvas\CanvasToolbar.tsx:44:16
+  42 |     addCustomElement({
+  43 |       type: type as any,
+> 44 |       x: 180 + Math.random() * 120,
+     |                ^^^^^^^^^^^^^ Cannot call impure function
+  45 |       y: 180 + Math.random() * 120,
+  46 |       width: extra.width || 200,
+  47 |       height: extra.height || 60,  react-hooks/purity
+  45:16  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+E:\project_sitrezhuthu\portfolio-gen\components\canvas\CanvasToolbar.tsx:45:16
+  43 |       type: type as any,
+  44 |       x: 180 + Math.random() * 120,
+> 45 |       y: 180 + Math.random() * 120,
+     |                ^^^^^^^^^^^^^ Cannot call impure function
+  46 |       width: extra.width || 200,
+  47 |       height: extra.height || 60,
+  48 |       zIndex: 10,       react-hooks/purity
+
+E:\project_sitrezhuthu\portfolio-gen\components\canvas\PropertiesPanel.tsx
+    4:115  warning  'Link' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+    4:121  warning  'ExternalLink' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+    4:135  warning  'Globe' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+    4:142  warning  'Mail' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  117:22   error    Missing "key" prop for element in array                                                                                                                                                                                                                                                  react/jsx-key
+  117:81   error    Missing "key" prop for element in array                                                                                                                                                                                                                                                  react/jsx-key
+  117:136  error    Missing "key" prop for element in array                                                                                                                                                                                                                                                  react/jsx-key
+  117:189  error    Missing "key" prop for element in array                                                                                                                                                                                                                                                  react/jsx-key
+  188:124  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  233:116  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  239:124  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  273:13   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  277:43   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  277:122  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  285:136  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  319:146  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+
+E:\project_sitrezhuthu\portfolio-gen\components\editor\FormPanel.tsx
+  139:37  warning  '_onSave' is defined but never used                @typescript-eslint/no-unused-vars
+  139:56  warning  '_isSaving' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  139:88  warning  '_saveMessage' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+E:\project_sitrezhuthu\portfolio-gen\components\preview\LivePreview.tsx
+  25:29  warning  '_props' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 124 problems (82 errors, 42 warnings)
+

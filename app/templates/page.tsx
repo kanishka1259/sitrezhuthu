@@ -1,17 +1,16 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-  Eye, Edit3, X, ArrowRight, Zap, Star, Sparkles,
-  Monitor, Tablet, Smartphone, CheckCircle,
-  Heart, Upload, Filter, Check, Clock, Loader2
+  Eye, Edit3, X, Zap, Sparkles,
+  Monitor, Tablet, Smartphone,
+  Heart, Upload, Check, Loader2
 } from 'lucide-react';
-import { usePortfolioStore, TEMPLATE_DEFAULTS } from '@/store/usePortfolioStore';
-import { IridescentButterfly } from '@/components/Logo';
+import { usePortfolioStore, TEMPLATE_DEFAULTS, TemplateStyles, PortfolioStore } from '@/store/usePortfolioStore';
+import { CustomElement } from '@/types/portfolio';
 import { Navbar } from '@/components/common/Navbar';
 import { useFirebaseAuth } from '@/lib/firebase-auth-context';
 import { MinimalTemplate } from '@/components/templates/Minimal';
@@ -28,7 +27,7 @@ import { DEMO, templates, categories, SAMPLE_TEMPLATES, TemplateId, TemplateMeta
 import { memo, useMemo, useRef } from 'react';
 
 // ─── tiny live mini-preview thumbnails ──────────────────────────────────────
-const LiveThumbnail = memo(function LiveThumbnail({ templateId, templateStyles, customElements, gradient }: { templateId: string, templateStyles: any, customElements?: any[], gradient?: string }) {
+const LiveThumbnail = memo(function LiveThumbnail({ templateId, templateStyles, customElements, gradient }: { templateId: TemplateId, templateStyles: TemplateStyles, customElements?: CustomElement[], gradient?: string }) {
   const [isInView, setIsInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +45,7 @@ const LiveThumbnail = memo(function LiveThumbnail({ templateId, templateStyles, 
     return () => observer.disconnect();
   }, []);
 
-  const demoData = useMemo(() => ({ ...DEMO, template: templateId, templateStyles, customElements }), [templateId, templateStyles, customElements]);
+  const demoData = useMemo(() => ({ ...DEMO, template: templateId, templateStyles, customElements } as unknown as PortfolioStore), [templateId, templateStyles, customElements]);
 
   const renderTemplate = () => {
     if (!isInView) return (
@@ -55,16 +54,16 @@ const LiveThumbnail = memo(function LiveThumbnail({ templateId, templateStyles, 
       </div>
     );
     switch (templateId) {
-      case 'minimal':       return <MinimalTemplate data={demoData} />;
-      case 'cards':         return <ModernCardsTemplate data={demoData} />;
-      case 'dark':          return <DarkThemeTemplate data={demoData} />;
+      case 'minimal': return <MinimalTemplate data={demoData} />;
+      case 'cards': return <ModernCardsTemplate data={demoData} />;
+      case 'dark': return <DarkThemeTemplate data={demoData} />;
       case 'glassmorphism': return <GlassmorphismTemplate data={demoData} />;
-      case 'tech-minimal':  return <TechMinimalTemplate data={demoData} />;
-      case 'creative':      return <CreativeTemplate data={demoData} />;
-      case 'neon':          return <NeonTemplate data={demoData} />;
-      case 'executive':     return <ExecutiveTemplate data={demoData} />;
-      case 'bento':         return <BentoTemplate data={demoData} />;
-      default:              return <MinimalTemplate data={demoData} />;
+      case 'tech-minimal': return <TechMinimalTemplate data={demoData} />;
+      case 'creative': return <CreativeTemplate data={demoData} />;
+      case 'neon': return <NeonTemplate data={demoData} />;
+      case 'executive': return <ExecutiveTemplate data={demoData} />;
+      case 'bento': return <BentoTemplate data={demoData} />;
+      default: return <MinimalTemplate data={demoData} />;
     }
   };
 
@@ -90,22 +89,22 @@ const LiveThumbnail = memo(function LiveThumbnail({ templateId, templateStyles, 
 
 function PreviewModal({ template, onClose, onUse }: { template: TemplateMeta; onClose: () => void; onUse: () => void }) {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-  const demoData = useMemo(() => ({ ...DEMO, template: template.id, templateStyles: TEMPLATE_DEFAULTS[template.id] ?? TEMPLATE_DEFAULTS['minimal'] }), [template.id]);
+  const demoData = useMemo(() => ({ ...DEMO, template: template.id, templateStyles: TEMPLATE_DEFAULTS[template.id as TemplateId] ?? TEMPLATE_DEFAULTS['minimal'] } as unknown as PortfolioStore), [template.id]);
 
   const widths = { desktop: '100%', tablet: '768px', mobile: '390px' };
 
   const renderTemplate = () => {
     switch (template.id) {
-      case 'minimal':       return <MinimalTemplate data={demoData} />;
-      case 'cards':         return <ModernCardsTemplate data={demoData} />;
-      case 'dark':          return <DarkThemeTemplate data={demoData} />;
+      case 'minimal': return <MinimalTemplate data={demoData} />;
+      case 'cards': return <ModernCardsTemplate data={demoData} />;
+      case 'dark': return <DarkThemeTemplate data={demoData} />;
       case 'glassmorphism': return <GlassmorphismTemplate data={demoData} />;
-      case 'tech-minimal':  return <TechMinimalTemplate data={demoData} />;
-      case 'creative':      return <CreativeTemplate data={demoData} />;
-      case 'neon':          return <NeonTemplate data={demoData} />;
-      case 'executive':     return <ExecutiveTemplate data={demoData} />;
-      case 'bento':         return <BentoTemplate data={demoData} />;
-      default:              return null;
+      case 'tech-minimal': return <TechMinimalTemplate data={demoData} />;
+      case 'creative': return <CreativeTemplate data={demoData} />;
+      case 'neon': return <NeonTemplate data={demoData} />;
+      case 'executive': return <ExecutiveTemplate data={demoData} />;
+      case 'bento': return <BentoTemplate data={demoData} />;
+      default: return null;
     }
   };
 
@@ -143,8 +142,8 @@ function PreviewModal({ template, onClose, onUse }: { template: TemplateMeta; on
           <button
             onClick={onUse}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.6rem 1.25rem', background: '#3DAA7A', border: 'none', borderRadius: 12, color: '#FAF9F6', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all .2s' }}
-            onMouseEnter={e => { e.currentTarget.style.transform  = 'scale(1.02)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform  = 'scale(1)'; }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
             <Edit3 size={14} /> Use This Template
           </button>
@@ -209,8 +208,9 @@ function SubmitModal({ onClose }: { onClose: () => void }) {
         }
       });
       setStatus('success');
-    } catch (err: any) {
-      setError(err?.response?.data?.error || 'Submission failed. Please try again.');
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error : (err instanceof Error ? err.message : 'Submission failed.');
+      setError(msg);
       setStatus('error');
     }
   };
@@ -275,7 +275,7 @@ function SubmitModal({ onClose }: { onClose: () => void }) {
 
               <div style={{ padding: '.75rem', background: 'rgba(61,170,122,.06)', border: '1px solid rgba(61,170,122,.15)', borderRadius: 10, fontSize: '.75rem', color: 'rgba(61,170,122,.6)', lineHeight: 1.6, display: 'flex', gap: 8 }}>
                 <Sparkles size={14} style={{ flexShrink: 0, marginTop: 2, color: '#3DAA7A' }} />
-                <span>We'll capture your current <strong style={{ color: '#3DAA7A' }}>template + style settings</strong> automatically. After review, your design will be added to the gallery.</span>
+                <span>We&apos;ll capture your current <strong style={{ color: '#3DAA7A' }}>template + style settings</strong> automatically. After review, your design will be added to the gallery.</span>
               </div>
 
               {status === 'error' && <p style={{ color: '#f87171', fontSize: '.8rem' }}>{error}</p>}
@@ -296,277 +296,265 @@ function SubmitModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Template Card (Community) ───────────────────────────────────────────────────────────
-function CommunityCard({ tpl, onUse, onVote }: { tpl: any; onUse: (tpl: any) => void; onVote: (id: string) => void }) {
-  const s = tpl.templateStyles || {};
-  const p = s.primaryColor || '#3DAA7A';
-  const bg = s.bgColor || '#f8f7ff';
+// ─── Unified Template Card ───────────────────────────────────────────────────────────
+function TemplateCard({
+  template,
+  isCommunity,
+  onPreview,
+  onUse,
+  onVote
+}: {
+  template: TemplateMeta | Record<string, unknown>;
+  isCommunity?: boolean;
+  onPreview: (t: TemplateMeta | Record<string, unknown>) => void;
+  onUse: (t: TemplateMeta | Record<string, unknown>) => void;
+  onVote?: (id: string) => void;
+}) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const t = template as any;
+  const styles = isCommunity ? t.templateStyles : (TEMPLATE_DEFAULTS[t.id as TemplateId] ?? TEMPLATE_DEFAULTS['minimal']);
+  const baseId = (isCommunity ? t.baseTemplate : t.id) as TemplateId;
+  const name = isCommunity ? t.templateName : t.name;
+  const tagline = isCommunity ? `by ${t.authorName}` : t.tagline;
+  const accent = isCommunity ? (styles.primaryColor || '#3DAA7A') : t.accentColor;
 
   return (
-    <div style={{ borderRadius: 24, border: '1px solid rgba(61,170,122,.05)', overflow: 'hidden', background: 'rgba(61,170,122,.02)', backdropFilter: 'blur(8px)', display: 'flex', flexDirection: 'column', transition: 'all .25s' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(167,139,250,.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(61,170,122,.05)'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}>
+    <motion.div layout
+      className="rounded-[24px] border border-white/5 bg-white/[0.02] flex flex-col hover:-translate-y-1 hover:border-white/10 transition-all duration-300">
+      <div className="h-[200px] relative mx-3 mt-3 rounded-[16px] overflow-hidden cursor-pointer" onClick={() => onPreview(t)}>
+        <LiveThumbnail
+          templateId={baseId}
+          templateStyles={styles}
+          customElements={isCommunity ? t.customElements : undefined}
+          gradient={!isCommunity ? t.gradient : styles.bgColor}
+        />
 
-      <div style={{ height: 180, background: bg, position: 'relative', overflow: 'hidden', flexShrink: 0, margin: '0.75rem 0.75rem 0', borderRadius: 16 }}>
-        <LiveThumbnail templateId={tpl.baseTemplate} templateStyles={s} customElements={tpl.customElements} gradient={bg} />
-        {tpl.status === 'approved' ? (
-          <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', alignItems: 'center', gap: 4, padding: '.3rem .75rem', borderRadius: 999, fontSize: '.62rem', fontWeight: 700, background: 'rgba(61,170,122,0.9)', color: '#050A07', backdropFilter: 'blur(4px)' }}>
-            <Check size={10} strokeWidth={4} />
-            VERIFIED
-          </div>
-        ) : (
-          <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', alignItems: 'center', gap: 4, padding: '.3rem .75rem', borderRadius: 999, fontSize: '.62rem', fontWeight: 700, background: 'rgba(251,191,36,0.9)', color: '#050A07', backdropFilter: 'blur(4px)' }}>
-            <Clock size={10} strokeWidth={4} />
-            PENDING
+        {isCommunity && (
+          <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-[9px] font-bold bg-[#3DAA7A] text-[#050A07] uppercase tracking-wider shadow-lg">
+            Community Design
           </div>
         )}
-      </div>
+        {!isCommunity && t.badge && (
+          <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-wider shadow-lg" style={{ background: t.badgeColor }}>
+            {t.badge as string}
+          </div>
+        )}
 
-      <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-        <div style={{ fontWeight: 600, fontSize: '1.15rem', color: '#fff' }}>{tpl.templateName}</div>
-        <div style={{ fontSize: '.85rem', color: '#A0BCAE', fontWeight: 500 }}>by {tpl.authorName}</div>
-        {tpl.description && <p style={{ fontSize: '.85rem', color: '#A0BCAE', lineHeight: 1.6, flex: 1, marginTop: '0.25rem' }}>{tpl.description}</p>}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
-          <span style={{ fontSize: '.7rem', padding: '.25rem .6rem', borderRadius: 6, background: 'rgba(61,170,122,.05)', color: '#e5e7eb', fontWeight: 500 }}>
-            Base: {tpl.baseTemplate}
-          </span>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['primaryColor','secondaryColor','bgColor'].map(k => s[k] && (
-              <div key={k} style={{ width: 14, height: 14, borderRadius: '50%', background: s[k], border: '1px solid rgba(61,170,122,.2)' }} />
-            ))}
+        <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-[2px]">
+          <div className="flex items-center gap-2 px-5 py-3 bg-white/20 rounded-xl text-sm font-semibold text-white backdrop-blur-md">
+            <Eye size={16} /> Preview
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '0 1.25rem 1.25rem', display: 'flex', gap: '.75rem' }}>
-        <button onClick={() => onVote(tpl._id)}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '.65rem .85rem', borderRadius: 12, border: '1px solid rgba(61,170,122,.1)', background: 'transparent', color: '#3DAA7A', fontSize: '.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}
-          onMouseEnter={e => { e.currentTarget.style.background  = 'rgba(61,170,122,0.05)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background  = 'transparent'; }}>
-          <Heart size={14} /> {tpl.votes || 0}
+      <div className="p-6 flex-1 flex flex-col gap-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="font-semibold text-[1.15rem] mb-1 text-white">{name as string}</div>
+            <div className="text-sm font-medium" style={{ color: accent }}>{tagline as string}</div>
+          </div>
+          {isCommunity && onVote && (
+            <button onClick={(e) => { e.stopPropagation(); onVote(t._id); }}
+              className="flex items-center gap-1.5 text-xs text-[#A0BCAE] hover:text-[#3DAA7A] transition-colors bg-white/5 px-2 py-1 rounded-lg border border-white/10">
+              <Heart size={12} className={t.votes > 0 ? "fill-[#3DAA7A] text-[#3DAA7A]" : ""} />
+              {t.votes || 0}
+            </button>
+          )}
+          {!isCommunity && (
+            <div className="text-xs text-[#A0BCAE] font-medium flex items-center gap-1.5">
+              <Zap size={14} style={{ color: accent }} />
+              {t.usedCount?.toLocaleString() || 0}
+            </div>
+          )}
+        </div>
+        <p className="text-sm text-[#A0BCAE] leading-relaxed font-normal line-clamp-2">
+          {isCommunity ? t.description as string : t.description as string}
+        </p>
+        {!isCommunity && (
+          <div className="flex flex-wrap gap-2 mt-auto">
+            {(t.features || []).slice(0, 3).map((f: string) => (
+              <span key={f} className="text-[10px] px-2 py-1 bg-white/5 border border-white/10 rounded-md text-[#D8EDE2] font-medium uppercase tracking-tight">{f}</span>
+            ))}
+          </div>
+        )}
+        {isCommunity && (
+          <div className="mt-auto flex items-center gap-2">
+            <span className="text-[10px] px-2 py-1 bg-[#3DAA7A]/10 border border-[#3DAA7A]/20 rounded-md text-[#3DAA7A] font-bold uppercase">
+              Base: {t.baseTemplate as string}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="px-6 pb-6 flex gap-3">
+        <button onClick={() => onPreview(t)}
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 transition-colors">
+          <Eye size={16} /> Preview
         </button>
-        <button onClick={() => onUse(tpl)}
-          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '.65rem', borderRadius: 12, border: 'none', background: '#3DAA7A', color: '#FAF9F6', fontSize: '.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.03)'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}>
-          Use This <ArrowRight size={14} />
+        <button onClick={() => onUse(t)}
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#3DAA7A] text-[#050A07] text-sm font-bold hover:scale-[1.03] transition-transform">
+          <Edit3 size={16} /> Use Template
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-
-
 // ─── Main Templates Page ───────────────────────────────────────────────────────────
 export default function TemplatesPage() {
-  const [activeTab, setActiveTab] = useState<'official' | 'community'>('official');
-  
-  // Official State
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activePreview, setActivePreview] = useState<TemplateMeta | null>(null);
-  
+  const [activePreview, setActivePreview] = useState<TemplateMeta | Record<string, unknown> | null>(null);
+
   // Community State
-  const [communityTemplates, setCommunityTemplates] = useState<any[]>([]);
+  const [communityTemplates, setCommunityTemplates] = useState<Record<string, unknown>[]>([]);
   const [communityLoading, setCommunityLoading] = useState(true);
   const [showSubmit, setShowSubmit] = useState(false);
-  const [communityFilter, setCommunityFilter] = useState('all');
 
   const { setTemplate, setTemplateStyle } = usePortfolioStore();
   const router = useRouter();
 
-  // Fetch community templates when tab is opened
+  // Fetch community templates on mount
   useEffect(() => {
-    if (activeTab === 'community' && communityTemplates.length === 0) {
-      setCommunityLoading(true);
-      axios.get('/api/templates/community')
-        .then(r => setCommunityTemplates(r.data.length ? r.data : SAMPLE_TEMPLATES))
-        .catch(() => setCommunityTemplates(SAMPLE_TEMPLATES))
-        .finally(() => setCommunityLoading(false));
-    }
-  }, [activeTab, communityTemplates.length]);
-
-  const filteredOfficial = selectedCategory === 'All'
-    ? templates
-    : templates.filter(t => t.category === selectedCategory);
-
-  const filteredCommunity = communityFilter === 'all' 
-    ? communityTemplates 
-    : communityTemplates.filter(t => t.baseTemplate === communityFilter);
+    // communityLoading is true by default, no need to set it here
+    axios.get('/api/templates/community')
+      .then(r => setCommunityTemplates(r.data.length ? r.data : SAMPLE_TEMPLATES))
+      .catch(() => setCommunityTemplates(SAMPLE_TEMPLATES))
+      .finally(() => setCommunityLoading(false));
+  }, []);
 
   const handleUseOfficial = (id: TemplateId) => {
     setActivePreview(null);
     setTemplate(id);
-    router.push('/editor');
+    router.push(`/editor?template=${id}`);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUseCommunity = (tpl: any) => {
-    setTemplate(tpl.baseTemplate);
+    setTemplate(tpl.baseTemplate as TemplateId);
     if (tpl.templateStyles) {
-      Object.entries(tpl.templateStyles).forEach(([k, v]) => setTemplateStyle(k as any, v));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Object.entries(tpl.templateStyles as Record<string, any>).forEach(([k, v]) => setTemplateStyle(k as keyof TemplateStyles, v));
     }
-    usePortfolioStore.getState().setField('customElements', tpl.customElements || []);
-    router.push('/editor');
+    usePortfolioStore.getState().setField('customElements', (tpl.customElements as CustomElement[]) || []);
+    router.push(`/editor?template=${tpl.baseTemplate}`);
   };
 
   const handleVote = async (id: string) => {
     try {
       await axios.patch('/api/templates/community', { id, action: 'vote' });
-      setCommunityTemplates(prev => prev.map(t => t._id === id ? { ...t, votes: (t.votes || 0) + 1 } : t));
+      setCommunityTemplates(prev => prev.map(t => t._id === id ? { ...t, votes: ((t.votes as number) || 0) + 1 } : t));
     } catch { /* soft fail */ }
   };
 
-  const totalUsed = templates.reduce((s, t) => s + t.usedCount, 0);
+  const filteredOfficial = selectedCategory === 'All' || selectedCategory === 'Official'
+    ? templates
+    : templates.filter(t => t.category === selectedCategory);
+
+  const filteredCommunity = selectedCategory === 'All' || selectedCategory === 'Community'
+    ? communityTemplates
+    : [];
+
+  const displayCategories = ['All', 'Official', 'Community', ...categories.filter(c => c !== 'All')];
 
   return (
     <>
       <AnimatePresence>
         {activePreview && (
           <PreviewModal
-            template={activePreview}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            template={(activePreview as any).id ? activePreview : { ...activePreview, id: (activePreview as any).baseTemplate } as any}
             onClose={() => setActivePreview(null)}
-            onUse={() => handleUseOfficial(activePreview.id)}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onUse={() => (activePreview as any).id ? handleUseOfficial((activePreview as any).id) : handleUseCommunity(activePreview as Record<string, unknown>)}
           />
         )}
       </AnimatePresence>
-      
+
       {showSubmit && <SubmitModal onClose={() => setShowSubmit(false)} />}
 
-      <div className="min-h-screen font-sans bg-[#050A07] text-[#D8EDE2] overflow-hidden relative">
+      <div className="min-h-screen font-sans bg-[var(--bg)] text-[var(--text)] overflow-hidden relative">
         {/* Background Orbs */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute top-[10%] right-[-10%] w-[800px] h-[800px] bg-gradient-to-tr from-[#3DAA7A]/15 to-[#3DAA7A]/15 blur-[150px] rounded-full mix-blend-screen" />
           <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tl from-[#3DAA7A]/10 to-[#3DAA7A]/10 blur-[150px] rounded-full mix-blend-screen" />
           <div className="absolute top-[30%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#3DAA7A]/20 to-transparent shadow-[0_0_30px_#3DAA7A]" />
         </div>
-        
+
         <Navbar />
 
         <main className="relative z-10 max-w-[1200px] mx-auto px-6 pb-24">
 
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
             className="text-center pt-24 pb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-sm font-medium text-[#e5e7eb] mb-8">
-              <Sparkles size={14} className="text-[#3DAA7A]" />
-              {activeTab === 'official' ? `${templates.length} official templates` : 'Community designs'}
-            </div>
+
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-white">
               Pick your perfect <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3DAA7A] to-[#62C99A]">template</span>
             </h1>
             <p className="text-lg text-[#A0BCAE] max-w-[600px] mx-auto leading-relaxed">
-              Every template is completely fluid. Use an official layout or explore creative combinations submitted by our community.
+              Choose from our high-fidelity official layouts or unique creative designs shared by the community.
             </p>
-            
-            <div className="mt-12 inline-flex items-center p-1.5 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-md">
-              <button onClick={() => setActiveTab('official')}
-                className={`px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'official' ? 'bg-[#3DAA7A] text-[#050A07] shadow-[0_0_15px_rgba(61,170,122,0.4)]' : 'text-[#A0BCAE] hover:text-white'}`}>
-                Official Templates
-              </button>
-              <button onClick={() => setActiveTab('community')}
-                className={`px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'community' ? 'bg-[#3DAA7A] text-[#050A07] shadow-[0_0_15px_rgba(61,170,122,0.4)]' : 'text-[#A0BCAE] hover:text-white'}`}>
-                Community Designs
-              </button>
+
+            <div className="mt-12 flex flex-wrap gap-2 justify-center">
+              {displayCategories.map((cat) => (
+                <button key={cat} onClick={() => setSelectedCategory(cat)}
+                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === cat ? 'bg-[#3DAA7A] text-[#050A07] shadow-[0_0_15px_rgba(61,170,122,0.3)]' : 'bg-transparent border border-white/10 text-[#A0BCAE] hover:text-white'
+                    }`}>
+                  {cat}
+                </button>
+              ))}
             </div>
           </motion.div>
 
-          {activeTab === 'official' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-              {/* Official Filters */}
-              <div className="flex flex-wrap gap-2 justify-center mb-12">
-                {categories.map((cat) => (
-                  <button key={cat} onClick={() => setSelectedCategory(cat)}
-                    className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                      selectedCategory === cat ? 'bg-white text-black' : 'bg-transparent border border-white/10 text-[#A0BCAE] hover:text-white'
-                    }`}>
-                    {cat}
-                  </button>
-                ))}
-              </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Zap size={20} className="text-[#3DAA7A]" />
+              {selectedCategory} Designs
+            </h2>
+            <button onClick={() => setShowSubmit(true)}
+              className="flex items-center gap-2 px-6 py-2.5 bg-[#3DAA7A]/10 hover:bg-[#3DAA7A]/20 border border-[#3DAA7A]/20 rounded-xl text-sm font-bold text-[#3DAA7A] transition-all">
+              <Upload size={16} /> Share Your Design
+            </button>
+          </div>
 
-              {/* Official Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
-                <AnimatePresence>
-                  {filteredOfficial.map((template) => (
-                    <motion.div key={template.id} layout
-                      className="rounded-[24px] border border-white/5 bg-white/[0.02] flex flex-col hover:-translate-y-1 hover:border-white/10 transition-all duration-300">
-                      <div className="h-[200px] relative mx-3 mt-3 rounded-[16px] overflow-hidden cursor-pointer" onClick={() => setActivePreview(template)}>
-                        <LiveThumbnail templateId={template.id} templateStyles={TEMPLATE_DEFAULTS[template.id] ?? TEMPLATE_DEFAULTS['minimal']} gradient={template.gradient} />
-                        {template.badge && (
-                          <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold text-[#3DAA7A] uppercase tracking-wider shadow-lg" style={{ background: template.badgeColor }}>
-                            {template.badge}
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-[2px]">
-                          <div className="flex items-center gap-2 px-5 py-3 bg-white/20 rounded-xl text-sm font-semibold text-white backdrop-blur-md">
-                            <Eye size={16} /> Preview
-                          </div>
-                        </div>
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <AnimatePresence>
+              {/* Official Templates */}
+              {filteredOfficial.map((template) => (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  onPreview={setActivePreview}
+                  onUse={() => handleUseOfficial(template.id)}
+                />
+              ))}
 
-                      <div className="p-6 flex-1 flex flex-col gap-4">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="font-semibold text-[1.15rem] mb-1 text-white">{template.name}</div>
-                            <div className="text-sm font-medium" style={{ color: template.accentColor }}>{template.tagline}</div>
-                          </div>
-                          <div className="text-xs text-[#A0BCAE] font-medium flex items-center gap-1.5">
-                            <Zap size={14} style={{ color: template.accentColor }} />
-                            {template.usedCount.toLocaleString()}
-                          </div>
-                        </div>
-                        <p className="text-sm text-[#A0BCAE] leading-relaxed font-normal">{template.description}</p>
-                        <div className="flex flex-wrap gap-2 mt-auto">
-                          {template.features.map((f) => (
-                            <span key={f} className="text-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[#D8EDE2] font-medium">{f}</span>
-                          ))}
-                        </div>
-                      </div>
+              {/* Community Templates */}
+              {!communityLoading && filteredCommunity.map((tpl) => (
+                <TemplateCard
+                  key={tpl._id as string}
+                  template={tpl}
+                  isCommunity
+                  onPreview={setActivePreview}
+                  onUse={handleUseCommunity}
+                  onVote={handleVote}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
 
-                      <div className="px-6 pb-6 flex gap-3">
-                        <button onClick={() => setActivePreview(template)}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 transition-colors">
-                          <Eye size={16} /> Preview
-                        </button>
-                        <button onClick={() => handleUseOfficial(template.id)}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-black text-sm font-semibold hover:scale-[1.03] transition-transform">
-                          <Edit3 size={16} /> Use Template
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </motion.div>
+          {communityLoading && selectedCategory !== 'Official' && (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+              <Loader2 size={32} className="animate-spin text-[#3DAA7A]" />
+              <p className="text-[#A0BCAE] font-medium">Discovering community gems...</p>
+            </div>
           )}
 
-          {activeTab === 'community' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-              
-              <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
-                <div className="flex flex-wrap gap-2">
-                  {['all','minimal','cards','dark','glassmorphism','tech-minimal'].map(f => (
-                    <button key={f} onClick={() => setCommunityFilter(f)}
-                      className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 capitalize ${communityFilter === f ? 'bg-[#3DAA7A] text-[#050A07]' : 'bg-transparent border border-white/10 text-[#A0BCAE] hover:text-white'}`}>
-                      {f === 'all' ? 'All Bases' : f.replace('-',' ')}
-                    </button>
-                  ))}
-                </div>
-                <button onClick={() => setShowSubmit(true)}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-sm font-semibold transition-all">
-                  <Upload size={16} /> Submit Your Design
-                </button>
-              </div>
-
-              {communityLoading ? (
-                <div className="text-center py-24 text-[#A0BCAE]">Loading community templates...</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
-                  {filteredCommunity.map(tpl => (
-                    <CommunityCard key={tpl._id} tpl={tpl} onUse={handleUseCommunity} onVote={handleVote} />
-                  ))}
-                </div>
-              )}
-            </motion.div>
+          {!communityLoading && filteredCommunity.length === 0 && selectedCategory === 'Community' && (
+            <div className="text-center py-24 border border-dashed border-white/10 rounded-3xl">
+              <Sparkles size={48} className="mx-auto text-[#A0BCAE] opacity-20 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">No community designs found</h3>
+              <p className="text-[#A0BCAE]">Be the first to share your creative layout!</p>
+            </div>
           )}
 
         </main>

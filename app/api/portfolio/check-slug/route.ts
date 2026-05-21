@@ -13,7 +13,8 @@ export async function GET(req: NextRequest) {
     if (slug.length < 2) return NextResponse.json({ available: false, reason: 'Too short (min 2 chars)' });
     const existing = await Portfolio.findOne({ slug, userId: { $ne: uid } }).lean();
     return NextResponse.json({ available: !existing, slug });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const error = err as Error;
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

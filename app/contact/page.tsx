@@ -95,7 +95,7 @@ export default function ContactPage() {
         >
           <h1 className="text-6xl lg:text-7xl font-bold mb-6">Get In Touch</h1>
           <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Let's discuss your project and see how I can help bring your vision to life
+            Let&apos;s discuss your project and see how I can help bring your vision to life
           </p>
         </motion.div>
 
@@ -220,7 +220,7 @@ export default function ContactPage() {
                     </div>
                     <h3 className="text-2xl font-bold mb-2">Message Sent!</h3>
                     <p className="text-white/70">
-                      Thank you for reaching out. I'll get back to you soon!
+                      Thank you for reaching out. I&apos;ll get back to you soon!
                     </p>
                   </motion.div>
                 ) : (

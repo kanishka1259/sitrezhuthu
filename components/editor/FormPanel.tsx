@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo, memo } from 'react';
+import Link from 'next/link';
 import { usePortfolioStore } from '@/store/usePortfolioStore';
 import { SkillInput } from './SkillInput';
 import { ProjectCard } from './ProjectCard';
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useFirebaseAuth } from '@/lib/firebase-auth-context';
 import Image from 'next/image';
+import { type PortfolioData } from '@/types/portfolio';
 
 interface FormPanelProps {
   onSave?: () => Promise<void>;
@@ -44,6 +46,22 @@ const TABS = [
 
 type TabId = typeof TABS[number]['id'];
 
+interface ProfileTabProps {
+  portfolio: {
+    name: string;
+    slug?: string;
+    isPublic: boolean;
+    bio?: string;
+    avatar?: string;
+    allowedEmails?: string[];
+    setField: <K extends keyof PortfolioData>(key: K, value: PortfolioData[K]) => void;
+  };
+  allowedEmailInput: string;
+  setAllowedEmailInput: (val: string) => void;
+  handleAvatarUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  uploadingAvatar: boolean;
+}
+
 // Memoized sub-components to prevent parent re-renders from affecting them
 const ProfileTab = memo(({ 
   portfolio, 
@@ -51,16 +69,16 @@ const ProfileTab = memo(({
   setAllowedEmailInput, 
   handleAvatarUpload, 
   uploadingAvatar 
-}: any) => {
-  const inputCls = 'w-full px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] rounded-xl text-white placeholder-[#6b7280] text-[14px] font-medium focus:outline-none focus:border-[#3DAA7A] focus:bg-[rgba(255,255,255,0.06)] transition-all';
-  const labelCls = 'block text-[12px] font-semibold text-[#e5e7eb] tracking-wide mb-1.5 mt-5';
+}: ProfileTabProps) => {
+  const inputCls = 'editor-input';
+  const labelCls = 'editor-label';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(61,170,122,0.03)', borderRadius: 16, border: '1px solid rgba(61,170,122,0.05)', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'var(--editor-card-bg)', borderRadius: 16, border: '1px solid var(--editor-card-border)', marginBottom: '1.5rem' }}>
         <div>
-          <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#e5e7eb' }}>Public Portfolio</div>
-          <div style={{ fontSize: '0.8rem', color: '#A0BCAE', marginTop: 2, fontWeight: 400 }}>Anyone with the link can view</div>
+          <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--editor-text)' }}>Public Portfolio</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--editor-text-muted)', marginTop: 2, fontWeight: 400 }}>Anyone with the link can view</div>
         </div>
         <label style={{ position: 'relative', display: 'inline-block', width: 44, height: 24 }}>
           <input type="checkbox" checked={portfolio.isPublic ?? true} onChange={e => portfolio.setField('isPublic', e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
@@ -71,18 +89,18 @@ const ProfileTab = memo(({
       </div>
 
       {!(portfolio.isPublic ?? true) && (
-        <div style={{ padding: '1rem', background: 'rgba(99,102,241,0.05)', borderRadius: 14, border: '1px solid rgba(99,102,241,0.15)', marginBottom: '1rem' }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#a5b4fc', marginBottom: 6 }}>Allowed Emails</div>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: 10, fontWeight: 400 }}>People with these emails can view your private portfolio.</div>
+        <div style={{ padding: '1rem', background: 'var(--editor-card-bg)', borderRadius: 14, border: '1px solid var(--editor-card-border)', marginBottom: '1rem' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#3DAA7A', marginBottom: 6 }}>Allowed Emails</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--editor-text-muted)', marginBottom: 10, fontWeight: 400 }}>People with these emails can view your private portfolio.</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-            <input type="email" value={allowedEmailInput} onChange={e => setAllowedEmailInput(e.target.value)} placeholder="friend@email.com" className={inputCls} style={{ flex: 1, padding: '0.5rem 0.75rem' }} onKeyDown={e => { if (e.key === 'Enter' && allowedEmailInput.trim()) { const cur: string[] = (portfolio as any).allowedEmails || []; portfolio.setField('allowedEmails', [...new Set([...cur, allowedEmailInput.trim()])]); setAllowedEmailInput(''); } }} />
-            <button onClick={() => { if (!allowedEmailInput.trim()) return; const cur: string[] = (portfolio as any).allowedEmails || []; portfolio.setField('allowedEmails', [...new Set([...cur, allowedEmailInput.trim()])]); setAllowedEmailInput(''); }} style={{ padding: '0.5rem 0.85rem', background: '#3DAA7A', border: 'none', borderRadius: 10, color: '#3DAA7A', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem' }}>Add</button>
+            <input type="email" value={allowedEmailInput} onChange={e => setAllowedEmailInput(e.target.value)} placeholder="friend@email.com" className={inputCls} style={{ flex: 1, padding: '0.5rem 0.75rem' }} onKeyDown={e => { if (e.key === 'Enter' && allowedEmailInput.trim()) { const cur: string[] = portfolio.allowedEmails || []; portfolio.setField('allowedEmails', [...new Set([...cur, allowedEmailInput.trim()])]); setAllowedEmailInput(''); } }} />
+            <button onClick={() => { if (!allowedEmailInput.trim()) return; const cur: string[] = portfolio.allowedEmails || []; portfolio.setField('allowedEmails', [...new Set([...cur, allowedEmailInput.trim()])]); setAllowedEmailInput(''); }} style={{ padding: '0.5rem 0.85rem', background: '#3DAA7A', border: 'none', borderRadius: 10, color: '#3DAA7A', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem' }}>Add</button>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {((portfolio as any).allowedEmails || []).map((email: string) => (
+            {(portfolio.allowedEmails || []).map((email: string) => (
               <div key={email} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 20, padding: '3px 10px', fontSize: '0.75rem', color: '#a5b4fc', fontWeight: 500 }}>
                 {email}
-                <button onClick={() => { const cur: string[] = (portfolio as any).allowedEmails || []; portfolio.setField('allowedEmails', cur.filter((e: string) => e !== email)); }} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 0, fontSize: '0.9rem', lineHeight: 1 }}>×</button>
+                <button onClick={() => { const cur: string[] = portfolio.allowedEmails || []; portfolio.setField('allowedEmails', cur.filter((e: string) => e !== email)); }} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 0, fontSize: '0.9rem', lineHeight: 1 }}>×</button>
               </div>
             ))}
           </div>
@@ -91,7 +109,7 @@ const ProfileTab = memo(({
 
       <label className={labelCls} style={{ marginTop: 0 }}>Custom URL Slug</label>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ color: '#e5e7eb', fontSize: '0.9rem', fontWeight: 500, background: 'rgba(255,255,255,0.05)', padding: '0.65rem 1rem', borderRadius: 12 }}>sitrezhuthu.com/</span>
+        <span style={{ color: 'var(--editor-text)', fontSize: '0.9rem', fontWeight: 500, background: 'var(--editor-tab-active-bg)', padding: '0.65rem 1rem', borderRadius: 12 }}>sitrezhuthu.com/</span>
         <input type="text" value={portfolio.slug || ''} onChange={e => portfolio.setField('slug', e.target.value)}
           placeholder="your-name" className={inputCls} style={{ flex: 1 }} />
       </div>
@@ -105,8 +123,8 @@ const ProfileTab = memo(({
         placeholder="Full-stack developer crafting elegant digital experiences…" rows={4} className={inputCls} style={{ resize: 'vertical' }} />
 
       <label className={labelCls}>Avatar Image</label>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 15, marginTop: '0.25rem', marginBottom: '1rem', background: 'rgba(61,170,122,0.02)', padding: '1rem', borderRadius: 16, border: '1px solid rgba(61,170,122,0.05)' }}>
-        <div style={{ position: 'relative', width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(61,170,122,0.1)', background: 'rgba(61,170,122,0.05)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 15, marginTop: '0.25rem', marginBottom: '1rem', background: 'var(--editor-card-bg)', padding: '1rem', borderRadius: 16, border: '1px solid var(--editor-card-border)' }}>
+        <div style={{ position: 'relative', width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--editor-border-strong)', background: 'var(--editor-input-bg)' }}>
           {portfolio.avatar ? (
             <Image src={portfolio.avatar} alt="Preview" fill style={{ objectFit: 'cover' }} sizes="56px" />
           ) : (
@@ -114,8 +132,8 @@ const ProfileTab = memo(({
           )}
         </div>
         <div style={{ flex: 1 }}>
-          <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={uploadingAvatar} style={{ fontSize: '0.85rem', color: '#e5e7eb', fontWeight: 400 }} />
-          {uploadingAvatar && <div style={{ fontSize: '0.8rem', color: '#A0BCAE', marginTop: 4, fontWeight: 500 }}>Uploading...</div>}
+          <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={uploadingAvatar} style={{ fontSize: '0.85rem', color: 'var(--editor-text)', fontWeight: 400 }} />
+          {uploadingAvatar && <div style={{ fontSize: '0.8rem', color: 'var(--editor-text-muted)', marginTop: 4, fontWeight: 500 }}>Uploading...</div>}
         </div>
       </div>
 
@@ -127,7 +145,7 @@ const ProfileTab = memo(({
 
 ProfileTab.displayName = 'ProfileTab';
 
-export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPanelProps) {
+export function FormPanel({ saveMessage = '' }: FormPanelProps) {
   // Use specific selectors to minimize re-renders
   const name = usePortfolioStore(state => state.name);
   const slug = usePortfolioStore(state => state.slug);
@@ -136,14 +154,15 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
   const avatar = usePortfolioStore(state => state.avatar);
   const contact = usePortfolioStore(state => state.contact);
   const template = usePortfolioStore(state => state.template);
+  const allowedEmails = usePortfolioStore(state => state.allowedEmails);
   const setField = usePortfolioStore(state => state.setField);
   const updateContact = usePortfolioStore(state => state.updateContact);
   const setTemplate = usePortfolioStore(state => state.setTemplate);
   
   // Aggregate portfolio object for the memoized ProfileTab
   const portfolioSummary = useMemo(() => ({
-    name, slug, isPublic, bio, avatar, setField
-  }), [name, slug, isPublic, bio, avatar, setField]);
+    name, slug, isPublic, bio, avatar, allowedEmails, setField
+  }), [name, slug, isPublic, bio, avatar, allowedEmails, setField]);
 
   const [activeTab, setActiveTab] = useState<TabId>('basic');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -153,7 +172,7 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
   const handleExportJSON = useCallback(() => {
     const state = usePortfolioStore.getState();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _history, _historyIndex, ...data } = state as any;
+    const { _history, _historyIndex, ...data } = state as unknown as Record<string, unknown>;
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -188,24 +207,25 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
       }
       const data = await res.json();
       setField('avatar', data.url);
-    } catch (err: any) {
-      alert(err.message || 'Failed to upload avatar');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to upload avatar';
+      alert(message);
     } finally {
       setUploadingAvatar(false);
     }
   }, [getIdToken, setField]);
 
-  const inputCls = 'w-full px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] rounded-xl text-white placeholder-[#6b7280] text-[14px] font-medium focus:outline-none focus:border-[#3DAA7A] focus:bg-[rgba(255,255,255,0.06)] transition-all';
-  const labelCls = 'block text-[12px] font-semibold text-[#e5e7eb] tracking-wide mb-1.5 mt-5';
+  const inputCls = 'editor-input';
+  const labelCls = 'editor-label';
 
   return (
     <div className="w-full h-full flex flex-col bg-transparent">
       {/* ── Header ── */}
-      <div style={{ borderBottom: '1px solid rgba(61,170,122,0.08)', padding: '1.25rem 1.5rem 0.5rem', background: 'rgba(10,10,12,0.95)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 20 }}>
+      <div style={{ borderBottom: '1px solid var(--editor-border)', padding: '1.25rem 1.5rem 0.5rem', background: 'var(--editor-header-bg)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div>
-            <h2 style={{ fontWeight: 600, fontSize: '1.15rem', color: '#FAF9F6' }}>Editor</h2>
-            <p style={{ fontSize: '0.8rem', color: '#A0BCAE', marginTop: 2, fontWeight: 400 }}>
+            <h2 style={{ fontWeight: 600, fontSize: '1.15rem', color: 'var(--editor-text)' }}>Editor</h2>
+            <p style={{ fontSize: '0.8rem', color: 'var(--editor-text-muted)', marginTop: 2, fontWeight: 400 }}>
               {name ? `Editing: ${name}` : 'Build your portfolio'}
             </p>
           </div>
@@ -215,10 +235,10 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
                 <CheckCircle2 size={14} /> {saveMessage}
               </div>
             )}
-            <button onClick={handleExportJSON} title="Export JSON" className="p-2 rounded-xl bg-jade/5 text-white hover:bg-jade/10 transition-colors border-none cursor-pointer flex items-center">
+            <button onClick={handleExportJSON} title="Export JSON" className="p-2 rounded-xl bg-jade/5 text-jade-bright hover:bg-jade/10 transition-colors border-none cursor-pointer flex items-center" style={{ color: 'var(--editor-text)' }}>
               <FileJson size={16} />
             </button>
-            <button onClick={handleCopyLink} title="Copy portfolio link" className="p-2 rounded-xl bg-jade/5 text-white hover:bg-jade/10 transition-colors border-none cursor-pointer flex items-center">
+            <button onClick={handleCopyLink} title="Copy portfolio link" className="p-2 rounded-xl bg-jade/5 text-jade-bright hover:bg-jade/10 transition-colors border-none cursor-pointer flex items-center" style={{ color: 'var(--editor-text)' }}>
               <Share2 size={16} />
             </button>
           </div>
@@ -229,8 +249,8 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
           {TABS.map(({ id, label, Icon }) => (
             <button key={id} onClick={() => setActiveTab(id)}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.5rem 0.75rem', borderRadius: '8px 8px 0 0', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, transition: 'all .2s',
-                background: activeTab === id ? 'rgba(255,255,255,0.05)' : 'transparent',
-                color: activeTab === id ? '#FAF9F6' : '#A0BCAE',
+                background: activeTab === id ? 'var(--editor-tab-active-bg)' : 'transparent',
+                color: activeTab === id ? 'var(--editor-text)' : 'var(--editor-text-muted)',
                 borderBottom: activeTab === id ? '2px solid #3DAA7A' : '2px solid transparent',
                 whiteSpace: 'nowrap'
               }}>
@@ -275,16 +295,16 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
 
         {activeTab === 'template' && (
           <div>
-            <p style={{ fontSize: '0.9rem', color: '#A0BCAE', marginBottom: '1.5rem', lineHeight: 1.6, fontWeight: 400 }}>
-              Choose a base template. Use the <strong style={{ color: '#FAF9F6', fontWeight: 500 }}>Style</strong> tab to customize colors, fonts & layout.
+            <p style={{ fontSize: '0.9rem', color: 'var(--editor-text-muted)', marginBottom: '1.5rem', lineHeight: 1.6, fontWeight: 400 }}>
+              Choose a base template. Use the <strong style={{ color: 'var(--editor-text)', fontWeight: 500 }}>Style</strong> tab to customize colors, fonts & layout.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '2.5rem' }}>
               {TEMPLATES.map(t => (
-                <button key={t.id} onClick={() => setTemplate(t.id as any)}
+                <button key={t.id} onClick={() => setTemplate(t.id)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', borderRadius: 16,
-                    border: template === t.id ? `1.5px solid ${t.color}` : '1px solid rgba(61,170,122,0.1)',
-                    background: template === t.id ? 'rgba(61,170,122,0.06)' : 'rgba(255,255,255,0.02)',
+                    border: template === t.id ? `1.5px solid ${t.color}` : '1px solid var(--editor-card-border)',
+                    background: template === t.id ? 'rgba(61,170,122,0.06)' : 'var(--editor-card-bg)',
                     cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left', width: '100%',
                     boxShadow: template === t.id ? `0 4px 20px ${t.color}15` : 'none'
                   }}
@@ -293,7 +313,7 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
                     <t.Icon size={22} strokeWidth={2.5} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: template === t.id ? t.color : '#FAF9F6' }}>{t.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: template === t.id ? t.color : 'var(--editor-text)' }}>{t.name}</div>
                     {t.id === 'custom' && <div style={{ fontSize: '.75rem', color: '#3DAA7A', marginTop: 2, fontWeight: 500 }}>Canvas-based builder</div>}
                   </div>
                   {template === t.id && <CheckCircle2 size={18} style={{ color: t.color, flexShrink: 0 }} />}
@@ -301,19 +321,19 @@ export function FormPanel({ onSave, isSaving = false, saveMessage = '' }: FormPa
               ))}
             </div>
 
-            <a href="/templates"
+            <Link href="/templates"
               className="flex items-center justify-center gap-2 p-4 rounded-2xl bg-jade/5 border border-jade/15 text-jade-bright text-[0.9rem] font-semibold no-underline hover:bg-jade/10 hover:-translate-y-px transition-all">
               <Star size={16} /> Browse Community Designs
-            </a>
+            </Link>
           </div>
         )}
 
         {activeTab === 'style' && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', padding: '0.85rem 1rem', background: 'rgba(59,130,246,0.1)', borderRadius: 12, border: '1px solid rgba(59,130,246,0.2)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', padding: '0.85rem 1rem', background: 'var(--editor-card-bg)', border: '1px solid var(--editor-card-border)', borderRadius: 12 }}>
               <Paintbrush size={16} style={{ color: '#3DAA7A', flexShrink: 0 }} />
-              <p style={{ fontSize: '0.85rem', color: '#e5e7eb', lineHeight: 1.5, fontWeight: 400 }}>
-                Style changes apply live in the preview. They override the base template's defaults.
+              <p style={{ fontSize: '0.85rem', color: 'var(--editor-text)', lineHeight: 1.5, fontWeight: 400 }}>
+                Style changes apply live in the preview. They override the base template&apos;s defaults.
               </p>
             </div>
             <TemplateCustomizer />

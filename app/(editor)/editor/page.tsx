@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react';
 import { useFirebaseAuth } from '@/lib/firebase-auth-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -12,12 +12,14 @@ import { IridescentButterfly } from '@/components/Logo';
 import axios from 'axios';
 import {
   LayoutDashboard, LogOut, ExternalLink, Eye,
-  Loader2, ChevronDown, User, Upload, X, Check, Link as LinkIcon
+  Loader2, ChevronDown, User, Upload, X, Check, Link as LinkIcon,
+  Moon, Sun, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { PortfolioStore } from '@/store/usePortfolioStore';
 
 /* ── Inline Submit-to-Community Modal ── */
-function SubmitModal({ onClose, portfolio, user, getIdToken }: { onClose: () => void; portfolio: any; user: any; getIdToken: () => Promise<string | null> }) {
+function SubmitModal({ onClose, portfolio, user, getIdToken }: { onClose: () => void; portfolio: PortfolioStore; user: { displayName?: string | null; email?: string | null } | null; getIdToken: () => Promise<string | null> }) {
   const [form, setForm] = useState({ authorName: user?.displayName || '', authorEmail: user?.email || '', templateName: '', description: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [error, setError] = useState('');
@@ -46,8 +48,9 @@ function SubmitModal({ onClose, portfolio, user, getIdToken }: { onClose: () => 
         }
       });
       setStatus('success');
-    } catch (err: any) {
-      setError(err?.response?.data?.error || 'Submission failed.');
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error : (err instanceof Error ? err.message : 'Submission failed.');
+      setError(msg);
       setStatus('error');
     }
   };
@@ -94,13 +97,13 @@ function SubmitModal({ onClose, portfolio, user, getIdToken }: { onClose: () => 
                 <textarea rows={2} style={{ ...inp, resize: 'vertical' }} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe what makes your design unique…" />
               </div>
               <div style={{ padding: '0.85rem', background: 'rgba(61,170,122,0.03)', border: '1px solid rgba(61,170,122,0.05)', borderRadius: 12, fontSize: '.85rem', color: '#3DAA7A', lineHeight: 1.5, fontWeight: 400 }}>
-                We'll capture your current <strong style={{ color: '#3DAA7A', fontWeight: 500 }}>template + style settings</strong> automatically. After review, your design goes live.
+                We&apos;ll capture your current <strong style={{ color: '#3DAA7A', fontWeight: 500 }}>template + style settings</strong> automatically. After review, your design goes live.
               </div>
               {status === 'error' && <p style={{ color: '#ef4444', fontSize: '.85rem' }}>{error}</p>}
               <button type="submit" disabled={status === 'sending'}
                 style={{ padding: '0.9rem', background: '#3DAA7A', border: 'none', borderRadius: 14, color: '#FAF9F6', fontWeight: 600, fontSize: '0.95rem', cursor: status === 'sending' ? 'not-allowed' : 'pointer', marginTop: '0.5rem', transition: 'transform .2s' }}
-                onMouseEnter={e => { if (status !== 'sending') e.currentTarget.style.transform  = 'scale(1.02)'; }}
-                onMouseLeave={e => { if (status !== 'sending') e.currentTarget.style.transform  = 'scale(1)'; }}>
+                onMouseEnter={e => { if (status !== 'sending') e.currentTarget.style.transform = 'scale(1.02)'; }}
+                onMouseLeave={e => { if (status !== 'sending') e.currentTarget.style.transform = 'scale(1)'; }}>
                 {status === 'sending' ? 'Submitting…' : 'Submit Template'}
               </button>
             </div>
@@ -118,32 +121,72 @@ function EditorContent() {
   const [showPreview, setShowPreview] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
+  const [autoSave, setAutoSave] = useState(false);
+  const [nightMode, setNightMode] = useState(true);
+
+  useEffect(() => {
+    const isLight = document.documentElement.classList.contains('light-theme');
+    setNightMode(!isLight);
+  }, []);
+
+  useEffect(() => {
+    const handleSync = () => {
+      const isLight = document.documentElement.classList.contains('light-theme');
+      setNightMode(!isLight);
+    };
+    window.addEventListener('site-theme-change', handleSync);
+    return () => window.removeEventListener('site-theme-change', handleSync);
+  }, []);
+
+  const toggleNightMode = () => {
+    const next = !nightMode;
+    setNightMode(next);
+    localStorage.setItem('site-theme', next ? 'dark' : 'light');
+    document.documentElement.classList.toggle('light-theme', !next);
+    window.dispatchEvent(new Event('site-theme-change'));
+  };
+
+  const [showSlugWarning, setShowSlugWarning] = useState(false);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   const portfolio = usePortfolioStore();
+  const slug = usePortfolioStore(s => s.slug);
 
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
+
+  // Stable refs — prevent stale closures without adding to effect deps
+  const getIdTokenRef = useRef(getIdToken);
+  getIdTokenRef.current = getIdToken;
+  const hasFetchedRef = useRef<string | null>(null); // tracks last fetched id
+  const handleSaveRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   /* ── Auth guard ── */
   useEffect(() => {
     if (!loading && !user) router.push('/login');
   }, [user, loading, router]);
 
-  /* ── Load saved portfolio or reset ── */
+  /* ── Load saved portfolio or reset (fires ONCE per id change) ── */
   useEffect(() => {
-    if (user) {
-      if (!id) {
-        portfolio.reset();
-        return;
-      }
-      getIdToken().then(token => {
+    if (!user) return;
+    // Only fetch if we haven't already fetched this id in this session
+    if (id) {
+      if (hasFetchedRef.current === id) return; // already loaded
+      hasFetchedRef.current = id;
+      getIdTokenRef.current().then(token => {
         if (!token) return;
         axios.get(`/api/portfolio?id=${id}`, { headers: { Authorization: `Bearer ${token}` } })
-          .then(r => { if (r.data && Object.keys(r.data).length > 0) portfolio.loadFromDB(r.data); })
-          .catch(() => { });
+          .then(r => { if (r.data && Object.keys(r.data).length > 0) usePortfolioStore.getState().loadFromDB(r.data); })
+          .catch(() => {});
       });
+    } else {
+      const tplParam = searchParams.get('template');
+      if (!tplParam) {
+        usePortfolioStore.getState().reset();
+      }
     }
-  }, [user, id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, id]); // intentionally omit portfolio/getIdToken — stable via refs
 
   /* ── Save handler ── */
   const handleSave = useCallback(async () => {
@@ -151,24 +194,48 @@ function EditorContent() {
     setIsSaving(true);
     setSaveMessage('');
     try {
-      const token = await getIdToken();
-      const username = portfolio.slug || (portfolio as any).username || user?.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'portfolio';
-      const r = await axios.post('/api/portfolio', { ...portfolio, username }, { headers: { Authorization: `Bearer ${token}` } });
+      const token = await getIdTokenRef.current();
+      // Read from store directly at call-time — no stale closure
+      const store = usePortfolioStore.getState();
+      const username = store.slug || store.username || user?.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'portfolio';
+      const r = await axios.post('/api/portfolio', { ...store, username }, { headers: { Authorization: `Bearer ${token}` } });
 
-      if (!portfolio._id && r.data._id) {
-        portfolio.loadFromDB({ _id: r.data._id, username: r.data.username });
+      if (!store._id && r.data._id) {
+        usePortfolioStore.getState().loadFromDB({ _id: r.data._id, username: r.data.username });
         router.replace(`/editor?id=${r.data._id}`);
       }
 
       setSaveMessage('Saved successfully');
       setTimeout(() => setSaveMessage(''), 3500);
-    } catch (err: any) {
-      setSaveMessage(err.response?.data?.error || 'Save failed');
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error : (err instanceof Error ? err.message : 'Save failed');
+      setSaveMessage(msg);
       setTimeout(() => setSaveMessage(''), 4000);
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, user, portfolio, getIdToken]);
+  // Only re-create when isSaving/user/router change — not on every store mutation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSaving, user?.uid, router]);
+
+  // Keep handleSaveRef in sync so the auto-save effect always calls the latest version
+  handleSaveRef.current = handleSave;
+
+  /* ── Auto-save: debounce 5s after any data change ── */
+  useEffect(() => {
+    if (!autoSave) return;
+    
+    // Subscribe to all store changes without causing re-renders
+    const unsubscribe = usePortfolioStore.subscribe(() => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = setTimeout(() => { handleSaveRef.current(); }, 5000);
+    });
+
+    return () => { 
+      unsubscribe();
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); 
+    };
+  }, [autoSave]);
 
   /* ── Loading & guard states ── */
   if (loading || !user) {
@@ -181,14 +248,73 @@ function EditorContent() {
     );
   }
 
-  const username = portfolio.slug || (portfolio as any).username || user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'portfolio';
+  const username = portfolio.slug || portfolio.username || user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'portfolio';
   const publicUrl = `/${username}`;
 
   return (
-    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#050A07', overflow: 'hidden' }}>
+    <div style={{
+      height: '100dvh',
+      display: 'flex',
+      flexDirection: 'column',
+      background: nightMode ? '#050A07' : '#f8fafc',
+      color: nightMode ? '#FAF9F6' : '#0f172a',
+      overflow: 'hidden',
+      '--editor-bg': nightMode ? '#050A07' : '#f8fafc',
+      '--editor-text': nightMode ? '#FAF9F6' : '#0f172a',
+      '--editor-text-muted': nightMode ? '#A0BCAE' : '#64748b',
+      '--editor-panel-bg': nightMode ? 'rgba(10,10,12,0.5)' : '#ffffff',
+      '--editor-header-bg': nightMode ? 'rgba(10,10,12,0.8)' : '#ffffff',
+      '--editor-footer-bg': nightMode ? 'rgba(10,10,12,0.95)' : '#ffffff',
+      '--editor-border': nightMode ? 'rgba(61,170,122,0.05)' : 'rgba(0,0,0,0.08)',
+      '--editor-border-strong': nightMode ? 'rgba(61,170,122,0.08)' : 'rgba(0,0,0,0.12)',
+      '--editor-input-bg': nightMode ? 'rgba(255,255,255,0.03)' : '#f1f5f9',
+      '--editor-input-border': nightMode ? 'rgba(255,255,255,0.1)' : '#cbd5e1',
+      '--editor-input-focus-bg': nightMode ? 'rgba(255,255,255,0.06)' : '#ffffff',
+      '--editor-card-bg': nightMode ? 'rgba(61,170,122,0.02)' : '#f8fafc',
+      '--editor-card-border': nightMode ? 'rgba(61,170,122,0.05)' : 'rgba(0,0,0,0.06)',
+      '--editor-tab-active-bg': nightMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+      '--editor-btn-ghost': nightMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+      '--editor-btn-ghost-hover': nightMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+      '--editor-label': nightMode ? '#e5e7eb' : '#334155',
+    } as React.CSSProperties}>
+      <style>{`
+        .editor-input {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          background: var(--editor-input-bg) !important;
+          border: 1px solid var(--editor-input-border) !important;
+          border-radius: 12px;
+          color: var(--editor-text) !important;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.2s;
+          outline: none;
+        }
+        .editor-input::placeholder {
+          color: var(--editor-text-muted) !important;
+          opacity: 0.6;
+        }
+        .editor-input:focus {
+          border-color: #3DAA7A !important;
+          background: var(--editor-input-focus-bg) !important;
+        }
+        .editor-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--editor-label) !important;
+          letter-spacing: 0.05em;
+          margin-bottom: 0.375rem;
+          margin-top: 1.25rem;
+        }
+        /* Style standard range inputs for light theme */
+        input[type="range"] {
+          background: ${nightMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} !important;
+        }
+      `}</style>
 
       {/* ── Top Navigation Bar ── */}
-      <nav style={{ flexShrink: 0, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.25rem', borderBottom: '1px solid rgba(61,170,122,0.05)', background: 'rgba(10,10,12,0.8)', backdropFilter: 'blur(20px)', zIndex: 50 }}>
+      <nav style={{ flexShrink: 0, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.25rem', borderBottom: '1px solid var(--editor-border)', background: 'var(--editor-header-bg)', backdropFilter: 'blur(20px)', zIndex: 50 }}>
 
         {/* Left: brand + nav links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -200,50 +326,65 @@ function EditorContent() {
             {[
               { href: '/dashboard', label: 'My Projects', Icon: LayoutDashboard },
             ].map(({ href, label, Icon }) => (
-              <Link key={href} href={href} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', borderRadius: 8, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500, color: '#e5e7eb', transition: 'all .2s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FAF9F6'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#e5e7eb'; (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
+              <Link key={href} href={href} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', borderRadius: 8, textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500, color: 'var(--editor-text-muted)', transition: 'all .2s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--editor-text)'; (e.currentTarget as HTMLElement).style.background = 'var(--editor-btn-ghost-hover)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--editor-text-muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
                 <Icon size={14} /> {label}
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Right: Preview button + user menu */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Right: controls + user menu */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {/* Mobile preview toggle */}
           <button
             onClick={() => setShowPreview(!showPreview)}
             className="md:hidden"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#e5e7eb', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', background: 'var(--editor-btn-ghost)', border: '1px solid var(--editor-border-strong)', borderRadius: 8, color: 'var(--editor-text)', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer' }}>
             <Eye size={14} /> {showPreview ? 'Edit' : 'Preview'}
+          </button>
+
+          {/* Night mode toggle */}
+          <button onClick={toggleNightMode} title={nightMode ? 'Light mode' : 'Dark mode'}
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0.4rem 0.7rem', background: nightMode ? 'rgba(99,102,241,0.2)' : 'var(--editor-btn-ghost)', border: `1px solid ${nightMode ? 'rgba(99,102,241,0.4)' : 'var(--editor-border-strong)'}`, borderRadius: 8, color: nightMode ? '#818cf8' : 'var(--editor-text-muted)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}>
+            {nightMode ? <Moon size={14} /> : <Sun size={14} />}
+            <span className="hidden md:inline">{nightMode ? 'Night' : 'Day'}</span>
+          </button>
+
+          {/* Auto-save toggle */}
+          <button onClick={() => setAutoSave(a => !a)} title="Toggle auto-save"
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0.4rem 0.7rem', background: autoSave ? 'rgba(16,185,129,0.15)' : 'var(--editor-btn-ghost)', border: `1px solid ${autoSave ? 'rgba(16,185,129,0.35)' : 'var(--editor-border-strong)'}`, borderRadius: 8, color: autoSave ? '#34d399' : 'var(--editor-text-muted)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}>
+            <RefreshCw size={13} style={{ animation: autoSave ? 'spin 3s linear infinite' : 'none' }} />
+            <span className="hidden md:inline">Auto</span>
           </button>
 
           {/* Submit to community */}
           <button onClick={() => setShowSubmit(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 8, color: '#e5e7eb', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)'; (e.currentTarget as HTMLElement).style.color = '#FAF9F6'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; (e.currentTarget as HTMLElement).style.color = '#e5e7eb'; }}>
-            <Upload size={14} /> Share Design
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; }}>
+            <Upload size={14} />
+            <span className="hidden md:inline">Share</span>
           </button>
 
-          {/* Public link */}
-          <Link href={publicUrl} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8, color: '#FAF9F6', fontSize: '0.85rem', fontWeight: 500, textDecoration: 'none', transition: 'all .2s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(59,130,246,0.15)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(59,130,246,0.1)'; }}>
-            <ExternalLink size={14} /> View Live
-          </Link>
+          {/* View Live — warns if slug missing */}
+          <button onClick={() => {
+            if (!slug) { setShowSlugWarning(true); setTimeout(() => setShowSlugWarning(false), 4000); return; }
+            window.open(publicUrl, '_blank');
+          }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', background: slug ? 'rgba(59,130,246,0.1)' : 'rgba(245,158,11,0.1)', border: `1px solid ${slug ? 'rgba(59,130,246,0.2)' : 'rgba(245,158,11,0.25)'}`, borderRadius: 8, color: slug ? '#93c5fd' : '#fbbf24', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}>
+            {slug ? <ExternalLink size={14} /> : <AlertTriangle size={14} />}
+            <span className="hidden md:inline">View Live</span>
+          </button>
 
           {/* Copy Share Link */}
           <button onClick={() => {
             navigator.clipboard.writeText(window.location.origin + publicUrl);
-            alert('Link copied to clipboard!');
           }}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 8, color: '#FAF9F6', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(16,185,129,0.15)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(16,185,129,0.1)'; }}>
-            <LinkIcon size={14} /> Share
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#94a3b8', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}
+            title="Copy link">
+            <LinkIcon size={14} />
           </button>
 
           {/* User menu */}
@@ -261,10 +402,10 @@ function EditorContent() {
             <AnimatePresence>
               {userMenuOpen && (
                 <motion.div initial={{ opacity: 0, y: -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.98 }} transition={{ duration: 0.15 }}
-                  style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 200, background: '#EAE8E3', border: '1px solid rgba(61,170,122,0.1)', borderRadius: 16, overflow: 'hidden', zIndex: 100, boxShadow: '0 12px 24px rgba(0,0,0,0.3)' }}>
-                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(61,170,122,0.05)' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#3DAA7A' }}>{user.displayName}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#3DAA7A', marginTop: 4, fontWeight: 400 }}>{user.email}</div>
+                  style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 200, background: '#1e293b', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', zIndex: 100, boxShadow: '0 12px 24px rgba(0,0,0,0.5)' }}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f1f5f9' }}>{user.displayName}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4, fontWeight: 400 }}>{user.email}</div>
                   </div>
                   <button onClick={() => { signOut(); router.push('/'); }}
                     style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '0.85rem 1.25rem', background: 'none', border: 'none', color: '#ef4444', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s', textAlign: 'left' }}
@@ -279,6 +420,21 @@ function EditorContent() {
         </div>
       </nav>
 
+      {/* ── Slug warning toast ── */}
+      <AnimatePresence>
+        {showSlugWarning && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+            style={{ position: 'fixed', top: 76, left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: '#1c1207', border: '1px solid rgba(245,158,11,0.4)', borderRadius: 12, padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
+            <AlertTriangle size={16} style={{ color: '#fbbf24', flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fbbf24' }}>Set a URL slug first!</div>
+              <div style={{ fontSize: '0.75rem', color: '#d97706', marginTop: 2 }}>Go to the <strong>Profile</strong> tab and fill in your Custom URL slug before viewing your live portfolio.</div>
+            </div>
+            <button onClick={() => setShowSlugWarning(false)} style={{ background: 'none', border: 'none', color: '#92400e', cursor: 'pointer', padding: 2, flexShrink: 0 }}><X size={14} /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Submit Modal ── */}
       {showSubmit && <SubmitModal onClose={() => setShowSubmit(false)} portfolio={portfolio} user={user} getIdToken={getIdToken} />}
 
@@ -289,10 +445,10 @@ function EditorContent() {
         <div style={{
           width: '42%', flexShrink: 0,
           overflowY: 'auto',
-          borderRight: '1px solid rgba(61,170,122,0.05)',
-          display: showPreview ? 'none' : 'flex',
+          borderRight: '1px solid var(--editor-border)',
           flexDirection: 'column',
-          background: 'rgba(10,10,12,0.5)',
+          background: 'var(--editor-panel-bg)',
+          display: showPreview ? 'none' : 'flex',
         }} className="md:flex! md:w-[42%]!">
           <FormPanel onSave={handleSave} isSaving={isSaving} saveMessage={saveMessage} />
         </div>
@@ -301,25 +457,24 @@ function EditorContent() {
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          display: 'flex',
           flexDirection: 'column',
-          background: '#050A07',
-          ...(showPreview ? {} : { display: 'none' }),
+          background: 'var(--editor-bg)',
+          display: showPreview ? 'flex' : 'none',
         }} className="md:flex!">
-          <LivePreview />
+          <LivePreview nightMode={nightMode} />
         </div>
       </div>
 
       {/* ── Footer Bar (Edit / Preview / Save) — always visible ── */}
-      <div style={{ flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,12,0.95)', backdropFilter: 'blur(30px)', padding: '0.75rem 1.25rem', display: 'flex', gap: '0.75rem', alignItems: 'center', boxShadow: '0 -10px 40px rgba(0,0,0,0.5)' }}>
+      <div style={{ flexShrink: 0, borderTop: '1px solid var(--editor-border)', background: 'var(--editor-footer-bg)', padding: '0.75rem 1.25rem', display: 'flex', gap: '0.75rem', alignItems: 'center', boxShadow: nightMode ? '0 -10px 40px rgba(0,0,0,0.5)' : '0 -4px 15px rgba(0,0,0,0.04)' }}>
         {/* Edit / Preview toggle — only shown on mobile */}
         <div className="md:hidden" style={{ display: 'flex', gap: '0.6rem', flex: 1 }}>
           <button onClick={() => setShowPreview(false)}
-            style={{ flex: 1, padding: '0.7rem', borderRadius: 12, border: !showPreview ? '1px solid rgba(61,170,122,0.3)' : '1px solid rgba(255,255,255,0.05)', background: !showPreview ? 'rgba(61,170,122,0.1)' : 'transparent', color: !showPreview ? '#62C99A' : '#6b7280', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            style={{ flex: 1, padding: '0.7rem', borderRadius: 12, border: !showPreview ? '1px solid rgba(61,170,122,0.3)' : '1px solid var(--editor-border-strong)', background: !showPreview ? 'rgba(61,170,122,0.1)' : 'transparent', color: !showPreview ? '#62C99A' : 'var(--editor-text-muted)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <User size={14} /> Edit
           </button>
           <button onClick={() => setShowPreview(true)}
-            style={{ flex: 1, padding: '0.7rem', borderRadius: 12, border: showPreview ? '1px solid rgba(61,170,122,0.3)' : '1px solid rgba(255,255,255,0.05)', background: showPreview ? 'rgba(61,170,122,0.1)' : 'transparent', color: showPreview ? '#62C99A' : '#6b7280', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            style={{ flex: 1, padding: '0.7rem', borderRadius: 12, border: showPreview ? '1px solid rgba(61,170,122,0.3)' : '1px solid var(--editor-border-strong)', background: showPreview ? 'rgba(61,170,122,0.1)' : 'transparent', color: showPreview ? '#62C99A' : 'var(--editor-text-muted)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <Eye size={14} /> Preview
           </button>
         </div>

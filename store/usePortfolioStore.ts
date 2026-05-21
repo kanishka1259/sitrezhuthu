@@ -18,15 +18,15 @@ export interface PortfolioStore extends PortfolioData {
   _history: CustomElement[][];
   _historyIndex: number;
 
-  // Actions
-  setField: (key: keyof PortfolioData, value: any) => void;
+  setField: <K extends keyof PortfolioData>(key: K, value: PortfolioData[K]) => void;
   addProject: () => void;
   updateProject: (index: number, field: keyof Project, value: string | number) => void;
   removeProject: (index: number) => void;
   addSkill: (skill: string) => void;
   removeSkill: (skill: string) => void;
   setTemplate: (template: TemplateId) => void;
-  setTemplateStyle: (key: keyof TemplateStyles, value: any) => void;
+  setTemplateStyle: <K extends keyof TemplateStyles>(key: K, value: TemplateStyles[K]) => void;
+  setTemplateStyles: (styles: Partial<TemplateStyles>) => void;
   resetTemplateStyles: () => void;
   updateCanvasPosition: (id: string, x: number, y: number) => void;
   addCustomElement: (element: Omit<CustomElement, 'id'>) => void;
@@ -62,6 +62,7 @@ const INITIAL_STATE: PortfolioData = {
   templateStyles: { ...TEMPLATE_DEFAULTS['minimal'] },
   canvasPositions: {},
   customElements: [],
+  allowedEmails: [],
 };
 
 export const usePortfolioStore = create<PortfolioStore>((set, get) => ({
@@ -108,6 +109,11 @@ export const usePortfolioStore = create<PortfolioStore>((set, get) => ({
   setTemplateStyle: (key, value) =>
     set((state) => ({
       templateStyles: { ...state.templateStyles, [key]: value },
+    })),
+
+  setTemplateStyles: (styles) =>
+    set((state) => ({
+      templateStyles: { ...state.templateStyles, ...styles },
     })),
 
   resetTemplateStyles: () =>

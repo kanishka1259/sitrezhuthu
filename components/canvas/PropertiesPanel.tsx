@@ -1,7 +1,7 @@
 'use client';
 import { useRef } from 'react';
 import { usePortfolioStore, CustomElement } from '@/store/usePortfolioStore';
-import { Trash2, Copy, ArrowUpToLine, ArrowDownToLine, ChevronUp, ChevronDown, Lock, Unlock, EyeOff, Eye, Upload, Link, ExternalLink, Globe, Mail } from 'lucide-react';
+import { Trash2, Copy, ArrowUpToLine, ArrowDownToLine, ChevronUp, ChevronDown, Lock, Unlock, EyeOff, Eye, Upload } from 'lucide-react';
 
 const FONTS = ['Inter', 'Space Grotesk', 'Outfit', 'Plus Jakarta Sans', 'Roboto', 'Montserrat', 'Poppins', 'Nunito', 'JetBrains Mono', 'Playfair Display', 'Merriweather', 'Syne', 'DM Sans'];
 
@@ -23,11 +23,11 @@ const secHead: React.CSSProperties = {
 
 // Gradient presets
 const GRADIENT_PRESETS = [
-  'linear-gradient(135deg, #3DAA7A, #3DAA7A)',
-  'linear-gradient(135deg, #3DAA7A, #3DAA7A)',
-  'linear-gradient(135deg, #3DAA7A, #3DAA7A)',
-  'linear-gradient(135deg, #3DAA7A, #ef4444)',
-  'linear-gradient(135deg, #D97706, #3DAA7A)',
+  'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+  'linear-gradient(135deg, #10b981, #059669)',
+  'linear-gradient(135deg, #f59e0b, #d97706)',
+  'linear-gradient(135deg, #ec4899, #e11d48)',
+  'linear-gradient(135deg, #6366f1, #a855f7)',
   'linear-gradient(180deg, rgba(99,102,241,0.2), transparent)',
 ];
 
@@ -114,7 +114,12 @@ export function PropertiesPanel() {
 
       {/* Layer order */}
       <div style={{ display: 'flex', gap: 3, marginBottom: 10 }}>
-        {([['front', <ArrowUpToLine size={11}/>, 'Bring to Front'], ['forward', <ChevronUp size={11}/>, 'Bring Forward'], ['backward', <ChevronDown size={11}/>, 'Send Backward'], ['back', <ArrowDownToLine size={11}/>, 'Send to Back']] as const).map(([dir, icon, title]) => (
+        {([
+          ['front', <ArrowUpToLine key="front" size={11}/>, 'Bring to Front'],
+          ['forward', <ChevronUp key="forward" size={11}/>, 'Bring Forward'],
+          ['backward', <ChevronDown key="backward" size={11}/>, 'Send Backward'],
+          ['back', <ArrowDownToLine key="back" size={11}/>, 'Send to Back']
+        ] as const).map(([dir, icon, title]) => (
           <button key={dir} onClick={() => reorderCustomElement(el.id, dir)} title={title}
             style={{ flex: 1, padding: '4px 2px', borderRadius: 5, background: 'rgba(61,170,122,0.04)', border: '1px solid rgba(61,170,122,0.06)', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onMouseEnter={e => e.currentTarget.style.background  = 'rgba(61,170,122,0.1)'}
@@ -185,7 +190,7 @@ export function PropertiesPanel() {
       <div style={row}>
         <div>
           <p style={label}>Style</p>
-          <select style={{ ...inp }} value={el.borderStyle || 'solid'} onChange={e => upd({ borderStyle: e.target.value as any })}>
+          <select style={{ ...inp }} value={el.borderStyle || 'solid'} onChange={e => upd({ borderStyle: e.target.value as CustomElement['borderStyle'] })}>
             <option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option><option value="none">None</option>
           </select>
         </div>
@@ -230,13 +235,13 @@ export function PropertiesPanel() {
         <div style={row}>
           <div>
             <p style={label}>Style</p>
-            <select style={inp} value={el.fontStyle || 'normal'} onChange={e => upd({ fontStyle: e.target.value as any })}>
+            <select style={inp} value={el.fontStyle || 'normal'} onChange={e => upd({ fontStyle: e.target.value as CustomElement['fontStyle'] })}>
               <option value="normal">Normal</option><option value="italic">Italic</option>
             </select>
           </div>
           <div>
             <p style={label}>Decoration</p>
-            <select style={inp} value={el.textDecoration || 'none'} onChange={e => upd({ textDecoration: e.target.value as any })}>
+            <select style={inp} value={el.textDecoration || 'none'} onChange={e => upd({ textDecoration: e.target.value as CustomElement['textDecoration'] })}>
               <option value="none">None</option><option value="underline">Underline</option><option value="line-through">Strikethrough</option>
             </select>
           </div>
@@ -270,11 +275,12 @@ export function PropertiesPanel() {
         <input type="text" style={inp} value={el.src && el.src.startsWith('data:') ? '' : (el.src || '')} onChange={e => upd({ src: e.target.value })} placeholder="https://..." />
         {el.src && (
           <div style={{ marginTop: 6, borderRadius: 8, overflow: 'hidden', height: 80, background: 'rgba(61,170,122,0.03)', border: '1px solid rgba(61,170,122,0.06)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={el.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         )}
         <p style={label}>Object Fit</p>
-        <select style={inp} value={(el as any).objectFit || 'cover'} onChange={e => upd({ objectFit: e.target.value } as any)}>
+        <select style={inp} value={el.objectFit || 'cover'} onChange={e => upd({ objectFit: e.target.value as CustomElement['objectFit'] })}>
           <option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option><option value="none">None</option>
         </select>
       </>)}
@@ -282,7 +288,7 @@ export function PropertiesPanel() {
       {/* ── Link / Click Action ── */}
       <p style={secHead}>Interaction</p>
       <p style={label}>On Click</p>
-      <select style={{ ...inp, marginBottom: 4 }} value={el.clickAction || 'none'} onChange={e => upd({ clickAction: e.target.value as any })}>
+      <select style={{ ...inp, marginBottom: 4 }} value={el.clickAction || 'none'} onChange={e => upd({ clickAction: e.target.value as CustomElement['clickAction'] })}>
         <option value="none">None</option>
         <option value="link">Open Link / URL</option>
         <option value="scroll">Scroll to Section</option>
@@ -316,7 +322,7 @@ export function PropertiesPanel() {
 
       {/* ── Animation ── */}
       <p style={secHead}>Animation</p>
-      <select style={{ ...inp, marginBottom: 4 }} value={el.animation?.type || 'none'} onChange={e => upd({ animation: { type: e.target.value as any, duration: el.animation?.duration || 600, delay: el.animation?.delay || 0 } })}>
+      <select style={{ ...inp, marginBottom: 4 }} value={el.animation?.type || 'none'} onChange={e => upd({ animation: { type: e.target.value as 'none' | 'fade' | 'slideUp' | 'slideLeft' | 'bounce' | 'scale', duration: el.animation?.duration || 600, delay: el.animation?.delay || 0 } })}>
         <option value="none">None</option>
         <option value="fade">Fade In</option>
         <option value="slideUp">Slide Up</option>

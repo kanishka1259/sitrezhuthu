@@ -1,8 +1,11 @@
+import Image from 'next/image';
+import logoPic from '@/public/logo.png';
+
 export function IridescentButterfly({ size = 44 }: { size?: number }) {
   return (
     <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <img
-        src="/logo.png"
+      <Image
+        src={logoPic}
         alt="Sitrezhuthu Logo"
         width={size}
         height={size}

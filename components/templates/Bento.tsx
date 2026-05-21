@@ -4,15 +4,19 @@ import { PortfolioStore, TemplateStyles, TEMPLATE_DEFAULTS } from '@/store/usePo
 import { ArrowUpRight, Mail } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, TwitterIcon } from '@/components/icons/SocialIcons';
 import Image from 'next/image';
+import { contrastColor } from '@/lib/colorUtils';
 
 interface Props { data: PortfolioStore; }
 
 export function BentoTemplate({ data }: Props) {
   const year = new Date().getFullYear();
-  const s: TemplateStyles = data.templateStyles ?? TEMPLATE_DEFAULTS['bento'];
-  const fonts = [s.headingFont, s.bodyFont]
+  const s: TemplateStyles = { ...TEMPLATE_DEFAULTS['bento'], ...(data.templateStyles || {}) };
+  const hFont = s.headingFont || 'Space Grotesk';
+  const bFont = s.bodyFont || 'Inter';
+
+  const fonts = [hFont, bFont]
     .filter((f, i, a) => a.indexOf(f) === i && f !== 'system-ui')
-    .map(f => `family=${f.replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
+    .map(f => `family=${(f || '').replace(/ /g, '+')}:wght@300;400;500;600;700;800`).join('&');
 
   const cardStyle = (extra?: React.CSSProperties): React.CSSProperties => ({
     background: s.cardBg,
@@ -25,7 +29,7 @@ export function BentoTemplate({ data }: Props) {
   });
 
   return (
-    <div style={{ minHeight:'100vh', background:s.bgColor, color:s.textColor, fontFamily:`'${s.bodyFont}',sans-serif` }}>
+    <div style={{ minHeight:'100vh', background:s.bgColor, color:s.textColor, fontFamily:`'${bFont}',sans-serif` }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?${fonts}&display=swap');
         .bt * { box-sizing:border-box; margin:0; }
@@ -62,7 +66,7 @@ export function BentoTemplate({ data }: Props) {
         </nav>
 
         {/* ── Bento Grid ── */}
-        <div className="bt-grid" style={{ display:'grid', gridTemplateColumns:'repeat(12,1fr)', gap:'1rem' }}>
+        <div className="bt-grid" style={{ display:'grid', gridTemplateColumns:'repeat(12,1fr)', gap: s.sectionGap }}>
 
           {/* Hero card - spans 8 cols */}
           <div className="bt-card" style={{ ...cardStyle(), gridColumn:'span 8', background:`linear-gradient(135deg, ${s.primaryColor}18, ${s.secondaryColor}10)`, border:`1px solid ${s.primaryColor}25` }}>
@@ -96,11 +100,11 @@ export function BentoTemplate({ data }: Props) {
           <div className="bt-card bt-cta" style={{ ...cardStyle({ display:'flex', flexDirection:'column', justifyContent:'space-between' }), gridColumn:'span 4', background:s.primaryColor }}>
             <div>
               <div style={{ fontSize:'2rem', marginBottom:'.75rem' }}>👋</div>
-              <h3 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.25rem', fontWeight:700, color:'#3DAA7A', marginBottom:'.5rem' }}>Let's work together</h3>
-              <p style={{ fontSize:'.85rem', color:'rgba(61,170,122,.7)', lineHeight:1.6 }}>Open to exciting projects and full-time opportunities.</p>
+              <h3 style={{ fontFamily:`'${s.headingFont}',sans-serif`, fontSize:'1.25rem', fontWeight:700, color:contrastColor(s.primaryColor), marginBottom:'.5rem' }}>Let&apos;s work together</h3>
+              <p style={{ fontSize:'.85rem', color:contrastColor(s.primaryColor, 'rgba(255,255,255,.75)', 'rgba(0,0,0,.6)'), lineHeight:1.6 }}>Open to exciting projects and full-time opportunities.</p>
             </div>
             {data.contact.email && (
-              <a href={`mailto:${data.contact.email}`} style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:'1.5rem', padding:'.7rem 1.25rem', background:'rgba(61,170,122,.2)', color:'#3DAA7A', borderRadius:s.buttonRadius+'px', fontWeight:700, fontSize:'.85rem', textDecoration:'none', backdropFilter:'blur(8px)' }}>
+              <a href={`mailto:${data.contact.email}`} style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:'1.5rem', padding:'.7rem 1.25rem', background:'rgba(255,255,255,.2)', color:contrastColor(s.primaryColor), borderRadius:s.buttonRadius+'px', fontWeight:700, fontSize:'.85rem', textDecoration:'none', backdropFilter:'blur(8px)' }}>
                 <Mail size={14}/>Say Hello
               </a>
             )}
@@ -126,7 +130,7 @@ export function BentoTemplate({ data }: Props) {
 
           {/* Quote / bio card - spans 4 cols */}
           <div className="bt-card" style={{ ...cardStyle(), gridColumn:'span 4', display:'flex', flexDirection:'column', justifyContent:'center' }}>
-            <div style={{ fontSize:'3rem', color:s.primaryColor, lineHeight:1, marginBottom:'.5rem', opacity:.4 }}>"</div>
+            <div style={{ fontSize:'3rem', color:s.primaryColor, lineHeight:1, marginBottom:'.5rem', opacity:.4 }}>&quot;</div>
             <p style={{ fontSize:'.95rem', color:s.textColor, lineHeight:1.75, fontStyle:'italic', fontWeight:400 }}>
               {data.bio || 'Passionate about clean code, great UX, and building things that matter.'}
             </p>

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { usePortfolioStore } from '@/store/usePortfolioStore';
+import { usePortfolioStore, type TemplateId } from '@/store/usePortfolioStore';
 import { ArrowRight, Palette, Zap, Upload, CheckCircle, Sparkles } from 'lucide-react';
 
 const BASE_TEMPLATES = [
@@ -25,8 +25,8 @@ export default function CreateTemplatePage() {
   const { setTemplate } = usePortfolioStore();
   const router = useRouter();
 
-  const handlePick = (id: string) => {
-    setTemplate(id as any);
+  const handlePick = (id: TemplateId) => {
+    setTemplate(id);
     router.push('/editor');
   };
 

@@ -4,6 +4,7 @@ import { PortfolioStore, TemplateStyles, TEMPLATE_DEFAULTS } from '@/store/usePo
 import { Mail, ArrowUpRight } from 'lucide-react';
 import { GithubIcon, LinkedinIcon, TwitterIcon } from '@/components/icons/SocialIcons';
 import Image from 'next/image';
+import { contrastColor } from '@/lib/colorUtils';
 
 interface MinimalTemplateProps {
   data: PortfolioStore;
@@ -11,17 +12,20 @@ interface MinimalTemplateProps {
 
 export function MinimalTemplate({ data }: MinimalTemplateProps) {
   const year = new Date().getFullYear();
-  const s: TemplateStyles = data.templateStyles ?? TEMPLATE_DEFAULTS['minimal'];
+  const s: TemplateStyles = { ...TEMPLATE_DEFAULTS['minimal'], ...(data.templateStyles || {}) };
   const r = s.borderRadius;
   const maxW = s.maxWidth;
 
-  const googleFont = [s.headingFont, s.bodyFont]
+  const hFont = s.headingFont || 'Inter';
+  const bFont = s.bodyFont || 'Inter';
+
+  const googleFont = [hFont, bFont]
     .filter((f, i, a) => a.indexOf(f) === i && f !== 'system-ui')
-    .map((f) => `family=${f.replace(/ /g, '+')}:wght@300;400;500;600;700`)
+    .map((f) => `family=${(f || '').replace(/ /g, '+')}:wght@300;400;500;600;700`)
     .join('&');
 
   return (
-    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${s.bodyFont}', sans-serif` }}>
+    <div style={{ minHeight: '100vh', background: s.bgColor, color: s.textColor, fontFamily: `'${bFont}', sans-serif` }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?${googleFont}&display=swap');
         .mn-wrap * { box-sizing: border-box; }
@@ -57,7 +61,7 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
 
       <div className="mn-wrap">
         {/* Nav */}
-        <nav style={{ borderBottom: `1px solid ${s.borderColor}`, padding: '1.25rem 0', position: 'sticky', top: 0, background: s.bgColor + 'f2', backdropFilter: 'blur(8px)', zIndex: 10 }}>
+        <nav style={{ borderBottom: `1px solid ${s.borderColor}`, padding: '1.25rem 0', position: 'sticky', top: 0, background: s.bgColor, backdropFilter: 'blur(8px)', zIndex: 10 }}>
           <div style={{ maxWidth: maxW, margin: '0 auto', padding: '0 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontWeight: 700, fontSize: '1rem', fontFamily: `'${s.headingFont}', sans-serif` }}>{data.name || 'Portfolio'}</span>
             <div className="mn-nav-links" style={{ display: 'flex', gap: '1.75rem' }}>
@@ -71,15 +75,15 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
         {/* Hero */}
         <header id="about" style={{ maxWidth: maxW, margin: '0 auto', padding: '5rem 2rem 4rem' }}>
           <div className="mn-hero-grid" style={{ display: 'grid', gridTemplateColumns: s.heroLayout === 'split' && data.avatar && s.showAvatar ? '1fr auto' : '1fr', gap: '2rem', alignItems: 'center' }}>
-            <div>
+            <div style={{ textAlign: s.heroLayout === 'center' ? 'center' : 'left' }}>
               <p style={{ fontSize: '.8rem', letterSpacing: '.12em', textTransform: 'uppercase', color: s.mutedColor, marginBottom: '1rem' }}>Available for opportunities</p>
               <h1 style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', fontWeight: 700, lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-.02em', fontFamily: `'${s.headingFont}', sans-serif`, color: s.textColor }}>
                 {data.name || 'Your Name'}
               </h1>
-              <p style={{ fontSize: '1.1rem', color: s.mutedColor, lineHeight: 1.7, maxWidth: 520 }}>
+              <p style={{ fontSize: '1.1rem', color: s.mutedColor, lineHeight: 1.7, maxWidth: 520, margin: s.heroLayout === 'center' ? '0 auto' : '0' }}>
                 {data.bio || 'A passionate developer crafting clean, efficient digital experiences.'}
               </p>
-              <div className="mn-clinks" style={{ display: 'flex', gap: '1.25rem', marginTop: '2rem', flexWrap: 'wrap' }}>
+              <div className="mn-clinks" style={{ display: 'flex', gap: '1.25rem', marginTop: '2rem', flexWrap: 'wrap', justifyContent: s.heroLayout === 'center' ? 'center' : 'flex-start' }}>
                 {data.contact.email && <a href={`mailto:${data.contact.email}`} className="mn-clink"><Mail size={14} /> {data.contact.email}</a>}
                 {data.contact.github && <a href={data.contact.github} target="_blank" rel="noopener noreferrer" className="mn-clink"><GithubIcon size={14} /> GitHub</a>}
                 {data.contact.linkedin && <a href={data.contact.linkedin} target="_blank" rel="noopener noreferrer" className="mn-clink"><LinkedinIcon size={14} /> LinkedIn</a>}
@@ -87,7 +91,7 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
               </div>
             </div>
             {data.avatar && s.showAvatar && (
-              <div style={{ position: 'relative', width: 160, height: 160, flexShrink: 0 }}>
+              <div style={{ position: 'relative', width: 160, height: 160, flexShrink: 0, margin: s.heroLayout === 'center' ? '0 auto' : '0' }}>
                 <Image 
                   src={data.avatar} 
                   alt={data.name || 'Avatar'} 
@@ -103,7 +107,7 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
 
         {/* Skills */}
         {data.skills.length > 0 && (
-          <section id="skills" style={{ maxWidth: maxW, margin: '0 auto', padding: '3rem 2rem', borderTop: `1px solid ${s.borderColor}` }}>
+          <section id="skills" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem`, borderTop: `1px solid ${s.borderColor}` }}>
             <div className="mn-accent" />
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', fontFamily: `'${s.headingFont}', sans-serif` }}>Skills</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.6rem' }}>
@@ -114,7 +118,7 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
 
         {/* Projects */}
         {data.projects.length > 0 && (
-          <section id="work" style={{ maxWidth: maxW, margin: '0 auto', padding: '3rem 2rem' }}>
+          <section id="work" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem` }}>
             <div className="mn-accent" />
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '2rem', fontFamily: `'${s.headingFont}', sans-serif` }}>Selected Work</h2>
             <div>
@@ -141,7 +145,7 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
 
         {/* Education */}
         {data.education.length > 0 && (
-          <section style={{ maxWidth: maxW, margin: '0 auto', padding: '3rem 2rem' }}>
+          <section style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem` }}>
             <div className="mn-accent" />
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', fontFamily: `'${s.headingFont}', sans-serif` }}>Education</h2>
             <div>
@@ -159,11 +163,11 @@ export function MinimalTemplate({ data }: MinimalTemplateProps) {
         )}
 
         {/* Contact */}
-        <section id="contact" style={{ maxWidth: maxW, margin: '0 auto', padding: '4rem 2rem 5rem', borderTop: `1px solid ${s.borderColor}` }}>
-          <h2 style={{ fontSize: 'clamp(1.75rem,4vw,2.5rem)', fontWeight: 700, marginBottom: '1rem', letterSpacing: '-.01em', fontFamily: `'${s.headingFont}', sans-serif` }}>Let's connect.</h2>
+        <section id="contact" style={{ maxWidth: maxW, margin: '0 auto', padding: `${s.sectionGap}px 2rem`, borderTop: `1px solid ${s.borderColor}` }}>
+          <h2 style={{ fontSize: 'clamp(1.75rem,4vw,2.5rem)', fontWeight: 700, marginBottom: '1rem', letterSpacing: '-.01em', fontFamily: `'${s.headingFont}', sans-serif` }}>Let&apos;s connect.</h2>
           <p style={{ color: s.mutedColor, marginBottom: '1.5rem', maxWidth: 400 }}>Open to collaborations, full-time roles, and interesting conversations.</p>
           {data.contact.email && (
-            <a href={`mailto:${data.contact.email}`} className="mn-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem', background: s.primaryColor, color: '#3DAA7A', padding: '.75rem 1.5rem', borderRadius: s.buttonRadius + 'px', fontWeight: 600, fontSize: '.9rem', textDecoration: 'none', transition: 'opacity .2s' }}>
+            <a href={`mailto:${data.contact.email}`} className="mn-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem', background: s.primaryColor, color: contrastColor(s.primaryColor), padding: '.75rem 1.5rem', borderRadius: s.buttonRadius + 'px', fontWeight: 600, fontSize: '.9rem', textDecoration: 'none', transition: 'opacity .2s' }}>
               <Mail size={16} /> Get in touch
             </a>
           )}

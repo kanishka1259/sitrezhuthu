@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -19,13 +19,26 @@ const TEMPLATE_ACCENTS: Record<string, string> = {
   custom: '#FCD34D',
 };
 
-function PortfolioCard({ p, onDelete }: { p: any; onDelete: (id: string, e: React.MouseEvent) => void }) {
+interface DashboardPortfolio {
+  _id: string;
+  name: string;
+  username?: string;
+  bio?: string;
+  skills?: string[];
+  createdAt: string;
+  updatedAt?: string;
+  isPublic: boolean;
+  slug?: string;
+  template: string;
+}
+
+function PortfolioCard({ p, onDelete }: { p: DashboardPortfolio; onDelete: (id: string, e: React.MouseEvent) => void }) {
   const accent = TEMPLATE_ACCENTS[p.template] || GOLD_BRIGHT;
   return (
     <motion.div layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-      style={{ background: '#121D16', border: '1px solid rgba(240,230,211,0.07)', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.22s' }}
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.22s' }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = `rgba(61,170,122,0.28)`; (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 36px rgba(0,0,0,0.4)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(240,230,211,0.07)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
     >
       {/* Accent strip */}
       <div style={{ height: 3, background: `linear-gradient(90deg, ${accent}80, ${accent}20)` }} />
@@ -33,26 +46,26 @@ function PortfolioCard({ p, onDelete }: { p: any; onDelete: (id: string, e: Reac
       <Link href={`/editor?id=${p._id}`} style={{ display: 'block', padding: '20px 20px 0', textDecoration: 'none', flex: 1 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
           <div>
-            <h3 style={{ fontWeight: 600, fontSize: 15, color: '#D8EDE2', marginBottom: 6 }}>{p.name || p.username || 'Untitled Portfolio'}</h3>
+            <h3 style={{ fontWeight: 600, fontSize: 15, color: 'var(--text)', marginBottom: 6 }}>{p.name || p.username || 'Untitled Portfolio'}</h3>
             <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 9px', borderRadius: 6, background: `${accent}12`, color: accent, border: `1px solid ${accent}28`, letterSpacing: '0.03em' }}>{p.template || 'minimal'}</span>
           </div>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(61,170,122,0.08)', border: '1px solid rgba(61,170,122,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--border)', border: '1px solid var(--border-lit)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <FileText size={15} style={{ color: GOLD }} />
           </div>
         </div>
 
-        {p.bio && <p style={{ fontSize: 13, color: '#3E6050', lineHeight: 1.65, marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' as any }}>{p.bio}</p>}
+        {p.bio && <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.bio}</p>}
 
-        {p.skills?.length > 0 && (
+        {p.skills && p.skills.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
             {p.skills.slice(0, 4).map((s: string, i: number) => (
-              <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 5, background: 'rgba(240,230,211,0.04)', color: '#2E4A38', border: '1px solid rgba(240,230,211,0.06)' }}>{s}</span>
+              <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 5, background: 'var(--bg-hover)', color: 'var(--text-dim)', border: '1px solid var(--border)' }}>{s}</span>
             ))}
-            {p.skills.length > 4 && <span style={{ fontSize: 11, color: '#2E4A38' }}>+{p.skills.length - 4}</span>}
+            {p.skills.length > 4 && <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>+{p.skills.length - 4}</span>}
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingBottom: 16, color: '#2E4A38', fontSize: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingBottom: 16, color: 'var(--text-dim)', fontSize: 12 }}>
           <Clock size={11} />
           {new Date(p.updatedAt || p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           {p.isPublic && <span style={{ marginLeft: 'auto', fontSize: 11, color: GOLD_BRIGHT, background: 'rgba(61,170,122,0.08)', padding: '2px 8px', borderRadius: 5, border: `1px solid rgba(61,170,122,0.2)` }}>● Live</span>}
@@ -80,16 +93,11 @@ function PortfolioCard({ p, onDelete }: { p: any; onDelete: (id: string, e: Reac
 
 export default function DashboardPage() {
   const { user, loading, getIdToken } = useFirebaseAuth();
-  const [portfolios, setPortfolios] = useState<any[]>([]);
+  const [portfolios, setPortfolios] = useState<DashboardPortfolio[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!loading && !user) { router.push('/login'); return; }
-    if (user) fetchPortfolios();
-  }, [user, loading, router]);
-
-  const fetchPortfolios = async () => {
+  const fetchPortfolios = useCallback(async () => {
     try {
       const token = await getIdToken();
       if (!token) return;
@@ -97,7 +105,12 @@ export default function DashboardPage() {
       setPortfolios(Array.isArray(res.data) ? res.data : []);
     } catch { console.error('Failed to fetch portfolios'); }
     finally { setIsLoading(false); }
-  };
+  }, [getIdToken]);
+
+  useEffect(() => {
+    if (!loading && !user) { router.push('/login'); return; }
+    if (user) fetchPortfolios();
+  }, [user, loading, router, fetchPortfolios]);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
@@ -111,7 +124,7 @@ export default function DashboardPage() {
 
   if (loading || isLoading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#070C09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Loader2 size={28} style={{ color: GOLD, animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -119,14 +132,14 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#070C09', color: '#D8EDE2' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <Navbar />
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 24px 80px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 700, fontSize: 28, color: '#D8EDE2', marginBottom: 6, letterSpacing: '-0.02em' }}>My Projects</h1>
-            <p style={{ fontSize: 14, color: '#2E4A38' }}>{portfolios.length === 0 ? 'No portfolios yet.' : `${portfolios.length} portfolio${portfolios.length === 1 ? '' : 's'}`}</p>
+            <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 700, fontSize: 28, color: 'var(--text)', marginBottom: 6, letterSpacing: '-0.02em' }}>My Projects</h1>
+            <p style={{ fontSize: 14, color: 'var(--text-dim)' }}>{portfolios.length === 0 ? 'No portfolios yet.' : `${portfolios.length} portfolio${portfolios.length === 1 ? '' : 's'}`}</p>
           </div>
           <Link href="/templates" className="btn-primary" style={{ textDecoration: 'none', fontSize: 14, padding: '10px 22px', borderRadius: 10 }}>
             <Plus size={15} /> New Portfolio
@@ -135,13 +148,13 @@ export default function DashboardPage() {
 
         {/* Empty state */}
         {portfolios.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 24px', border: '1px solid rgba(61,170,122,0.1)', borderRadius: 20, background: '#0D1510', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ textAlign: 'center', padding: '80px 24px', border: '1px solid var(--border)', borderRadius: 20, background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: '30%', right: '30%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(61,170,122,0.3), transparent)' }} />
-            <div style={{ width: 64, height: 64, borderRadius: 18, background: 'rgba(61,170,122,0.08)', border: '1px solid rgba(61,170,122,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <div style={{ width: 64, height: 64, borderRadius: 18, background: 'var(--border)', border: '1px solid var(--border-lit)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <LayoutDashboard size={28} style={{ color: GOLD, opacity: 0.7 }} />
             </div>
-            <h2 style={{ fontWeight: 600, fontSize: 20, color: '#D8EDE2', marginBottom: 10 }}>No portfolios yet</h2>
-            <p style={{ fontSize: 14, color: '#2E4A38', maxWidth: 300, margin: '0 auto 28px', lineHeight: 1.7 }}>Browse our templates and create your first professional portfolio.</p>
+            <h2 style={{ fontWeight: 600, fontSize: 20, color: 'var(--text)', marginBottom: 10 }}>No portfolios yet</h2>
+            <p style={{ fontSize: 14, color: 'var(--text-dim)', maxWidth: 300, margin: '0 auto 28px', lineHeight: 1.7 }}>Browse our templates and create your first professional portfolio.</p>
             <Link href="/templates" className="btn-primary" style={{ textDecoration: 'none' }}>
               <Zap size={15} /> Explore Templates
             </Link>

@@ -50,6 +50,26 @@
   --yellow:      #C9A84C;
 }
 
+:root.light-theme,
+html.light-theme,
+.light-theme {
+  --bg:          #f8fafc;
+  --bg-surface:  #ffffff;
+  --bg-card:     #ffffff;
+  --bg-hover:    #f1f5f9;
+  --bg-elevated: #f1f5f9;
+
+  --text:        #0f172a;
+  --text-muted:  #475569;
+  --text-dim:    #64748b;
+
+  --border:      rgba(0, 0, 0, 0.08);
+  --border-lit:  rgba(0, 0, 0, 0.15);
+  --border-warm: rgba(0, 0, 0, 0.25);
+  --jade-glow:   rgba(61, 170, 122, 0.08);
+  --jade-bright: #2d8060;
+}
+
 @theme inline {
   --font-sans:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: "Space Grotesk", sans-serif;

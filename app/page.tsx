@@ -11,7 +11,7 @@ export default function Home() {
   const { user } = useFirebaseAuth();
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#050A07', color: '#D8EDE2', overflowX: 'hidden', position: 'relative', scrollBehavior: 'smooth' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)', color: 'var(--text)', overflowX: 'hidden', position: 'relative', scrollBehavior: 'smooth' }}>
       <Navbar />
 
       {/* ═══ BACKGROUND CRYSTALS & GLOWS ═══ */}
@@ -61,11 +61,11 @@ export default function Home() {
 
           {/* Headline */}
           <div style={{ position: 'relative', textAlign: 'center', zIndex: 10 }}>
-            <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: 'clamp(40px, 6vw, 76px)', lineHeight: 1.1, letterSpacing: '-0.02em', color: '#fff', marginBottom: 20 }}>
+            <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: 'clamp(40px, 6vw, 76px)', lineHeight: 1.1, letterSpacing: '-0.02em', color: 'var(--text)', marginBottom: 20 }}>
               Your work, beautifully live.
             </h1>
 
-            <p style={{ fontSize: 18, color: '#A0BCAE', lineHeight: 1.6, maxWidth: 640, margin: '0 auto 40px', fontWeight: 400 }}>
+            <p style={{ fontSize: 18, color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: 640, margin: '0 auto 40px', fontWeight: 400 }}>
               Choose from 9 stunning templates, customize every detail,<br />
               and share your professional portfolio — free, forever.
             </p>
@@ -115,8 +115,8 @@ export default function Home() {
 
 
       {/* Footer minimal */}
-      <footer style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '60px 24px', borderTop: '1px solid rgba(61,170,122,0.1)', background: 'rgba(7,12,9,0.5)' }}>
-        <p style={{ fontSize: 13, color: '#4E7060', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+      <footer style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '60px 24px', borderTop: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
           © {new Date().getFullYear()} Sitrezhuthu. Built with <span style={{ color: '#3DAA7A' }}>♥</span> by the team.
         </p>
       </footer>

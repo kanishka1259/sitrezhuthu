@@ -4,12 +4,11 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/lib/firebase-auth-context';
 import { useState, useRef, useEffect } from 'react';
-import { LayoutDashboard, Settings, LogOut, ChevronDown, Menu, X, Zap } from 'lucide-react';
+import { LayoutDashboard, Settings, LogOut, ChevronDown, Menu, X, Zap, Sun, Moon } from 'lucide-react';
 import Image from 'next/image';
-
+import logoPic from '@/public/logo.png';
 const JADE       = '#3DAA7A';
 const JADE_BRIGHT = '#62C99A';
-const BG          = '#070C09';
 
 export function Navbar() {
   const { user, signOut } = useFirebaseAuth();
@@ -18,6 +17,32 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    const isLight = document.documentElement.classList.contains('light-theme');
+    const timer = setTimeout(() => {
+      setTheme(isLight ? 'light' : 'dark');
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleSync = () => {
+      const isLight = document.documentElement.classList.contains('light-theme');
+      setTheme(isLight ? 'light' : 'dark');
+    };
+    window.addEventListener('site-theme-change', handleSync);
+    return () => window.removeEventListener('site-theme-change', handleSync);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('site-theme', next);
+    document.documentElement.classList.toggle('light-theme', next === 'light');
+    window.dispatchEvent(new Event('site-theme-change'));
+  };
 
   useEffect(() => {
     const fn = (e: MouseEvent) => {
@@ -38,8 +63,8 @@ export function Navbar() {
   return (
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      borderBottom: '1px solid rgba(61,170,122,0.12)',
-      background: 'rgba(7,12,9,0.9)',
+      borderBottom: '1px solid var(--border-lit)',
+      background: theme === 'dark' ? 'rgba(7,12,9,0.9)' : 'rgba(255,255,255,0.9)',
       backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 66, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -48,7 +73,7 @@ export function Navbar() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 14, textDecoration: 'none' }}>
           <div style={{ position: 'relative', width: 46, height: 46, flexShrink: 0 }}>
             <Image 
-              src="/logo.png" 
+              src={logoPic} 
               alt="Sitrezhuthu" 
               fill 
               sizes="46px"
@@ -57,7 +82,7 @@ export function Navbar() {
           </div>
           <div>
             <span style={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 800, fontSize: 15, letterSpacing: '0.1em', color: JADE_BRIGHT, textTransform: 'uppercase', display: 'block', lineHeight: 1.1 }}>SITREZHUTHU</span>
-            <span style={{ fontSize: 10, color: '#fff', letterSpacing: '0.18em', display: 'block', textTransform: 'uppercase', opacity: 0.8 }}>Portfolio Generator</span>
+            <span style={{ fontSize: 10, color: 'var(--text)', letterSpacing: '0.18em', display: 'block', textTransform: 'uppercase', opacity: 0.8 }}>Portfolio Generator</span>
           </div>
         </Link>
 
@@ -74,14 +99,14 @@ export function Navbar() {
             <Link key={href} href={href} style={{
               padding: '6px 16px', borderRadius: 999, fontSize: 13,
               fontWeight: active(href) ? 600 : 400,
-              color: active(href) ? '#fff' : 'rgba(216,237,226,0.6)',
+              color: active(href) ? 'var(--text)' : 'var(--text-muted)',
               textDecoration: 'none', transition: 'all 0.15s',
-              background: active(href) ? 'rgba(255,255,255,0.1)' : 'transparent',
-              border: active(href) ? `1px solid rgba(255,255,255,0.15)` : '1px solid transparent',
-              boxShadow: active(href) ? '0 2px 10px rgba(0,0,0,0.2)' : 'none'
+              background: active(href) ? 'var(--border-lit)' : 'transparent',
+              border: active(href) ? `1px solid var(--border-lit)` : '1px solid transparent',
+              boxShadow: active(href) ? '0 2px 10px rgba(0,0,0,0.1)' : 'none'
             }}
-              onMouseEnter={e => { if (!active(href)) { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; } }}
-              onMouseLeave={e => { if (!active(href)) { e.currentTarget.style.color = 'rgba(216,237,226,0.6)'; e.currentTarget.style.background = 'transparent'; } }}
+              onMouseEnter={e => { if (!active(href)) { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.background = 'var(--border)'; } }}
+              onMouseLeave={e => { if (!active(href)) { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; } }}
             >{label}</Link>
           ))}
         </nav>
@@ -98,9 +123,9 @@ export function Navbar() {
               </Link>
 
               <div style={{ position: 'relative' }} ref={dropRef}>
-                <button id="user-menu-btn" onClick={() => setUserOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                <button id="user-menu-btn" onClick={() => setUserOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 999, border: '1px solid var(--border-lit)', background: 'var(--bg-surface)', color: 'var(--text)', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', backdropFilter: 'blur(10px)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--jade)'; e.currentTarget.style.background = 'var(--bg-hover)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-lit)'; e.currentTarget.style.background = 'var(--bg-surface)'; }}
                 >
                   <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#3DAA7A,#1A5C42)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#060D09', flexShrink: 0 }}>
                     {(user.displayName || user.email || 'U')[0].toUpperCase()}
@@ -135,16 +160,33 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login" style={{ fontSize: 14, color: 'rgba(216,237,226,0.5)', textDecoration: 'none', padding: '8px 14px', borderRadius: 8, transition: 'color 0.15s' }}
+              <Link href="/login" style={{ fontSize: 14, color: 'var(--text-muted)', textDecoration: 'none', padding: '8px 14px', borderRadius: 8, transition: 'color 0.15s' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = JADE_BRIGHT; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(216,237,226,0.5)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
               >Sign In</Link>
-              <Link href="/signup" style={{ padding: '9px 20px', borderRadius: 9, background: 'linear-gradient(140deg,#3DAA7A,#2D8060)', color: '#060D09', fontSize: 14, fontWeight: 700, textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 2px 12px rgba(61,170,122,0.28)' }}
+              <Link href="/signup" style={{ padding: '9px 20px', borderRadius: 9, background: 'linear-gradient(140deg,#3DAA7A,#2D8060)', color: '#fff', fontSize: 14, fontWeight: 700, textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 2px 12px rgba(61,170,122,0.28)' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 22px rgba(61,170,122,0.48)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(61,170,122,0.28)'; }}
               >Get Started</Link>
             </>
           )}
+
+          {/* Day / Night Theme Toggle */}
+          <button onClick={toggleTheme} title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 38, height: 38, borderRadius: '50%',
+              border: '1px solid var(--border-lit)',
+              background: 'rgba(255,255,255,0.05)',
+              color: 'var(--text)',
+              cursor: 'pointer', transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.borderColor = 'var(--jade)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'var(--border-lit)'; }}
+          >
+            {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+
           <button onClick={() => setMenuOpen(v => !v)} className="show-mobile" aria-label="Menu"
             style={{ display: 'none', padding: 8, background: 'transparent', border: 'none', color: JADE_BRIGHT, cursor: 'pointer' }}>
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
