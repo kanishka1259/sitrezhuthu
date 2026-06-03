@@ -34,6 +34,8 @@ export interface TemplateMeta {
   icon: string;
   features: string[];
   usedCount: number;
+  likes: number;
+  views: number;
 }
 
 export const templates: TemplateMeta[] = [
@@ -48,7 +50,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'minimal',
     features: ['Editorial layout', 'Skill pills', 'Timeline education', 'SEO ready'],
-    usedCount: 2341,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'cards',
@@ -63,7 +67,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'cards',
     features: ['Stats counter', 'Gradient CTA', 'Hover lift cards', 'Animated skills'],
-    usedCount: 5672,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'dark',
@@ -78,7 +84,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'dark',
     features: ['Dark glass cards', 'Gradient typography', 'Timeline education', 'Animated dot'],
-    usedCount: 8921,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'glassmorphism',
@@ -93,7 +101,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'glassmorphism',
     features: ['Glass morphism', 'Floating orbs', 'Spinning avatar', 'Gradient glow'],
-    usedCount: 1452,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'tech-minimal',
@@ -106,7 +116,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'tech-minimal',
     features: ['Terminal prompt', 'Scanline effect', 'Monospace system', 'Grid background'],
-    usedCount: 4561,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'creative',
@@ -121,7 +133,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'creative',
     features: ['Gradient hero', 'Floating orbs', 'Image cards', 'Animated CTA'],
-    usedCount: 1280,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'neon',
@@ -136,7 +150,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#e8fff4',
     icon: 'neon',
     features: ['Neon glow', 'Grid bg', 'Scanlines', 'Cyber monospace'],
-    usedCount: 980,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'executive',
@@ -151,7 +167,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'executive',
     features: ['Sidebar layout', 'Skill bars', 'Resume feel', 'Clean corporate'],
-    usedCount: 760,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
   {
     id: 'bento',
@@ -166,7 +184,9 @@ export const templates: TemplateMeta[] = [
     textColor: '#3DAA7A',
     icon: 'bento',
     features: ['Bento grid', 'Stats card', 'Quote card', 'Mixed layouts'],
-    usedCount: 2100,
+    usedCount: 0,
+    likes: 0,
+    views: 0,
   },
 ];
 

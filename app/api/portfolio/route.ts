@@ -24,8 +24,14 @@ export async function GET(req: NextRequest) {
       if (!portfolio) return NextResponse.json({ error: 'Not found' }, { status: 404 });
       return NextResponse.json(serialize(portfolio));
     } else {
-      const portfolios = await Portfolio.find({ userId: uid }).sort({ updatedAt: -1 }).lean();
-      return NextResponse.json(serialize(portfolios));
+      const all = searchParams.get('all');
+      if (all === 'true') {
+        const portfolios = await Portfolio.find({ userId: uid }).sort({ updatedAt: -1 }).lean();
+        return NextResponse.json(serialize(portfolios));
+      } else {
+        const portfolio = await Portfolio.findOne({ userId: uid }).sort({ updatedAt: -1 }).lean();
+        return NextResponse.json(serialize(portfolio || {}));
+      }
     }
   } catch (err: unknown) {
     const error = err as Error;
@@ -102,9 +108,11 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     
-    if (!id) return NextResponse.json({ error: 'Portfolio ID required' }, { status: 400 });
-
-    await Portfolio.deleteOne({ _id: id, userId: uid });
+    if (id) {
+      await Portfolio.deleteOne({ _id: id, userId: uid });
+    } else {
+      await Portfolio.deleteMany({ userId: uid });
+    }
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
     const error = err as Error;

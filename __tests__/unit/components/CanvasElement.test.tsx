@@ -100,13 +100,14 @@ describe('CanvasElement – button type', () => {
 // ─── Image element rendering ──────────────────────────────────────────────────
 describe('CanvasElement – image type', () => {
   it('renders img tag with correct src', () => {
-    renderEl(makeEl({
+    const { container } = renderEl(makeEl({
       type: 'image',
       src: 'https://example.com/photo.jpg',
       width: 200,
       height: 180,
     }));
-    const img = screen.getByRole('img');
+    const img = container.querySelector('img');
+    expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute('src', 'https://example.com/photo.jpg');
   });
 });

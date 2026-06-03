@@ -101,7 +101,7 @@ export default function DashboardPage() {
     try {
       const token = await getIdToken();
       if (!token) return;
-      const res = await axios.get('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get('/api/portfolio?all=true', { headers: { Authorization: `Bearer ${token}` } });
       setPortfolios(Array.isArray(res.data) ? res.data : []);
     } catch { console.error('Failed to fetch portfolios'); }
     finally { setIsLoading(false); }

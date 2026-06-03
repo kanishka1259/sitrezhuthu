@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import { CheckCircle, XCircle, Clock, ShieldCheck, Eye, ArrowLeft, RefreshCw, X } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, ShieldCheck, Eye, ArrowLeft, RefreshCw, X, Loader2 } from 'lucide-react';
 import { MinimalTemplate } from '@/components/templates/Minimal';
 import { ModernCardsTemplate } from '@/components/templates/ModernCards';
 import { DarkThemeTemplate } from '@/components/templates/DarkTheme';
@@ -11,6 +11,7 @@ import { GlassmorphismTemplate } from '@/components/templates/Glassmorphism';
 import { TechMinimalTemplate } from '@/components/templates/TechMinimal';
 import { FreeformCanvas } from '@/components/templates/FreeformCanvas';
 import { type CustomElement, type PortfolioStore } from '@/store/usePortfolioStore';
+import { useFirebaseAuth } from '@/lib/firebase-auth-context';
 
 interface CommunityTemplate {
   _id: string;
@@ -19,6 +20,7 @@ interface CommunityTemplate {
   authorEmail: string;
   status: 'pending' | 'approved' | 'rejected';
   votes: number;
+  views: number;
   baseTemplate: string;
   description?: string;
   createdAt?: string;
@@ -26,6 +28,14 @@ interface CommunityTemplate {
   customElements?: CustomElement[];
   previewData?: Record<string, unknown>;
 }
+
+const ADMIN_EMAILS = ([
+  'kanishka1259@gmail.com',
+  'kanishkaa1302@gmail.com',
+  'admin@sitrezhuthu.com',
+  'admin@portfolio-gen.com',
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL
+].filter(Boolean) as string[]).map(e => e.toLowerCase());
 
 function StatusBadge({ status }: { status: string }) {
   const config = {
@@ -61,6 +71,7 @@ function TemplatePreviewCard({ s }: { s: Record<string, string | undefined> | un
 }
 
 export default function AdminPage() {
+  const { user, loading: authLoading, getIdToken } = useFirebaseAuth();
   const [templates, setTemplates] = useState<CommunityTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
@@ -70,32 +81,73 @@ export default function AdminPage() {
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
+      const token = await getIdToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
       const params = filter === 'all' ? '' : `?status=${filter}`;
-      const r = await axios.get(`/api/templates/community${params}`);
+      const r = await axios.get(`/api/templates/community${params}`, { headers });
       setTemplates(r.data);
     } catch {
       setTemplates([]);
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, getIdToken]);
 
-  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
+  useEffect(() => {
+    if (user && ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) {
+      fetchTemplates();
+    }
+  }, [user, fetchTemplates]);
 
   const handleAction = async (id: string, action: 'approve' | 'reject') => {
     setActionLoading(id + action);
     try {
-      await axios.patch('/api/templates/community', { id, action });
+      const token = await getIdToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+      await axios.patch('/api/templates/community', { id, action }, { headers });
       setTemplates(prev => prev.map(t => t._id === id ? { ...t, status: action === 'approve' ? 'approved' : 'rejected' } : t));
     } catch { /* soft fail */ } finally {
       setActionLoading(null);
     }
   };
 
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#09050f', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#3DAA7A', gap: 16 }}>
+        <Loader2 size={32} className="animate-spin" />
+        <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>Verifying Credentials…</div>
+      </div>
+    );
+  }
+
+  const isAuthorized = user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+
+  if (!isAuthorized) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#09050f,#12082a,#09050f)', color: '#3DAA7A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
+        <div style={{ width: 85, height: 85, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: '#ef4444' }}>
+          <XCircle size={44} />
+        </div>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.75rem', color: '#f1f5f9' }}>Access Denied</h1>
+        <p style={{ color: 'rgba(216,237,226,0.6)', maxWidth: 450, fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2.5rem' }}>
+          This page is restricted to administrators only. Your account ({user?.email || 'Guest'}) is not authorized to access the review dashboard.
+        </p>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <Link href="/" style={{ padding: '0.75rem 1.75rem', background: '#3DAA7A', border: 'none', borderRadius: 10, color: '#050A07', fontWeight: 700, textDecoration: 'none', fontSize: '0.9rem', cursor: 'pointer', transition: 'transform 0.2s' }}>
+            Go Home
+          </Link>
+          <Link href="/templates" style={{ padding: '0.75rem 1.75rem', background: 'rgba(61,170,122,0.1)', border: '1px solid rgba(61,170,122,0.2)', borderRadius: 10, color: '#3DAA7A', fontWeight: 700, textDecoration: 'none', fontSize: '0.9rem', cursor: 'pointer', transition: 'transform 0.2s' }}>
+            Browse Templates
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const counts = templates.reduce((acc, t) => { acc[t.status] = (acc[t.status] || 0) + 1; return acc; }, {} as Record<string, number>);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#09050f,#12082a,#09050f)', color: '#3DAA7A' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#09050f,#12082a,#09050f)', color: '#D8EDE2' }}>
       {/* Ambient */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '-10%', left: '20%', width: 500, height: 500, background: 'radial-gradient(circle,rgba(124,58,237,.18) 0%,transparent 70%)', borderRadius: '50%' }} />
@@ -107,8 +159,8 @@ export default function AdminPage() {
           <div style={{ width: '90vw', height: '90vh', background: '#0D1510', border: '1px solid rgba(61,170,122,.1)', borderRadius: 24, overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid rgba(61,170,122,.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(61,170,122,.02)' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>{previewTemplate.templateName}</h3>
-                <div style={{ fontSize: '.8rem', color: 'rgba(61,170,122,.5)' }}>by {previewTemplate.authorName}</div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#f1f5f9' }}>{previewTemplate.templateName}</h3>
+                <div style={{ fontSize: '.8rem', color: 'rgba(216,237,226,0.6)' }}>by {previewTemplate.authorName}</div>
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 {previewTemplate.status !== 'approved' && (
@@ -159,7 +211,7 @@ export default function AdminPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '.75rem' }}>
-            <Link href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '.45rem .9rem', background: 'rgba(61,170,122,.06)', border: '1px solid rgba(61,170,122,.1)', borderRadius: 8, color: 'rgba(61,170,122,.7)', fontSize: '.78rem', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href="/templates" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '.45rem .9rem', background: 'rgba(61,170,122,.06)', border: '1px solid rgba(61,170,122,.1)', borderRadius: 8, color: 'rgba(216,237,226,0.8)', fontSize: '.78rem', fontWeight: 600, textDecoration: 'none' }}>
               <ArrowLeft size={13} /> Community Gallery
             </Link>
           </div>
@@ -169,11 +221,11 @@ export default function AdminPage() {
       <main style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', padding: '3rem 2rem 6rem' }}>
         {/* Header */}
         <div style={{ marginBottom: '2.5rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '.35rem 1rem', background: 'rgba(167,139,250,.12)', border: '1px solid rgba(167,139,250,.25)', borderRadius: 999, fontSize: '.75rem', fontWeight: 600, color: '#3DAA7A', marginBottom: '1rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '.35rem 1rem', background: 'rgba(61,170,122,.12)', border: '1px solid rgba(61,170,122,.25)', borderRadius: 999, fontSize: '.75rem', fontWeight: 600, color: '#3DAA7A', marginBottom: '1rem' }}>
             <ShieldCheck size={13} /> Admin · Template Review
           </div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-.03em', marginBottom: '.5rem' }}>Community Template Review</h1>
-          <p style={{ color: 'rgba(61,170,122,.5)', fontSize: '1rem' }}>Review, approve, or reject community-submitted templates. Approved templates are immediately visible to all users.</p>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-.03em', marginBottom: '.5rem', color: '#f1f5f9' }}>Community Template Review</h1>
+          <p style={{ color: 'rgba(216,237,226,0.7)', fontSize: '1rem' }}>Review, approve, or reject community-submitted templates. Approved templates are immediately visible to all users.</p>
         </div>
 
         {/* Stats */}
@@ -185,7 +237,7 @@ export default function AdminPage() {
           ].map(s => (
             <div key={s.label} style={{ padding: '1.25rem', background: s.bg, border: `1px solid ${s.border}`, borderRadius: 14, textAlign: 'center' }}>
               <div style={{ fontSize: '2rem', fontWeight: 800, color: s.color }}>{s.count}</div>
-              <div style={{ fontSize: '.78rem', color: 'rgba(61,170,122,.5)', marginTop: 4, fontWeight: 500 }}>{s.label}</div>
+              <div style={{ fontSize: '.78rem', color: 'rgba(216,237,226,0.6)', marginTop: 4, fontWeight: 600 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -194,21 +246,24 @@ export default function AdminPage() {
         <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1.75rem', alignItems: 'center' }}>
           {(['pending', 'all', 'approved', 'rejected'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              style={{ padding: '.45rem 1rem', borderRadius: 999, fontSize: '.78rem', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all .2s', background: filter === f ? 'linear-gradient(135deg,#3DAA7A,#3DAA7A)' : 'rgba(61,170,122,.07)', color: filter === f ? '#3DAA7A' : 'rgba(61,170,122,.5)', textTransform: 'capitalize' }}>
+              style={{ padding: '.45rem 1rem', borderRadius: 999, fontSize: '.78rem', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all .2s', background: filter === f ? '#3DAA7A' : 'rgba(61,170,122,.07)', color: filter === f ? '#050A07' : 'rgba(216,237,226,0.7)', textTransform: 'capitalize' }}>
               {f}
             </button>
           ))}
           <button onClick={fetchTemplates}
-            style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5, padding: '.45rem .9rem', background: 'rgba(61,170,122,.06)', border: '1px solid rgba(61,170,122,.1)', borderRadius: 8, color: 'rgba(61,170,122,.6)', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer' }}>
+            style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5, padding: '.45rem .9rem', background: 'rgba(61,170,122,.06)', border: '1px solid rgba(61,170,122,.1)', borderRadius: 8, color: '#3DAA7A', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer' }}>
             <RefreshCw size={13} /> Refresh
           </button>
         </div>
 
         {/* Table */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '4rem', color: 'rgba(61,170,122,.4)' }}>Loading submissions…</div>
+          <div style={{ textAlign: 'center', padding: '4rem', color: 'rgba(216,237,226,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
+            <Loader2 className="animate-spin" size={24} />
+            <span>Loading submissions…</span>
+          </div>
         ) : templates.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '4rem', color: 'rgba(61,170,122,.3)', background: 'rgba(61,170,122,.03)', borderRadius: 16, border: '1px solid rgba(61,170,122,.07)' }}>
+          <div style={{ textAlign: 'center', padding: '4rem', color: 'rgba(216,237,226,0.5)', background: 'rgba(61,170,122,.03)', borderRadius: 16, border: '1px solid rgba(61,170,122,.07)' }}>
             <div style={{ fontSize: '2rem', marginBottom: '.75rem' }}>📭</div>
             <p>No {filter === 'all' ? '' : filter} submissions found.</p>
           </div>
@@ -225,7 +280,7 @@ export default function AdminPage() {
                 {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem', flexWrap: 'wrap', marginBottom: '.3rem' }}>
-                    <span style={{ fontWeight: 800, fontSize: '.95rem' }}>{tpl.templateName}</span>
+                    <span style={{ fontWeight: 800, fontSize: '.95rem', color: '#f1f5f9' }}>{tpl.templateName}</span>
                     <StatusBadge status={tpl.status} />
                     {tpl.status === 'approved' && (
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '.2rem .6rem', borderRadius: 999, background: 'rgba(99,102,241,.2)', border: '1px solid rgba(99,102,241,.4)', color: '#818cf8', fontSize: '.65rem', fontWeight: 700 }}>
@@ -234,11 +289,12 @@ export default function AdminPage() {
                     )}
                   </div>
                   <div style={{ fontSize: '.78rem', color: '#3DAA7A', fontWeight: 600, marginBottom: '.25rem' }}>by {tpl.authorName} · {tpl.authorEmail}</div>
-                  {tpl.description && <p style={{ fontSize: '.8rem', color: 'rgba(61,170,122,.4)', lineHeight: 1.5, marginBottom: '.4rem' }}>{tpl.description}</p>}
+                  {tpl.description && <p style={{ fontSize: '.8rem', color: 'rgba(216,237,226,0.85)', lineHeight: 1.5, marginBottom: '.4rem' }}>{tpl.description}</p>}
                   <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '.65rem', padding: '.2rem .55rem', borderRadius: 6, background: 'rgba(167,139,250,.1)', color: '#3DAA7A', fontWeight: 600 }}>Base: {tpl.baseTemplate}</span>
-                    <span style={{ fontSize: '.65rem', padding: '.2rem .55rem', borderRadius: 6, background: 'rgba(61,170,122,.07)', color: 'rgba(61,170,122,.45)', fontWeight: 600 }}>❤ {tpl.votes || 0} votes</span>
-                    <span style={{ fontSize: '.65rem', padding: '.2rem .55rem', borderRadius: 6, background: 'rgba(61,170,122,.07)', color: 'rgba(61,170,122,.45)', fontWeight: 600 }}>
+                    <span style={{ fontSize: '.65rem', padding: '.2rem .55rem', borderRadius: 6, background: 'rgba(61,170,122,.07)', color: 'rgba(216,237,226,0.7)', fontWeight: 600 }}>❤ {tpl.votes || 0} likes</span>
+                    <span style={{ fontSize: '.65rem', padding: '.2rem .55rem', borderRadius: 6, background: 'rgba(61,170,122,.07)', color: 'rgba(216,237,226,0.7)', fontWeight: 600 }}>👁 {tpl.views || 0} views</span>
+                    <span style={{ fontSize: '.65rem', padding: '.2rem .55rem', borderRadius: 6, background: 'rgba(61,170,122,.07)', color: 'rgba(216,237,226,0.7)', fontWeight: 600 }}>
                       {tpl.createdAt ? new Date(tpl.createdAt).toLocaleDateString() : '—'}
                     </span>
                   </div>

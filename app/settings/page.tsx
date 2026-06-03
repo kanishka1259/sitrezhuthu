@@ -12,10 +12,10 @@ import {
 // ─── Reusable section card ──────────────────────────────────────
 function Section({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, overflow: 'hidden', marginBottom: 16 }}>
-      <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <h2 style={{ fontWeight: 600, fontSize: 15, color: '#fff', marginBottom: desc ? 4 : 0 }}>{title}</h2>
-        {desc && <p style={{ fontSize: 13, color: '#555' }}>{desc}</p>}
+    <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-lit)', borderRadius: 16, overflow: 'hidden', marginBottom: 16 }}>
+      <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+        <h2 style={{ fontWeight: 600, fontSize: 15, color: 'var(--text)', marginBottom: desc ? 4 : 0 }}>{title}</h2>
+        {desc && <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{desc}</p>}
       </div>
       <div style={{ padding: '20px 24px' }}>{children}</div>
     </div>
@@ -32,14 +32,14 @@ function Toggle({ on, onChange, id }: { on: boolean; onChange: (v: boolean) => v
       aria-checked={on}
       style={{
         width: 44, height: 24, borderRadius: 12, border: 'none',
-        background: on ? '#3DAA7A' : 'rgba(255,255,255,0.1)',
+        background: on ? 'var(--jade)' : 'var(--border-lit)',
         cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0,
       }}
     >
       <span style={{
         position: 'absolute', top: 3, left: on ? 23 : 3,
         width: 18, height: 18, borderRadius: '50%',
-        background: on ? '#000' : '#555',
+        background: on ? 'var(--bg)' : 'var(--text-muted)',
         transition: 'left 0.2s',
       }} />
     </button>
@@ -49,10 +49,10 @@ function Toggle({ on, onChange, id }: { on: boolean; onChange: (v: boolean) => v
 // ─── Row ────────────────────────────────────────────────────────
 function Row({ label, desc, right }: { label: string; desc?: string; right: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
       <div>
-        <div style={{ fontSize: 14, color: '#ddd', fontWeight: 500 }}>{label}</div>
-        {desc && <div style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{desc}</div>}
+        <div style={{ fontSize: 14, color: 'var(--text)', fontWeight: 500 }}>{label}</div>
+        {desc && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{desc}</div>}
       </div>
       <div style={{ flexShrink: 0 }}>{right}</div>
     </div>
@@ -159,19 +159,19 @@ export default function SettingsPage() {
   ] as const;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#000', color: '#f0f0f0' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <Navbar />
 
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '96px 24px 80px', display: 'grid', gridTemplateColumns: '220px 1fr', gap: 24, alignItems: 'start' }}>
 
         {/* ── Sidebar ── */}
-        <aside style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '12px 8px', position: 'sticky', top: 88 }}>
-          <div style={{ padding: '12px 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 8 }}>
+        <aside style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-lit)', borderRadius: 16, padding: '12px 8px', position: 'sticky', top: 88 }}>
+          <div style={{ padding: '12px 16px 16px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
             <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#3DAA7A,#006fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: '#000', marginBottom: 10 }}>
               {(user.displayName || user.email || 'U')[0].toUpperCase()}
             </div>
-            <div style={{ fontWeight: 600, fontSize: 13, color: '#fff', lineHeight: 1.3 }}>{user.displayName || 'User'}</div>
-            <div style={{ fontSize: 12, color: '#555', marginTop: 2, wordBreak: 'break-all' }}>{user.email}</div>
+            <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{user.displayName || 'User'}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, wordBreak: 'break-all' }}>{user.email}</div>
           </div>
 
           {TABS.map(({ id, label, icon: Icon }) => (
@@ -183,18 +183,18 @@ export default function SettingsPage() {
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%',
                 padding: '9px 12px', borderRadius: 9, border: 'none',
                 background: tab === id ? 'rgba(61,170,122,0.08)' : 'transparent',
-                color: tab === id ? '#3DAA7A' : '#888',
+                color: tab === id ? '#3DAA7A' : 'var(--text-muted)',
                 fontSize: 13, fontWeight: tab === id ? 600 : 400,
                 cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
               }}
-              onMouseEnter={e => { if (tab !== id) { e.currentTarget.style.background  = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#ddd'; } }}
-              onMouseLeave={e => { if (tab !== id) { e.currentTarget.style.background  = 'transparent'; e.currentTarget.style.color  = '#888'; } }}
+              onMouseEnter={e => { if (tab !== id) { e.currentTarget.style.background  = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text)'; } }}
+              onMouseLeave={e => { if (tab !== id) { e.currentTarget.style.background  = 'transparent'; e.currentTarget.style.color  = 'var(--text-muted)'; } }}
             >
               <Icon size={15} /> {label}
             </button>
           ))}
 
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
             <button
               onClick={handleSignOut}
               style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', borderRadius: 9, border: 'none', background: 'transparent', color: '#ff6b6b', fontSize: 13, cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
@@ -214,7 +214,7 @@ export default function SettingsPage() {
             <Section title="Profile" desc="Manage your public display name and avatar.">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, color: '#aaa', marginBottom: 8, fontWeight: 500 }}>Display Name</label>
+                  <label style={{ display: 'block', fontSize: 13, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Display Name</label>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <input
                       id="profile-name"
@@ -238,13 +238,13 @@ export default function SettingsPage() {
                   {profileMsg && <p style={{ fontSize: 13, color: profileMsg.includes('success') ? '#3DAA7A' : '#ff6b6b', marginTop: 8 }}>{profileMsg}</p>}
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, color: '#aaa', marginBottom: 8, fontWeight: 500 }}>Email Address</label>
+                  <label style={{ display: 'block', fontSize: 13, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Email Address</label>
                   <input type="email" value={user.email || ''} disabled className="field" style={{ opacity: 0.5, cursor: 'not-allowed' }} />
-                  <p style={{ fontSize: 12, color: '#555', marginTop: 6 }}>Email changes are not supported. Use a different account instead.</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>Email changes are not supported. Use a different account instead.</p>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, color: '#aaa', marginBottom: 8, fontWeight: 500 }}>Account Created</label>
-                  <div style={{ fontSize: 14, color: '#666', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <label style={{ display: 'block', fontSize: 13, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Account Created</label>
+                  <div style={{ fontSize: 14, color: 'var(--text-dim)', padding: '10px 14px', background: 'var(--bg-hover)', borderRadius: 8, border: '1px solid var(--border)' }}>
                     {user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}
                   </div>
                 </div>
@@ -261,13 +261,13 @@ export default function SettingsPage() {
                 } />
                 {passMsg && <p style={{ fontSize: 13, color: passMsg.includes('sent') ? '#3DAA7A' : '#ff6b6b', margin: '8px 0 12px' }}>{passMsg}</p>}
                 <Row label="Two-Factor Authentication" desc="Extra security layer via Google Authenticator" right={
-                  <span style={{ fontSize: 12, color: '#555', padding: '4px 10px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>Coming soon</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)', padding: '4px 10px', borderRadius: 6, background: 'var(--bg-hover)', border: '1px solid var(--border)' }}>Coming soon</span>
                 } />
                 <Row label="Active Sessions" desc="View and revoke active login sessions" right={
                   <button className="btn-ghost" style={{ fontSize: 13, padding: '8px 16px', color: '#ff6b6b', borderColor: 'rgba(255,75,75,0.2)' }} onClick={handleSignOut}>Sign Out All</button>
                 } />
                 <Row label="Login History" desc="Last sign-in from your account" right={
-                  <span style={{ fontSize: 12, color: '#666' }}>{user.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleDateString() : '—'}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>{user.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleDateString() : '—'}</span>
                 } />
               </div>
             </Section>
@@ -284,28 +284,28 @@ export default function SettingsPage() {
                       {(user.displayName || user.email || 'U')[0].toUpperCase()}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, color: '#fff', fontWeight: 500 }}>{user.displayName || 'User'}</div>
-                      <div style={{ fontSize: 12, color: '#666' }}>{user.email}</div>
+                      <div style={{ fontSize: 14, color: 'var(--text)', fontWeight: 500 }}>{user.displayName || 'User'}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{user.email}</div>
                     </div>
                     <span style={{ fontSize: 11, color: '#3DAA7A', padding: '3px 8px', borderRadius: 6, background: 'rgba(61,170,122,0.1)', border: '1px solid rgba(61,170,122,0.2)' }}>Active</span>
                   </div>
 
                   {/* Saved accounts */}
                   {savedAccounts.filter(a => a.email !== user.email).map(acc => (
-                    <div key={acc.email} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#888', flexShrink: 0 }}>
+                    <div key={acc.email} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, background: 'var(--bg-hover)', border: '1px solid var(--border)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--border-lit)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: 'var(--text-muted)', flexShrink: 0 }}>
                         {(acc.name || acc.email)[0].toUpperCase()}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, color: '#bbb', fontWeight: 500 }}>{acc.name}</div>
-                        <div style={{ fontSize: 12, color: '#555' }}>{acc.email}</div>
+                        <div style={{ fontSize: 14, color: 'var(--text)', fontWeight: 500 }}>{acc.name}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{acc.email}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
                           onClick={() => router.push('/login')}
-                          style={{ fontSize: 12, padding: '6px 12px', borderRadius: 7, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#aaa', cursor: 'pointer', transition: 'all 0.15s' }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor  = 'rgba(61,170,122,0.3)'; e.currentTarget.style.color  = '#3DAA7A'; }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color  = '#aaa'; }}
+                          style={{ fontSize: 12, padding: '6px 12px', borderRadius: 7, border: '1px solid var(--border-lit)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', transition: 'all 0.15s' }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor  = 'var(--jade)'; e.currentTarget.style.color  = 'var(--jade-bright)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor  = 'var(--border-lit)'; e.currentTarget.style.color  = 'var(--text-muted)'; }}
                         >Switch</button>
                         <button
                           onClick={() => handleRemoveAccount(acc.email)}
@@ -322,9 +322,9 @@ export default function SettingsPage() {
                   <button
                     id="add-account-btn"
                     onClick={handleAddAccount}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 10, border: '1px dashed rgba(255,255,255,0.12)', background: 'transparent', color: '#666', fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left', width: '100%' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor  = 'rgba(61,170,122,0.3)'; e.currentTarget.style.color  = '#3DAA7A'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color  = '#666'; }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 10, border: '1px dashed var(--border-warm)', background: 'transparent', color: 'var(--text-dim)', fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left', width: '100%' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor  = 'var(--jade)'; e.currentTarget.style.color  = 'var(--jade-bright)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor  = 'var(--border-warm)'; e.currentTarget.style.color  = 'var(--text-dim)'; }}
                   >
                     <UserPlus size={16} /> Add another account via Google
                   </button>
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                     onClick={async () => {
                       try {
                         const token = await getIdToken();
-                        const res = await fetch('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+                        const res = await fetch('/api/portfolio?all=true', { headers: { Authorization: `Bearer ${token}` } });
                         const data = await res.json();
                         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                         const url = URL.createObjectURL(blob);
@@ -399,8 +399,8 @@ export default function SettingsPage() {
 
               <Section title="Danger Zone" desc="Permanent and irreversible actions.">
                 <div style={{ padding: '16px', background: 'rgba(255,75,75,0.04)', border: '1px solid rgba(255,75,75,0.12)', borderRadius: 10 }}>
-                  <div style={{ fontSize: 14, color: '#ddd', fontWeight: 500, marginBottom: 6 }}>Delete Account</div>
-                  <p style={{ fontSize: 13, color: '#666', marginBottom: 16, lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 14, color: 'var(--text)', fontWeight: 500, marginBottom: 6 }}>Delete Account</div>
+                  <p style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 16, lineHeight: 1.6 }}>
                     Permanently delete your account and all portfolios. This action cannot be reversed.
                   </p>
                   <button

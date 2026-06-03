@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, memo } from 'react';
 import Link from 'next/link';
-import { usePortfolioStore } from '@/store/usePortfolioStore';
+import { usePortfolioStore, type CustomElement } from '@/store/usePortfolioStore';
 import { SkillInput } from './SkillInput';
 import { ProjectCard } from './ProjectCard';
 import { EducationCard } from './EducationCard';
@@ -60,6 +60,10 @@ interface ProfileTabProps {
   setAllowedEmailInput: (val: string) => void;
   handleAvatarUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   uploadingAvatar: boolean;
+  template: string;
+  templateStyles: any;
+  addCustomElement: (element: Omit<CustomElement, 'id'>) => void;
+  skills: string[];
 }
 
 // Memoized sub-components to prevent parent re-renders from affecting them
@@ -68,7 +72,11 @@ const ProfileTab = memo(({
   allowedEmailInput, 
   setAllowedEmailInput, 
   handleAvatarUpload, 
-  uploadingAvatar 
+  uploadingAvatar,
+  template,
+  templateStyles,
+  addCustomElement,
+  skills
 }: ProfileTabProps) => {
   const inputCls = 'editor-input';
   const labelCls = 'editor-label';
@@ -114,15 +122,144 @@ const ProfileTab = memo(({
           placeholder="your-name" className={inputCls} style={{ flex: 1 }} />
       </div>
 
-      <label className={labelCls}>Full Name</label>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 15 }}>
+        <label className={labelCls} style={{ marginTop: 0 }}>Full Name</label>
+        {template === 'custom' && (
+          <button
+            onClick={() => {
+              addCustomElement({
+                type: 'text',
+                x: 180 + Math.random() * 120,
+                y: 180 + Math.random() * 120,
+                width: 500,
+                height: 70,
+                content: portfolio.name || 'John Doe',
+                color: templateStyles.textColor,
+                fontSize: 52,
+                fontWeight: '800',
+                bgColor: 'transparent',
+                fontFamily: 'Space Grotesk',
+                linkedField: 'name',
+                zIndex: 10,
+                opacity: 1,
+                rotation: 0
+              });
+            }}
+            style={{
+              background: 'rgba(61,170,122,0.1)',
+              border: '1px solid rgba(61,170,122,0.2)',
+              color: '#3DAA7A',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              transition: 'all .2s'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.1)'; }}
+          >
+            ➕ Add to Canvas
+          </button>
+        )}
+      </div>
       <input type="text" value={portfolio.name} onChange={e => portfolio.setField('name', e.target.value)}
         placeholder="Alex Rivera" className={inputCls} />
 
-      <label className={labelCls}>Bio / Tagline</label>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20 }}>
+        <label className={labelCls} style={{ marginTop: 0 }}>Bio / Tagline</label>
+        {template === 'custom' && (
+          <button
+            onClick={() => {
+              addCustomElement({
+                type: 'text',
+                x: 180 + Math.random() * 120,
+                y: 180 + Math.random() * 120,
+                width: 500,
+                height: 80,
+                content: portfolio.bio || 'I build beautiful, high-performance web applications with modern technologies and a passion for great user experiences.',
+                color: templateStyles.mutedColor || '#94a3b8',
+                fontSize: 16,
+                fontWeight: '400',
+                bgColor: 'transparent',
+                lineHeight: 1.7,
+                linkedField: 'bio',
+                zIndex: 10,
+                opacity: 1,
+                rotation: 0
+              });
+            }}
+            style={{
+              background: 'rgba(61,170,122,0.1)',
+              border: '1px solid rgba(61,170,122,0.2)',
+              color: '#3DAA7A',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              transition: 'all .2s'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.1)'; }}
+          >
+            ➕ Add to Canvas
+          </button>
+        )}
+      </div>
       <textarea value={portfolio.bio} onChange={e => portfolio.setField('bio', e.target.value)}
         placeholder="Full-stack developer crafting elegant digital experiences…" rows={4} className={inputCls} style={{ resize: 'vertical' }} />
 
-      <label className={labelCls}>Avatar Image</label>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20 }}>
+        <label className={labelCls} style={{ marginTop: 0 }}>Avatar Image</label>
+        {template === 'custom' && (
+          <button
+            onClick={() => {
+              addCustomElement({
+                type: 'image',
+                x: 180 + Math.random() * 120,
+                y: 180 + Math.random() * 120,
+                src: portfolio.avatar || '',
+                width: 160,
+                height: 160,
+                borderRadius: 80,
+                borderColor: templateStyles.primaryColor,
+                borderWidth: 3,
+                borderStyle: 'solid',
+                shadow: `0 0 40px ${templateStyles.primaryColor}60`,
+                linkedField: 'avatar',
+                zIndex: 10,
+                opacity: 1,
+                rotation: 0
+              });
+            }}
+            style={{
+              background: 'rgba(61,170,122,0.1)',
+              border: '1px solid rgba(61,170,122,0.2)',
+              color: '#3DAA7A',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              transition: 'all .2s'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.1)'; }}
+          >
+            ➕ Add to Canvas
+          </button>
+        )}
+      </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 15, marginTop: '0.25rem', marginBottom: '1rem', background: 'var(--editor-card-bg)', padding: '1rem', borderRadius: 16, border: '1px solid var(--editor-card-border)' }}>
         <div style={{ position: 'relative', width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--editor-border-strong)', background: 'var(--editor-input-bg)' }}>
           {portfolio.avatar ? (
@@ -133,17 +270,75 @@ const ProfileTab = memo(({
         </div>
         <div style={{ flex: 1 }}>
           <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={uploadingAvatar} style={{ fontSize: '0.85rem', color: 'var(--editor-text)', fontWeight: 400 }} />
+          <div style={{ fontSize: '0.75rem', color: 'var(--editor-text-muted)', marginTop: 4, fontWeight: 400 }}>
+            File too large (max 1 MB for free storage)
+          </div>
           {uploadingAvatar && <div style={{ fontSize: '0.8rem', color: 'var(--editor-text-muted)', marginTop: 4, fontWeight: 500 }}>Uploading...</div>}
         </div>
       </div>
 
-      <label className={labelCls}>Skills</label>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20 }}>
+        <label className={labelCls} style={{ marginTop: 0 }}>Skills</label>
+        {template === 'custom' && skills.length > 0 && (
+          <button
+            onClick={() => {
+              skills.forEach((sk, idx) => {
+                addCustomElement({
+                  type: 'button',
+                  x: 180 + Math.random() * 120 + idx * 30,
+                  y: 180 + Math.random() * 120 + idx * 20,
+                  width: 110,
+                  height: 38,
+                  content: `⚡ ${sk}`,
+                  bgColor: 'rgba(99,102,241,0.15)',
+                  color: templateStyles.primaryColor,
+                  borderRadius: 20,
+                  fontSize: 13,
+                  fontWeight: '600',
+                  borderColor: templateStyles.primaryColor,
+                  borderWidth: 1,
+                  borderStyle: 'solid',
+                  zIndex: 10,
+                  opacity: 1,
+                  rotation: 0,
+                  linkedField: 'skills'
+                });
+              });
+            }}
+            style={{
+              background: 'rgba(61,170,122,0.1)',
+              border: '1px solid rgba(61,170,122,0.2)',
+              color: '#3DAA7A',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              transition: 'all .2s'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.1)'; }}
+          >
+            ➕ Add all Skills to Canvas
+          </button>
+        )}
+      </div>
       <SkillInput />
     </div>
   );
 });
 
 ProfileTab.displayName = 'ProfileTab';
+
+const CONTACT_PLATFORMS = {
+  email: { label: '📬 Email' },
+  linkedin: { label: '💼 LinkedIn' },
+  github: { label: '🐙 GitHub' },
+  twitter: { label: '🐦 Twitter' },
+} as const;
 
 export function FormPanel({ saveMessage = '' }: FormPanelProps) {
   // Use specific selectors to minimize re-renders
@@ -158,6 +353,9 @@ export function FormPanel({ saveMessage = '' }: FormPanelProps) {
   const setField = usePortfolioStore(state => state.setField);
   const updateContact = usePortfolioStore(state => state.updateContact);
   const setTemplate = usePortfolioStore(state => state.setTemplate);
+  const templateStyles = usePortfolioStore(state => state.templateStyles);
+  const addCustomElement = usePortfolioStore(state => state.addCustomElement);
+  const skills = usePortfolioStore(state => state.skills);
   
   // Aggregate portfolio object for the memoized ProfileTab
   const portfolioSummary = useMemo(() => ({
@@ -167,6 +365,7 @@ export function FormPanel({ saveMessage = '' }: FormPanelProps) {
   const [activeTab, setActiveTab] = useState<TabId>('basic');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [allowedEmailInput, setAllowedEmailInput] = useState('');
+  const [copiedLink, setCopiedLink] = useState(false);
   const { getIdToken } = useFirebaseAuth();
 
   const handleExportJSON = useCallback(() => {
@@ -184,12 +383,18 @@ export function FormPanel({ saveMessage = '' }: FormPanelProps) {
     if (typeof window !== 'undefined') {
       const s = slug || 'portfolio';
       await navigator.clipboard.writeText(`${window.location.origin}/${s}`);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
     }
   }, [slug]);
 
   const handleAvatarUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 1024 * 1024) {
+      alert('File too large (max 1 MB for free storage)');
+      return;
+    }
     setUploadingAvatar(true);
     try {
       const token = await getIdToken();
@@ -238,8 +443,9 @@ export function FormPanel({ saveMessage = '' }: FormPanelProps) {
             <button onClick={handleExportJSON} title="Export JSON" className="p-2 rounded-xl bg-jade/5 text-jade-bright hover:bg-jade/10 transition-colors border-none cursor-pointer flex items-center" style={{ color: 'var(--editor-text)' }}>
               <FileJson size={16} />
             </button>
-            <button onClick={handleCopyLink} title="Copy portfolio link" className="p-2 rounded-xl bg-jade/5 text-jade-bright hover:bg-jade/10 transition-colors border-none cursor-pointer flex items-center" style={{ color: 'var(--editor-text)' }}>
-              <Share2 size={16} />
+            <button onClick={handleCopyLink} title="Copy portfolio link" className="px-3 py-2 rounded-xl bg-jade/5 text-jade-bright hover:bg-jade/10 transition-colors border-none cursor-pointer flex items-center gap-1.5" style={{ color: copiedLink ? '#3DAA7A' : 'var(--editor-text)' }}>
+              {copiedLink ? <CheckCircle2 size={14} /> : <Share2 size={14} />}
+              <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{copiedLink ? 'Copied!' : 'Copy Link'}</span>
             </button>
           </div>
         </div>
@@ -270,6 +476,10 @@ export function FormPanel({ saveMessage = '' }: FormPanelProps) {
             setAllowedEmailInput={setAllowedEmailInput}
             handleAvatarUpload={handleAvatarUpload}
             uploadingAvatar={uploadingAvatar}
+            template={template}
+            templateStyles={templateStyles}
+            addCustomElement={addCustomElement}
+            skills={skills}
           />
         )}
 
@@ -285,7 +495,58 @@ export function FormPanel({ saveMessage = '' }: FormPanelProps) {
               { field: 'twitter' as const, label: 'Twitter / X URL', placeholder: 'https://twitter.com/yourprofile', type: 'url' },
             ].map(({ field, label, placeholder, type }) => (
               <div key={field}>
-                <label className={labelCls} style={{ marginTop: field === 'email' ? 0 : 20 }}>{label}</label>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: field === 'email' ? 0 : 20 }}>
+                  <label className={labelCls} style={{ marginTop: 0 }}>{label}</label>
+                  {template === 'custom' && contact[field] && (
+                    <button
+                      onClick={() => {
+                        const info = CONTACT_PLATFORMS[field];
+                        const target = field === 'email' ? `mailto:${contact[field]}` : contact[field];
+                        addCustomElement({
+                          type: 'button',
+                          x: 180 + Math.random() * 120,
+                          y: 180 + Math.random() * 120,
+                          width: 130,
+                          height: 42,
+                          content: info.label,
+                          bgColor: 'transparent',
+                          color: templateStyles.textColor,
+                          borderRadius: 8,
+                          fontSize: 14,
+                          fontWeight: '600',
+                          borderColor: templateStyles.borderColor,
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                          clickAction: 'link',
+                          clickTarget: target,
+                          linkedField: 'contact',
+                          linkedSubField: field,
+                          zIndex: 10,
+                          opacity: 1,
+                          rotation: 0
+                        });
+                      }}
+                      style={{
+                        background: 'rgba(61,170,122,0.1)',
+                        border: '1px solid rgba(61,170,122,0.2)',
+                        color: '#3DAA7A',
+                        padding: '0.25rem 0.6rem',
+                        borderRadius: '8px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        transition: 'all .2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.2)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.1)'; }}
+                    >
+                      ➕ Add to Canvas
+                    </button>
+                  )}
+                </div>
                 <input type={type} value={contact[field]} onChange={e => updateContact(field, e.target.value)}
                   placeholder={placeholder} className={inputCls} />
               </div>

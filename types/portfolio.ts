@@ -64,6 +64,9 @@ export interface CustomElement {
   clickAction?: 'none' | 'link' | 'scroll';
   clickTarget?: string;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none';
+  linkedField?: string;
+  linkedSubField?: string;
+  linkedIndex?: number;
 }
 
 export interface Project {

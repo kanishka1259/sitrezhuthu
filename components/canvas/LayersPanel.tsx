@@ -20,7 +20,7 @@ export function LayersPanel() {
       </div>
       <div style={{ overflowY: 'auto', flex: 1 }}>
         {sorted.length === 0 && (
-          <p style={{ fontSize: '0.75rem', color: '#475569', textAlign: 'center', padding: '16px 8px' }}>No elements yet</p>
+          <p style={{ fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center', padding: '16px 8px' }}>No elements yet</p>
         )}
         {sorted.map(el => (
           <div
@@ -35,7 +35,7 @@ export function LayersPanel() {
             onMouseEnter={e => { if (selectedElementId !== el.id) (e.currentTarget as HTMLElement).style.background = 'rgba(61,170,122,0.04)'; }}
             onMouseLeave={e => { if (selectedElementId !== el.id) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
           >
-            <GripVertical size={12} style={{ color: '#334155', flexShrink: 0 }} />
+            <GripVertical size={12} style={{ color: '#64748b', flexShrink: 0 }} />
             <div style={{
               width: 20, height: 20, borderRadius: 4, flexShrink: 0,
               background: el.bgColor || el.color || '#3DAA7A',

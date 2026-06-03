@@ -253,9 +253,9 @@ describe('setTemplate', () => {
     expect(state.templateStyles.bgColor).toBe('#060612');
   });
 
-  it('custom template has dark canvas defaults', () => {
+  it('custom template has custom canvas defaults', () => {
     usePortfolioStore.getState().setTemplate('custom');
     const state = usePortfolioStore.getState();
-    expect(state.templateStyles.bgColor).toBe('#0f0f13');
+    expect(state.templateStyles.bgColor).toBe('#FAF9F6');
   });
 });

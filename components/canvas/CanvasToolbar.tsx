@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/refs */
 import { useState, useRef } from 'react';
 import { usePortfolioStore, type CustomElement } from '@/store/usePortfolioStore';
+import type { Contact } from '@/types/portfolio';
 import {
   Type, MousePointerClick, Square, Circle, Triangle,
   Image as ImageIcon, Minus, Star, LayoutTemplate, Undo2, Redo2,
@@ -36,7 +37,7 @@ const EMOJI_GROUPS = {
 const getRandomPosition = () => 180 + Math.random() * 120;
 
 export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap }: CanvasToolbarProps) {
-  const { addCustomElement, templateStyles: s, undo, redo } = usePortfolioStore();
+  const { addCustomElement, templateStyles: s, undo, redo, name, bio, avatar, projects, education, contact } = usePortfolioStore();
   const [activeMenu, setActiveMenu] = useState<'shapes' | 'emoji' | 'portfolio' | null>(null);
   const [activeEmojiGroup, setActiveEmojiGroup] = useState<string>('Popular');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -125,7 +126,7 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
   const portfolioBlocks = [
     {
       label: 'Hero Name', icon: <User size={14}/>,
-      action: () => add('text', { content: 'John Doe', color: s.textColor, fontSize: 52, fontWeight: '800', width: 500, height: 70, bgColor: 'transparent', fontFamily: 'Space Grotesk' })
+      action: () => add('text', { content: name || 'John Doe', color: s.textColor, fontSize: 52, fontWeight: '800', width: 500, height: 70, bgColor: 'transparent', fontFamily: 'Space Grotesk', linkedField: 'name' })
     },
     {
       label: 'Job Title', icon: <Briefcase size={14}/>,
@@ -133,11 +134,40 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
     },
     {
       label: 'Bio Text', icon: <Type size={14}/>,
-      action: () => add('text', { content: 'I build beautiful, high-performance web applications with modern technologies and a passion for great user experiences.', color: s.mutedColor || '#94a3b8', fontSize: 16, fontWeight: '400', width: 500, height: 80, bgColor: 'transparent', lineHeight: 1.7 })
+      action: () => add('text', { content: bio || 'I build beautiful, high-performance web applications with modern technologies and a passion for great user experiences.', color: s.mutedColor || '#94a3b8', fontSize: 16, fontWeight: '400', width: 500, height: 80, bgColor: 'transparent', lineHeight: 1.7, linkedField: 'bio' })
     },
     {
       label: 'Skill Badge', icon: <Code2 size={14}/>,
-      action: () => add('button', { content: '⚡ React', bgColor: 'rgba(99,102,241,0.15)', color: s.primaryColor, width: 110, height: 38, borderRadius: 20, fontSize: 13, fontWeight: '600', borderColor: s.primaryColor, borderWidth: 1, borderStyle: 'solid' })
+      action: () => {
+        const skillsList = usePortfolioStore.getState().skills || [];
+        if (skillsList.length > 0) {
+          skillsList.forEach((sk, idx) => {
+            addCustomElement({
+              type: 'button',
+              x: getRandomPosition() + idx * 30,
+              y: getRandomPosition() + idx * 20,
+              width: 110,
+              height: 38,
+              content: `⚡ ${sk}`,
+              bgColor: 'rgba(99,102,241,0.15)',
+              color: s.primaryColor,
+              borderRadius: 20,
+              fontSize: 13,
+              fontWeight: '600',
+              borderColor: s.primaryColor,
+              borderWidth: 1,
+              borderStyle: 'solid',
+              zIndex: 10,
+              opacity: 1,
+              rotation: 0,
+              linkedField: 'skills'
+            });
+          });
+        } else {
+          add('button', { content: '⚡ React', bgColor: 'rgba(99,102,241,0.15)', color: s.primaryColor, width: 110, height: 38, borderRadius: 20, fontSize: 13, fontWeight: '600', borderColor: s.primaryColor, borderWidth: 1, borderStyle: 'solid', linkedField: 'skills' });
+        }
+        setActiveMenu(null);
+      }
     },
     {
       label: 'CTA Button', icon: <MousePointerClick size={14}/>,
@@ -146,14 +176,108 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
     {
       label: 'Project Card', icon: <Layers size={14}/>,
       action: () => {
-        add('shape', { shapeType: 'square', bgColor: s.cardBg || '#1e1e2e', borderColor: s.borderColor, borderWidth: 1, borderStyle: 'solid', width: 360, height: 240, borderRadius: 16 });
-        setTimeout(() => add('text', { content: '🚀 Project Name', color: s.textColor, fontSize: 18, fontWeight: '700', width: 300, height: 30, bgColor: 'transparent' }), 50);
-        setTimeout(() => add('text', { content: 'A brief description of what this project does and the tech stack used.', color: s.mutedColor || '#94a3b8', fontSize: 14, fontWeight: '400', width: 300, height: 60, bgColor: 'transparent', lineHeight: 1.6 }), 100);
+        const projList = usePortfolioStore.getState().projects || [];
+        const idx = 0;
+        const proj = projList[idx] || { title: '🚀 Project Name', description: 'A brief description of what this project does and the tech stack used.', live: '#' };
+        
+        const baseX = getRandomPosition();
+        const baseY = getRandomPosition();
+        
+        addCustomElement({
+          type: 'shape',
+          x: baseX,
+          y: baseY,
+          width: 360,
+          height: 240,
+          shapeType: 'square',
+          bgColor: s.cardBg || '#1e1e2e',
+          borderColor: s.borderColor,
+          borderWidth: 1,
+          borderStyle: 'solid',
+          borderRadius: 16,
+          zIndex: 10,
+          opacity: 1,
+          rotation: 0
+        });
+        
+        setTimeout(() => {
+          addCustomElement({
+            type: 'text',
+            x: baseX + 30,
+            y: baseY + 30,
+            width: 300,
+            height: 35,
+            content: proj.title || '🚀 Project Name',
+            color: s.textColor,
+            fontSize: 18,
+            fontWeight: '700',
+            bgColor: 'transparent',
+            linkedField: 'project',
+            linkedSubField: 'title',
+            linkedIndex: idx,
+            zIndex: 11,
+            opacity: 1,
+            rotation: 0
+          });
+        }, 50);
+
+        setTimeout(() => {
+          addCustomElement({
+            type: 'text',
+            x: baseX + 30,
+            y: baseY + 75,
+            width: 300,
+            height: 80,
+            content: proj.description || 'A brief description of what this project does and the tech stack used.',
+            color: s.mutedColor || '#94a3b8',
+            fontSize: 14,
+            fontWeight: '400',
+            bgColor: 'transparent',
+            lineHeight: 1.6,
+            linkedField: 'project',
+            linkedSubField: 'description',
+            linkedIndex: idx,
+            zIndex: 11,
+            opacity: 1,
+            rotation: 0
+          });
+        }, 100);
+
+        setTimeout(() => {
+          addCustomElement({
+            type: 'button',
+            x: baseX + 30,
+            y: baseY + 165,
+            width: 140,
+            height: 40,
+            content: 'Demo',
+            bgColor: s.primaryColor,
+            color: '#ffffff',
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: '600',
+            clickAction: 'link',
+            clickTarget: proj.live || '#',
+            linkedField: 'project',
+            linkedSubField: 'live',
+            linkedIndex: idx,
+            zIndex: 11,
+            opacity: 1,
+            rotation: 0
+          });
+        }, 150);
+        setActiveMenu(null);
       }
     },
     {
       label: 'Education', icon: <GraduationCap size={14}/>,
-      action: () => add('text', { content: '🎓 B.Sc. Computer Science\nUniversity Name  ·  2024', color: s.textColor, fontSize: 15, fontWeight: '500', width: 360, height: 55, bgColor: 'transparent', lineHeight: 1.7 })
+      action: () => {
+        const eduList = usePortfolioStore.getState().education || [];
+        const idx = 0;
+        const edu = eduList[idx] || { degree: 'B.Sc. Computer Science', institution: 'University Name', year: '2024' };
+        const formattedText = `🎓 ${edu.degree}\n${edu.institution}  ·  ${edu.year}`;
+        add('text', { content: formattedText, color: s.textColor, fontSize: 15, fontWeight: '500', width: 360, height: 55, bgColor: 'transparent', lineHeight: 1.7, linkedField: 'education', linkedIndex: idx });
+      }
     },
     {
       label: 'Gradient Bg', icon: <Globe size={14}/>,
@@ -168,11 +292,75 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
     },
     {
       label: 'Social Link', icon: <Globe size={14}/>,
-      action: () => add('button', { content: '🐙 GitHub', bgColor: 'transparent', color: s.textColor, width: 130, height: 42, borderRadius: 8, fontSize: 14, fontWeight: '600', borderColor: s.borderColor, borderWidth: 1, borderStyle: 'solid', clickAction: 'link', clickTarget: 'https://github.com/' })
+      action: () => {
+        const c = usePortfolioStore.getState().contact;
+        let added = false;
+        let offset = 0;
+        
+        const platforms: { key: keyof Contact; label: string }[] = [
+          { key: 'github', label: '🐙 GitHub' },
+          { key: 'linkedin', label: '💼 LinkedIn' },
+          { key: 'twitter', label: '🐦 Twitter' },
+          { key: 'email', label: '📬 Email' },
+        ];
+        
+        platforms.forEach((platform) => {
+          const val = c[platform.key as keyof Contact];
+          if (val) {
+            const target = platform.key === 'email' ? `mailto:${val}` : val;
+            addCustomElement({
+              type: 'button',
+              x: getRandomPosition() + offset * 30,
+              y: getRandomPosition() + offset * 10,
+              width: 130,
+              height: 42,
+              content: platform.label,
+              bgColor: 'transparent',
+              color: s.textColor,
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: '600',
+              borderColor: s.borderColor,
+              borderWidth: 1,
+              borderStyle: 'solid',
+              clickAction: 'link',
+              clickTarget: target,
+              linkedField: 'contact',
+              linkedSubField: platform.key,
+              zIndex: 10,
+              opacity: 1,
+              rotation: 0
+            });
+            offset++;
+            added = true;
+          }
+        });
+        
+        if (!added) {
+          add('button', {
+            content: '🐙 GitHub',
+            bgColor: 'transparent',
+            color: s.textColor,
+            width: 130,
+            height: 42,
+            borderRadius: 8,
+            fontSize: 14,
+            fontWeight: '600',
+            borderColor: s.borderColor,
+            borderWidth: 1,
+            borderStyle: 'solid',
+            clickAction: 'link',
+            clickTarget: 'https://github.com/',
+            linkedField: 'contact',
+            linkedSubField: 'github'
+          });
+        }
+        setActiveMenu(null);
+      }
     },
     {
       label: 'Avatar', icon: <User size={14}/>,
-      action: () => add('image', { src: '', width: 160, height: 160, borderRadius: 80, borderColor: s.primaryColor, borderWidth: 3, borderStyle: 'solid', shadow: `0 0 40px ${s.primaryColor}60` })
+      action: () => add('image', { src: avatar || '', width: 160, height: 160, borderRadius: 80, borderColor: s.primaryColor, borderWidth: 3, borderStyle: 'solid', shadow: `0 0 40px ${s.primaryColor}60`, linkedField: 'avatar' })
     },
     {
       label: 'Divider', icon: <Minus size={14}/>,
@@ -193,7 +381,7 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
       <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" style={{ display: 'none' }} />
 
       {/* Header */}
-      <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.2, textAlign: 'center', padding: '0 4px 6px', borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 2 }}>
+      <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1.2, textAlign: 'center', padding: '0 4px 6px', borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 2 }}>
         Elements
       </div>
 
@@ -214,7 +402,7 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
           {/* ── Shapes submenu ── */}
           {isActive('shapes') && t.label === 'Shapes' && (
             <div style={{ position: 'absolute', left: '100%', top: 0, marginLeft: 10, background: 'rgba(12,12,18,0.97)', border: '1px solid rgba(61,170,122,0.08)', borderRadius: 14, padding: '8px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, boxShadow: '0 8px 40px rgba(0,0,0,0.5)', zIndex: 200, width: 200 }}>
-              <div style={{ gridColumn: '1/-1', fontSize: '0.58rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1, paddingBottom: 4, borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 2 }}>Shapes</div>
+              <div style={{ gridColumn: '1/-1', fontSize: '0.58rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, paddingBottom: 4, borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 2 }}>Shapes</div>
               {shapes.map(sh => (
                 <button key={sh.label} onClick={sh.action} title={sh.label}
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px 4px', borderRadius: 8, color: '#cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
@@ -230,7 +418,7 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
           {/* ── Emoji submenu ── */}
           {isActive('emoji') && t.label === 'Emoji' && (
             <div style={{ position: 'absolute', left: '100%', top: 0, marginLeft: 10, background: 'rgba(12,12,18,0.97)', border: '1px solid rgba(61,170,122,0.08)', borderRadius: 14, padding: '8px', boxShadow: '0 8px 40px rgba(0,0,0,0.5)', zIndex: 200, width: 230 }}>
-              <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1, paddingBottom: 6, borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 6 }}>Emojis</div>
+              <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, paddingBottom: 6, borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 6 }}>Emojis</div>
               {/* Group tabs */}
               <div style={{ display: 'flex', gap: 2, marginBottom: 6, flexWrap: 'wrap' }}>
                 {Object.keys(EMOJI_GROUPS).map(g => (
@@ -256,13 +444,13 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
           {/* ── Portfolio blocks submenu ── */}
           {isActive('portfolio') && t.label === 'Portfolio' && (
             <div style={{ position: 'absolute', left: '100%', top: 0, marginLeft: 10, background: 'rgba(12,12,18,0.97)', border: '1px solid rgba(61,170,122,0.08)', borderRadius: 14, padding: '8px', boxShadow: '0 8px 40px rgba(0,0,0,0.5)', zIndex: 200, width: 210, maxHeight: 400, overflowY: 'auto' }}>
-              <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1, paddingBottom: 6, borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 4 }}>Portfolio Blocks</div>
+              <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, paddingBottom: 6, borderBottom: '1px solid rgba(61,170,122,0.05)', marginBottom: 4 }}>Portfolio Blocks</div>
               {portfolioBlocks.map(b => (
                 <button key={b.label} onClick={b.action}
                   style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', background: 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 500, textAlign: 'left' }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'rgba(61,170,122,0.07)'; e.currentTarget.style.color = '#e2e8f0'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; }}>
-                  <span style={{ color: '#475569', flexShrink: 0 }}>{b.icon}</span>
+                  <span style={{ color: '#94a3b8', flexShrink: 0 }}>{b.icon}</span>
                   {b.label}
                 </button>
               ))}
@@ -273,25 +461,25 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
 
       {/* ── Utility controls ── */}
       <div style={{ borderTop: '1px solid rgba(61,170,122,0.05)', marginTop: 4, paddingTop: 6, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <button onClick={undo} style={{ ...TOOL_BTN, color: '#475569' }} title="Undo (Ctrl+Z)"
+        <button onClick={undo} style={{ ...TOOL_BTN, color: '#94a3b8' }} title="Undo (Ctrl+Z)"
           onMouseEnter={e => e.currentTarget.style.background  = 'rgba(61,170,122,0.06)'}
           onMouseLeave={e => e.currentTarget.style.background  = 'transparent'}>
           <Undo2 size={15}/><span style={{ fontSize: '0.58rem', fontWeight: 600 }}>Undo</span>
         </button>
-        <button onClick={redo} style={{ ...TOOL_BTN, color: '#475569' }} title="Redo (Ctrl+Y)"
+        <button onClick={redo} style={{ ...TOOL_BTN, color: '#94a3b8' }} title="Redo (Ctrl+Y)"
           onMouseEnter={e => e.currentTarget.style.background  = 'rgba(61,170,122,0.06)'}
           onMouseLeave={e => e.currentTarget.style.background  = 'transparent'}>
           <Redo2 size={15}/><span style={{ fontSize: '0.58rem', fontWeight: 600 }}>Redo</span>
         </button>
         <button onClick={onToggleGrid}
-          style={{ ...TOOL_BTN, color: showGrid ? '#3DAA7A' : '#475569', background: showGrid ? 'rgba(99,102,241,0.12)' : 'transparent' }}
+          style={{ ...TOOL_BTN, color: showGrid ? '#3DAA7A' : '#94a3b8', background: showGrid ? 'rgba(99,102,241,0.12)' : 'transparent' }}
           title="Toggle Grid"
           onMouseEnter={e => { if (!showGrid) e.currentTarget.style.background = 'rgba(61,170,122,0.06)'; }}
           onMouseLeave={e => { if (!showGrid) e.currentTarget.style.background = 'transparent'; }}>
           <Grid3x3 size={15}/><span style={{ fontSize: '0.58rem', fontWeight: 600 }}>Grid</span>
         </button>
         <button onClick={onToggleSnap}
-          style={{ ...TOOL_BTN, color: snapToGrid ? '#3DAA7A' : '#475569', background: snapToGrid ? 'rgba(99,102,241,0.12)' : 'transparent' }}
+          style={{ ...TOOL_BTN, color: snapToGrid ? '#3DAA7A' : '#94a3b8', background: snapToGrid ? 'rgba(99,102,241,0.12)' : 'transparent' }}
           title="Snap to Grid"
           onMouseEnter={e => { if (!snapToGrid) e.currentTarget.style.background = 'rgba(61,170,122,0.06)'; }}
           onMouseLeave={e => { if (!snapToGrid) e.currentTarget.style.background = 'transparent'; }}>

@@ -11,6 +11,7 @@ export interface ICommunityTemplate extends Document {
   previewData: Record<string, unknown>;
   status: 'pending' | 'approved' | 'rejected';
   votes: number;
+  views: number;
   createdAt: Date;
 }
 
@@ -25,6 +26,7 @@ const CommunityTemplateSchema = new Schema<ICommunityTemplate>({
   previewData: { type: Schema.Types.Mixed, default: {} },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   votes: { type: Number, default: 0 },
+  views: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 

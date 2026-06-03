@@ -123,6 +123,7 @@ function EditorContent() {
   const [showSubmit, setShowSubmit] = useState(false);
   const [autoSave, setAutoSave] = useState(false);
   const [nightMode, setNightMode] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const isLight = document.documentElement.classList.contains('light-theme');
@@ -150,6 +151,7 @@ function EditorContent() {
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   const portfolio = usePortfolioStore();
+  const isCanvasFullScreen = portfolio.template === 'custom' && portfolio.isCanvasFullScreen;
   const slug = usePortfolioStore(s => s.slug);
 
   const searchParams = useSearchParams();
@@ -314,7 +316,7 @@ function EditorContent() {
       `}</style>
 
       {/* ── Top Navigation Bar ── */}
-      <nav style={{ flexShrink: 0, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.25rem', borderBottom: '1px solid var(--editor-border)', background: 'var(--editor-header-bg)', backdropFilter: 'blur(20px)', zIndex: 50 }}>
+      <nav style={{ flexShrink: 0, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.25rem', borderBottom: '1px solid var(--editor-border)', background: 'var(--editor-header-bg)', backdropFilter: 'blur(20px)', zIndex: 100, position: 'relative' }}>
 
         {/* Left: brand + nav links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -337,13 +339,7 @@ function EditorContent() {
 
         {/* Right: controls + user menu */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {/* Mobile preview toggle */}
-          <button
-            onClick={() => setShowPreview(!showPreview)}
-            className="md:hidden"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.75rem', background: 'var(--editor-btn-ghost)', border: '1px solid var(--editor-border-strong)', borderRadius: 8, color: 'var(--editor-text)', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer' }}>
-            <Eye size={14} /> {showPreview ? 'Edit' : 'Preview'}
-          </button>
+
 
           {/* Night mode toggle */}
           <button onClick={toggleNightMode} title={nightMode ? 'Light mode' : 'Dark mode'}
@@ -356,7 +352,7 @@ function EditorContent() {
           <button onClick={() => setAutoSave(a => !a)} title="Toggle auto-save"
             style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0.4rem 0.7rem', background: autoSave ? 'rgba(16,185,129,0.15)' : 'var(--editor-btn-ghost)', border: `1px solid ${autoSave ? 'rgba(16,185,129,0.35)' : 'var(--editor-border-strong)'}`, borderRadius: 8, color: autoSave ? '#34d399' : 'var(--editor-text-muted)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}>
             <RefreshCw size={13} style={{ animation: autoSave ? 'spin 3s linear infinite' : 'none' }} />
-            <span className="hidden md:inline">Auto</span>
+            <span className="hidden md:inline">Auto Save</span>
           </button>
 
           {/* Submit to community */}
@@ -381,18 +377,34 @@ function EditorContent() {
           {/* Copy Share Link */}
           <button onClick={() => {
             navigator.clipboard.writeText(window.location.origin + publicUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
           }}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.4rem 0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: '#94a3b8', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}
-            title="Copy link">
-            <LinkIcon size={14} />
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '0.4rem 0.85rem',
+              background: copied ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${copied ? 'rgba(16,185,129,0.35)' : 'var(--editor-border-strong)'}`,
+              borderRadius: 8,
+              color: copied ? '#34d399' : 'var(--editor-text-muted)',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all .2s'
+            }}
+            title={copied ? "Copied!" : "Copy link"}>
+            {copied ? <Check size={13} /> : <LinkIcon size={13} />}
+            <span className="hidden md:inline">{copied ? 'Copied!' : 'Copy Link'}</span>
           </button>
 
           {/* User menu */}
           <div style={{ position: 'relative' }}>
             <button onClick={() => setUserMenuOpen(!userMenuOpen)}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.35rem 0.5rem 0.35rem 0.35rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 20, color: '#e5e7eb', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.35rem 0.5rem 0.35rem 0.35rem', background: 'rgba(61,170,122,0.06)', border: '1px solid var(--editor-border)', borderRadius: 20, color: 'var(--editor-text)', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(61,170,122,0.12)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(61,170,122,0.06)'; }}>
               <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg,#3DAA7A,#D97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 600, flexShrink: 0 }}>
                 {user.displayName?.charAt(0)?.toUpperCase() || <User size={12} />}
               </div>
@@ -402,10 +414,10 @@ function EditorContent() {
             <AnimatePresence>
               {userMenuOpen && (
                 <motion.div initial={{ opacity: 0, y: -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.98 }} transition={{ duration: 0.15 }}
-                  style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 200, background: '#1e293b', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden', zIndex: 100, boxShadow: '0 12px 24px rgba(0,0,0,0.5)' }}>
-                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f1f5f9' }}>{user.displayName}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4, fontWeight: 400 }}>{user.email}</div>
+                  style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 200, background: 'var(--editor-panel-bg)', border: '1px solid var(--editor-border-strong)', borderRadius: 16, overflow: 'hidden', zIndex: 200, boxShadow: nightMode ? '0 12px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.12)', backdropFilter: 'blur(20px)' }}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--editor-border)' }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--editor-text)' }}>{user.displayName}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--editor-text-muted)', marginTop: 4, fontWeight: 400 }}>{user.email}</div>
                   </div>
                   <button onClick={() => { signOut(); router.push('/'); }}
                     style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '0.85rem 1.25rem', background: 'none', border: 'none', color: '#ef4444', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s', textAlign: 'left' }}
@@ -428,9 +440,9 @@ function EditorContent() {
             <AlertTriangle size={16} style={{ color: '#fbbf24', flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fbbf24' }}>Set a URL slug first!</div>
-              <div style={{ fontSize: '0.75rem', color: '#d97706', marginTop: 2 }}>Go to the <strong>Profile</strong> tab and fill in your Custom URL slug before viewing your live portfolio.</div>
+              <div style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: 2 }}>Go to the <strong>Profile</strong> tab and fill in your Custom URL slug before viewing your live portfolio.</div>
             </div>
-            <button onClick={() => setShowSlugWarning(false)} style={{ background: 'none', border: 'none', color: '#92400e', cursor: 'pointer', padding: 2, flexShrink: 0 }}><X size={14} /></button>
+            <button onClick={() => setShowSlugWarning(false)} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', padding: 2, flexShrink: 0 }}><X size={14} /></button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -448,8 +460,8 @@ function EditorContent() {
           borderRight: '1px solid var(--editor-border)',
           flexDirection: 'column',
           background: 'var(--editor-panel-bg)',
-          display: showPreview ? 'none' : 'flex',
-        }} className="md:flex! md:w-[42%]!">
+          display: (showPreview || isCanvasFullScreen) ? 'none' : 'flex',
+        }} className={isCanvasFullScreen ? "" : "md:flex! md:w-[42%]!"}>
           <FormPanel onSave={handleSave} isSaving={isSaving} saveMessage={saveMessage} />
         </div>
 
@@ -466,36 +478,34 @@ function EditorContent() {
       </div>
 
       {/* ── Footer Bar (Edit / Preview / Save) — always visible ── */}
-      <div style={{ flexShrink: 0, borderTop: '1px solid var(--editor-border)', background: 'var(--editor-footer-bg)', padding: '0.75rem 1.25rem', display: 'flex', gap: '0.75rem', alignItems: 'center', boxShadow: nightMode ? '0 -10px 40px rgba(0,0,0,0.5)' : '0 -4px 15px rgba(0,0,0,0.04)' }}>
-        {/* Edit / Preview toggle — only shown on mobile */}
-        <div className="md:hidden" style={{ display: 'flex', gap: '0.6rem', flex: 1 }}>
-          <button onClick={() => setShowPreview(false)}
-            style={{ flex: 1, padding: '0.7rem', borderRadius: 12, border: !showPreview ? '1px solid rgba(61,170,122,0.3)' : '1px solid var(--editor-border-strong)', background: !showPreview ? 'rgba(61,170,122,0.1)' : 'transparent', color: !showPreview ? '#62C99A' : 'var(--editor-text-muted)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <User size={14} /> Edit
-          </button>
-          <button onClick={() => setShowPreview(true)}
-            style={{ flex: 1, padding: '0.7rem', borderRadius: 12, border: showPreview ? '1px solid rgba(61,170,122,0.3)' : '1px solid var(--editor-border-strong)', background: showPreview ? 'rgba(61,170,122,0.1)' : 'transparent', color: showPreview ? '#62C99A' : 'var(--editor-text-muted)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <Eye size={14} /> Preview
+      {!isCanvasFullScreen && (
+        <div style={{ flexShrink: 0, borderTop: '1px solid var(--editor-border)', background: 'var(--editor-footer-bg)', padding: '0.75rem 1.25rem', display: 'flex', gap: '0.75rem', alignItems: 'center', boxShadow: nightMode ? '0 -10px 40px rgba(0,0,0,0.5)' : '0 -4px 15px rgba(0,0,0,0.04)' }}>
+          {/* Single Edit/Preview toggle — only shown on mobile */}
+          <div className="md:hidden" style={{ flex: 1 }}>
+            <button onClick={() => setShowPreview(p => !p)}
+              style={{ width: '100%', padding: '0.7rem', borderRadius: 12, border: '1px solid rgba(61,170,122,0.3)', background: 'rgba(61,170,122,0.1)', color: '#62C99A', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              {showPreview ? <><User size={14} /> Switch to Edit</> : <><Eye size={14} /> Switch to Preview</>}
+            </button>
+          </div>
+          {/* Spacer on desktop */}
+          <div className="hidden md:block" style={{ flex: 1 }} />
+          {/* Save — always visible */}
+          <button onClick={handleSave} disabled={isSaving}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8, padding: '0.7rem 1.75rem', borderRadius: 12, border: 'none',
+              background: isSaving ? 'rgba(61,170,122,0.2)' : 'linear-gradient(135deg, #3DAA7A 0%, #2D8060 100%)',
+              color: isSaving ? 'rgba(216,237,226,0.5)' : '#fff',
+              fontWeight: 700, fontSize: '0.9rem', cursor: isSaving ? 'not-allowed' : 'pointer',
+              boxShadow: isSaving ? 'none' : '0 4px 15px rgba(61,170,122,0.3)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => { if (!isSaving) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(61,170,122,0.4)'; } }}
+            onMouseLeave={e => { if (!isSaving) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(61,170,122,0.3)'; } }}>
+            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
-        {/* Spacer on desktop */}
-        <div className="hidden md:block" style={{ flex: 1 }} />
-        {/* Save — always visible */}
-        <button onClick={handleSave} disabled={isSaving}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8, padding: '0.7rem 1.75rem', borderRadius: 12, border: 'none',
-            background: isSaving ? 'rgba(61,170,122,0.2)' : 'linear-gradient(135deg, #3DAA7A 0%, #2D8060 100%)',
-            color: isSaving ? 'rgba(216,237,226,0.5)' : '#fff',
-            fontWeight: 700, fontSize: '0.9rem', cursor: isSaving ? 'not-allowed' : 'pointer',
-            boxShadow: isSaving ? 'none' : '0 4px 15px rgba(61,170,122,0.3)',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={e => { if (!isSaving) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(61,170,122,0.4)'; } }}
-          onMouseLeave={e => { if (!isSaving) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(61,170,122,0.3)'; } }}>
-          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </button>
-      </div>
+      )}
     </div>
   );
 }

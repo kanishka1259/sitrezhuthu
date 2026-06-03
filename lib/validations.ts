@@ -4,7 +4,7 @@ export const portfolioSchema = z.object({
   _id: z.string().optional(),
   name: z.string().min(1, 'Name is required').max(50).optional().or(z.literal('')),
   username: z.string().min(3).max(30).optional(),
-  slug: z.string().min(3).max(40).optional().or(z.literal('')),
+  slug: z.string().min(3).optional().or(z.literal('')),
   bio: z.string().max(500).optional().or(z.literal('')),
   avatar: z.string().optional().or(z.literal('')),
   template: z.string().optional(),
@@ -30,6 +30,8 @@ export const portfolioSchema = z.object({
     twitter: z.string().optional().or(z.literal('')),
   }).optional(),
   customElements: z.array(z.any()).optional(),
+  canvasPositions: z.record(z.string(), z.object({ x: z.number(), y: z.number() })).optional(),
+  allowedEmails: z.array(z.string()).optional(),
   isPublic: z.boolean().optional(),
 });
 

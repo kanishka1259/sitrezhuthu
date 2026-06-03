@@ -117,14 +117,17 @@ const CANVAS_PRESETS = [
 
 // ─── Editor view ─────────────────────────────────────────────────────────
 function FreeformEditor() {
-  const { customElements, setSelectedElementId, selectedElementId, templateStyles: s, undo, redo, pushHistory, setTemplateStyle } = usePortfolioStore();
+  const { 
+    customElements, setSelectedElementId, selectedElementId, templateStyles: s, 
+    undo, redo, pushHistory, setTemplateStyle,
+    isCanvasFullScreen: isFullscreen, setIsCanvasFullScreen: setIsFullscreen
+  } = usePortfolioStore();
 
   const [showGrid, setShowGrid] = useState(true);
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [zoom, setZoom] = useState(0.6);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const panStart = useRef({ mx: 0, my: 0, px: 0, py: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -208,7 +211,7 @@ function FreeformEditor() {
       <CanvasToolbar showGrid={showGrid} snapToGrid={snapToGrid} onToggleGrid={() => setShowGrid(v => !v)} onToggleSnap={() => setSnapToGrid(v => !v)} />
 
       {/* ── Right: Properties ── */}
-      {!isFullscreen && <PropertiesPanel />}
+      <PropertiesPanel />
 
       {/* ── Bottom-left: Layers (positioned above bottom bar) ── */}
       {!isFullscreen && <LayersPanel />}
@@ -249,7 +252,7 @@ function FreeformEditor() {
         <div style={{ width: 1, height: 20, background: 'rgba(61,170,122,0.06)' }} />
 
         {/* Fullscreen toggle */}
-        <button onClick={() => setIsFullscreen(f => !f)} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen canvas'}
+        <button onClick={() => setIsFullscreen(!isFullscreen)} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen canvas'}
           style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 7, background: isFullscreen ? 'rgba(99,102,241,0.2)' : 'transparent', border: `1px solid ${isFullscreen ? 'rgba(99,102,241,0.5)' : 'transparent'}`, color: isFullscreen ? '#818cf8' : '#475569', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 600 }}>
           <Maximize2 size={13}/>
           <span>{isFullscreen ? 'Exit' : 'Full'}</span>
@@ -328,16 +331,16 @@ function FreeformEditor() {
             {/* Empty state */}
             {sorted.length === 0 && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, pointerEvents: 'none' }}>
-                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(99,102,241,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(99,102,241,0.15)' }}>
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(99,102,241,0.2)' }}>
                   <span style={{ fontSize: '2rem' }}>✦</span>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.1rem', color: 'rgba(61,170,122,0.12)', fontWeight: 700, margin: 0 }}>Your canvas is empty</p>
-                  <p style={{ fontSize: '0.82rem', color: 'rgba(61,170,122,0.06)', margin: '6px 0 0' }}>Add elements from the toolbar on the left</p>
+                  <p style={{ fontSize: '1.1rem', color: 'rgba(61,170,122,0.6)', fontWeight: 700, margin: 0 }}>Your canvas is empty</p>
+                  <p style={{ fontSize: '0.82rem', color: 'rgba(61,170,122,0.5)', margin: '6px 0 0' }}>Add elements from the toolbar on the left</p>
                 </div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
                   {['Text', 'Image', 'Shapes', 'Emoji', 'Portfolio Blocks'].map(hint => (
-                    <div key={hint} style={{ padding: '5px 12px', borderRadius: 20, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.1)', fontSize: '0.72rem', color: 'rgba(61,170,122,0.1)', fontWeight: 500 }}>{hint}</div>
+                    <div key={hint} style={{ padding: '5px 12px', borderRadius: 20, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '0.72rem', color: 'rgba(61,170,122,0.6)', fontWeight: 500 }}>{hint}</div>
                   ))}
                 </div>
               </div>

@@ -7,7 +7,7 @@ import axios from 'axios';
 import {
   Eye, Edit3, X, Zap, Sparkles,
   Monitor, Tablet, Smartphone,
-  Heart, Upload, Check, Loader2
+  Heart, Upload, Check, Loader2, Plus
 } from 'lucide-react';
 import { usePortfolioStore, TEMPLATE_DEFAULTS, TemplateStyles, PortfolioStore } from '@/store/usePortfolioStore';
 import { CustomElement } from '@/types/portfolio';
@@ -297,6 +297,7 @@ function SubmitModal({ onClose }: { onClose: () => void }) {
 }
 
 // ─── Unified Template Card ───────────────────────────────────────────────────────────
+// ─── Unified Template Card ───────────────────────────────────────────────────────────
 function TemplateCard({
   template,
   isCommunity,
@@ -320,7 +321,7 @@ function TemplateCard({
 
   return (
     <motion.div layout
-      className="rounded-[24px] border border-white/5 bg-white/[0.02] flex flex-col hover:-translate-y-1 hover:border-white/10 transition-all duration-300">
+      className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] flex flex-col hover:-translate-y-1 hover:border-[var(--border-lit)] transition-all duration-300 shadow-md">
       <div className="h-[200px] relative mx-3 mt-3 rounded-[16px] overflow-hidden cursor-pointer" onClick={() => onPreview(t)}>
         <LiveThumbnail
           templateId={baseId}
@@ -350,30 +351,31 @@ function TemplateCard({
       <div className="p-6 flex-1 flex flex-col gap-4">
         <div className="flex items-start justify-between">
           <div>
-            <div className="font-semibold text-[1.15rem] mb-1 text-white">{name as string}</div>
+            <div className="font-semibold text-[1.15rem] mb-1 text-[var(--text)]">{name as string}</div>
             <div className="text-sm font-medium" style={{ color: accent }}>{tagline as string}</div>
           </div>
-          {isCommunity && onVote && (
-            <button onClick={(e) => { e.stopPropagation(); onVote(t._id); }}
-              className="flex items-center gap-1.5 text-xs text-[#A0BCAE] hover:text-[#3DAA7A] transition-colors bg-white/5 px-2 py-1 rounded-lg border border-white/10">
-              <Heart size={12} className={t.votes > 0 ? "fill-[#3DAA7A] text-[#3DAA7A]" : ""} />
-              {t.votes || 0}
+          <div className="text-xs text-[var(--text-muted)] font-medium flex items-center gap-3">
+            <button
+              onClick={(e) => { e.stopPropagation(); onVote?.(isCommunity ? t._id : t.id); }}
+              className="flex items-center gap-1 hover:scale-110 transition-transform cursor-pointer bg-transparent border-none p-0"
+              title={t.liked ? "Unlike this template" : "Like this template"}
+            >
+              <Heart size={12} className={t.liked ? "fill-rose-400 text-rose-400" : "text-rose-400 hover:fill-rose-400"} />
+              <span className="text-[var(--text-muted)]">{((isCommunity ? t.votes : t.likes) ?? 0).toLocaleString()}</span>
             </button>
-          )}
-          {!isCommunity && (
-            <div className="text-xs text-[#A0BCAE] font-medium flex items-center gap-1.5">
-              <Zap size={14} style={{ color: accent }} />
-              {t.usedCount?.toLocaleString() || 0}
-            </div>
-          )}
+            <span className="flex items-center gap-1">
+              <Eye size={12} style={{ color: accent }} />
+              {((t.views) ?? 0).toLocaleString()}
+            </span>
+          </div>
         </div>
-        <p className="text-sm text-[#A0BCAE] leading-relaxed font-normal line-clamp-2">
+        <p className="text-sm text-[var(--text-muted)] leading-relaxed font-normal line-clamp-2">
           {isCommunity ? t.description as string : t.description as string}
         </p>
         {!isCommunity && (
           <div className="flex flex-wrap gap-2 mt-auto">
             {(t.features || []).slice(0, 3).map((f: string) => (
-              <span key={f} className="text-[10px] px-2 py-1 bg-white/5 border border-white/10 rounded-md text-[#D8EDE2] font-medium uppercase tracking-tight">{f}</span>
+              <span key={f} className="text-[10px] px-2 py-1 bg-[var(--bg-hover)] border border-[var(--border)] rounded-md text-[var(--text)] font-medium uppercase tracking-tight">{f}</span>
             ))}
           </div>
         )}
@@ -388,7 +390,7 @@ function TemplateCard({
 
       <div className="px-6 pb-6 flex gap-3">
         <button onClick={() => onPreview(t)}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 transition-colors">
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-[var(--border)] text-sm font-medium text-[var(--text)] hover:bg-[var(--bg-hover)] transition-colors">
           <Eye size={16} /> Preview
         </button>
         <button onClick={() => onUse(t)}
@@ -411,11 +413,89 @@ export default function TemplatesPage() {
   const [showSubmit, setShowSubmit] = useState(false);
 
   const { setTemplate, setTemplateStyle } = usePortfolioStore();
+  const { getIdToken } = useFirebaseAuth();
   const router = useRouter();
+
+  // Official template likes — persisted in localStorage
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [dbStats, setDbStats] = useState<Record<string, { likes: number; views: number }>>({});
+
+  useEffect(() => {
+    try {
+      const savedLiked = localStorage.getItem('template-liked-ids');
+      if (savedLiked) setLikedIds(new Set(JSON.parse(savedLiked)));
+    } catch { /* ignore */ }
+
+    // Fetch official template stats from MongoDB
+    axios.get('/api/templates/stats')
+      .then(r => {
+        const statsMap: Record<string, { likes: number; views: number }> = {};
+        if (Array.isArray(r.data)) {
+          r.data.forEach((s: any) => {
+            statsMap[s.templateId] = { likes: s.likes || 0, views: s.views || 0 };
+          });
+        }
+        setDbStats(statsMap);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handlePreview = async (t: any) => {
+    setActivePreview(t);
+    const isComm = !!t._id;
+    const id = isComm ? t._id : t.id;
+    try {
+      if (isComm) {
+        await axios.patch('/api/templates/community', { id, action: 'view' });
+        setCommunityTemplates(prev => prev.map(item => item._id === id ? { ...item, views: ((item.views as number) || 0) + 1 } : item));
+      } else {
+        const r = await axios.patch('/api/templates/stats', { id, action: 'view' });
+        if (r.data?.success) {
+          setDbStats(prev => ({
+            ...prev,
+            [id]: {
+              likes: r.data.likes,
+              views: r.data.views
+            }
+          }));
+        }
+      }
+    } catch { /* soft fail */ }
+  };
+
+  const handleOfficialVote = async (id: string) => {
+    const isLiked = likedIds.has(id);
+    const action = isLiked ? 'unlike' : 'like';
+
+    // Optimistic UI update
+    setLikedIds(prev => {
+      const next = new Set(prev);
+      if (isLiked) next.delete(id); else next.add(id);
+      localStorage.setItem('template-liked-ids', JSON.stringify([...next]));
+      return next;
+    });
+
+    setDbStats(prev => {
+      const stats = prev[id] || { likes: 0, views: 0 };
+      return {
+        ...prev,
+        [id]: { ...stats, likes: Math.max(0, stats.likes + (isLiked ? -1 : 1)) }
+      };
+    });
+
+    try {
+      const r = await axios.patch('/api/templates/stats', { id, action });
+      if (r.data?.success) {
+        setDbStats(prev => ({
+          ...prev,
+          [id]: { likes: r.data.likes, views: r.data.views }
+        }));
+      }
+    } catch { /* soft fail, keep optimistic update */ }
+  };
 
   // Fetch community templates on mount
   useEffect(() => {
-    // communityLoading is true by default, no need to set it here
     axios.get('/api/templates/community')
       .then(r => setCommunityTemplates(r.data.length ? r.data : SAMPLE_TEMPLATES))
       .catch(() => setCommunityTemplates(SAMPLE_TEMPLATES))
@@ -440,19 +520,46 @@ export default function TemplatesPage() {
   };
 
   const handleVote = async (id: string) => {
+    const isLiked = likedIds.has(id);
+    const action = isLiked ? 'unvote' : 'vote';
+
+    // Optimistic UI update
+    setLikedIds(prev => {
+      const next = new Set(prev);
+      if (isLiked) next.delete(id); else next.add(id);
+      localStorage.setItem('template-liked-ids', JSON.stringify([...next]));
+      return next;
+    });
+
+    setCommunityTemplates(prev => prev.map(t => 
+      t._id === id ? { ...t, votes: Math.max(0, ((t.votes as number) || 0) + (isLiked ? -1 : 1)) } : t
+    ));
+
     try {
-      await axios.patch('/api/templates/community', { id, action: 'vote' });
-      setCommunityTemplates(prev => prev.map(t => t._id === id ? { ...t, votes: ((t.votes as number) || 0) + 1 } : t));
-    } catch { /* soft fail */ }
+      const token = await getIdToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+      await axios.patch('/api/templates/community', { id, action }, { headers });
+    } catch { /* soft fail, keep optimistic update */ }
   };
 
   const filteredOfficial = selectedCategory === 'All' || selectedCategory === 'Official'
     ? templates
     : templates.filter(t => t.category === selectedCategory);
 
-  const filteredCommunity = selectedCategory === 'All' || selectedCategory === 'Community'
+  // Enrich official templates with database likes & views
+  const enrichedOfficial = filteredOfficial.map(t => {
+    const stats = dbStats[t.id] || { likes: 0, views: 0 };
+    return {
+      ...t,
+      likes: stats.likes,
+      views: stats.views,
+      liked: likedIds.has(t.id),
+    };
+  });
+
+  const filteredCommunity = (selectedCategory === 'All' || selectedCategory === 'Community'
     ? communityTemplates
-    : [];
+    : []).map(t => ({ ...t, liked: likedIds.has(t._id as string) }));
 
   const displayCategories = ['All', 'Official', 'Community', ...categories.filter(c => c !== 'All')];
 
@@ -487,17 +594,17 @@ export default function TemplatesPage() {
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
             className="text-center pt-24 pb-16">
 
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-white">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-[var(--text)]">
               Pick your perfect <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3DAA7A] to-[#62C99A]">template</span>
             </h1>
-            <p className="text-lg text-[#A0BCAE] max-w-[600px] mx-auto leading-relaxed">
+            <p className="text-lg text-[var(--text-muted)] max-w-[600px] mx-auto leading-relaxed">
               Choose from our high-fidelity official layouts or unique creative designs shared by the community.
             </p>
 
             <div className="mt-12 flex flex-wrap gap-2 justify-center">
               {displayCategories.map((cat) => (
                 <button key={cat} onClick={() => setSelectedCategory(cat)}
-                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === cat ? 'bg-[#3DAA7A] text-[#050A07] shadow-[0_0_15px_rgba(61,170,122,0.3)]' : 'bg-transparent border border-white/10 text-[#A0BCAE] hover:text-white'
+                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === cat ? 'bg-[#3DAA7A] text-[#050A07] shadow-[0_0_15px_rgba(61,170,122,0.3)]' : 'bg-[var(--bg-surface)] border border-[var(--border-lit)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--border-warm)]'
                     }`}>
                   {cat}
                 </button>
@@ -506,25 +613,43 @@ export default function TemplatesPage() {
           </motion.div>
 
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[var(--text)] flex items-center gap-2">
               <Zap size={20} className="text-[#3DAA7A]" />
               {selectedCategory} Designs
             </h2>
-            <button onClick={() => setShowSubmit(true)}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[#3DAA7A]/10 hover:bg-[#3DAA7A]/20 border border-[#3DAA7A]/20 rounded-xl text-sm font-bold text-[#3DAA7A] transition-all">
-              <Upload size={16} /> Share Your Design
-            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
+              {/* Create Custom Design Card */}
+              <motion.div
+                layout
+                className="rounded-[24px] border-2 border-dashed border-[var(--border-warm)] hover:border-[#3DAA7A]/60 bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)] flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group min-h-[420px] shadow-sm"
+                onClick={() => {
+                  setTemplate('custom' as TemplateId);
+                  router.push('/editor?template=custom');
+                }}
+                whileHover={{ y: -4 }}
+              >
+                <div className="flex flex-col items-center gap-5">
+                  <div className="w-20 h-20 rounded-2xl bg-[#3DAA7A]/10 border border-[#3DAA7A]/20 flex items-center justify-center group-hover:bg-[#3DAA7A]/20 group-hover:border-[#3DAA7A]/40 group-hover:scale-110 transition-all duration-300">
+                    <Plus size={36} className="text-[#3DAA7A]/60 group-hover:text-[#3DAA7A] transition-colors duration-300" />
+                  </div>
+                  <div className="text-center px-4">
+                    <div className="text-lg font-bold text-[var(--text)] transition-colors mb-1">Create Custom</div>
+                    <div className="text-sm text-[var(--text-muted)] transition-colors max-w-[200px]">Design your own layout from scratch with the canvas editor</div>
+                  </div>
+                </div>
+              </motion.div>
+
               {/* Official Templates */}
-              {filteredOfficial.map((template) => (
+              {enrichedOfficial.map((template) => (
                 <TemplateCard
                   key={template.id}
                   template={template}
-                  onPreview={setActivePreview}
+                  onPreview={handlePreview}
                   onUse={() => handleUseOfficial(template.id)}
+                  onVote={handleOfficialVote}
                 />
               ))}
 
@@ -534,7 +659,7 @@ export default function TemplatesPage() {
                   key={tpl._id as string}
                   template={tpl}
                   isCommunity
-                  onPreview={setActivePreview}
+                  onPreview={handlePreview}
                   onUse={handleUseCommunity}
                   onVote={handleVote}
                 />
@@ -545,15 +670,15 @@ export default function TemplatesPage() {
           {communityLoading && selectedCategory !== 'Official' && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <Loader2 size={32} className="animate-spin text-[#3DAA7A]" />
-              <p className="text-[#A0BCAE] font-medium">Discovering community gems...</p>
+              <p className="text-[var(--text-muted)] font-medium">Discovering community gems...</p>
             </div>
           )}
 
           {!communityLoading && filteredCommunity.length === 0 && selectedCategory === 'Community' && (
-            <div className="text-center py-24 border border-dashed border-white/10 rounded-3xl">
-              <Sparkles size={48} className="mx-auto text-[#A0BCAE] opacity-20 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">No community designs found</h3>
-              <p className="text-[#A0BCAE]">Be the first to share your creative layout!</p>
+            <div className="text-center py-24 border border-dashed border-[var(--border-lit)] rounded-3xl">
+              <Sparkles size={48} className="mx-auto text-[var(--text-muted)] opacity-20 mb-4" />
+              <h3 className="text-xl font-bold text-[var(--text)] mb-2">No community designs found</h3>
+              <p className="text-[var(--text-muted)]">Be the first to share your creative layout!</p>
             </div>
           )}
 
