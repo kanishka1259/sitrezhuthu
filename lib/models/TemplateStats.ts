@@ -4,6 +4,8 @@ export interface ITemplateStats extends Document {
   templateId: string;
   likes: number;
   views: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const TemplateStatsSchema = new Schema<ITemplateStats>({

@@ -135,22 +135,28 @@ export function Navbar() {
                 </button>
 
                 {userOpen && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 210, borderRadius: 14, background: '#0D1510', border: '1px solid rgba(61,170,122,0.15)', boxShadow: '0 20px 60px rgba(0,0,0,0.7)', overflow: 'hidden', zIndex: 200 }}>
-                    <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(61,170,122,0.08)' }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: JADE_BRIGHT }}>{user.displayName || 'User'}</div>
-                      <div style={{ fontSize: 12, color: '#2E4A38', marginTop: 2 }}>{user.email}</div>
+                  <div style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 210, borderRadius: 14,
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-lit)',
+                    boxShadow: theme === 'dark' ? '0 20px 60px rgba(0,0,0,0.7)' : '0 12px 30px rgba(0,0,0,0.1)',
+                    overflow: 'hidden', zIndex: 200
+                  }}>
+                    <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--jade-bright)' }}>{user.displayName || 'User'}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 2 }}>{user.email}</div>
                     </div>
                     {[{ icon: LayoutDashboard, label: 'My Projects', href: '/dashboard' }, { icon: Settings, label: 'Settings', href: '/settings' }].map(({ icon: Icon, label, href }) => (
-                      <Link key={href} href={href} onClick={() => setUserOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 18px', fontSize: 14, color: 'rgba(216,237,226,0.65)', textDecoration: 'none', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(61,170,122,0.08)'; (e.currentTarget as HTMLElement).style.color = JADE_BRIGHT; }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(216,237,226,0.65)'; }}
+                      <Link key={href} href={href} onClick={() => setUserOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 18px', fontSize: 14, color: 'var(--text-muted)', textDecoration: 'none', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--jade-bright)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
                       >
-                        <Icon size={15} style={{ color: JADE, opacity: 0.7 }} /> {label}
+                        <Icon size={15} style={{ color: 'var(--jade)', opacity: 0.7 }} /> {label}
                       </Link>
                     ))}
-                    <div style={{ borderTop: '1px solid rgba(61,170,122,0.08)' }}>
+                    <div style={{ borderTop: '1px solid var(--border)' }}>
                       <button onClick={handleSignOut} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '11px 18px', fontSize: 14, color: '#B05555', background: 'transparent', border: 'none', cursor: 'pointer', transition: 'background 0.15s', textAlign: 'left' }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(176,85,85,0.08)'; }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = theme === 'dark' ? 'rgba(176,85,85,0.08)' : 'rgba(239,68,68,0.08)'; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                       ><LogOut size={15} /> Sign Out</button>
                     </div>

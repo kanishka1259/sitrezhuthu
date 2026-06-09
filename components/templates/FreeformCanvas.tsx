@@ -144,25 +144,79 @@ function FreeformEditor() {
   })();
 
   // ── Keyboard shortcuts ──────────────────────────────────────────────
+  const clipboardRef = useRef<CustomElement | null>(null);
+  
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); undo(); }
-      if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); redo(); }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementId) {
+      
+      // ─ Undo (Ctrl+Z / Cmd+Z)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) { 
+        e.preventDefault(); 
+        undo(); 
+      }
+      // ─ Redo (Ctrl+Y / Cmd+Y or Ctrl+Shift+Z / Cmd+Shift+Z)
+      else if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { 
+        e.preventDefault(); 
+        redo(); 
+      }
+      // ─ Delete or Backspace selected element
+      else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementId) {
         const el = customElements.find(e2 => e2.id === selectedElementId);
         if (el && !el.locked) {
+          e.preventDefault();
           pushHistory();
           usePortfolioStore.getState().removeCustomElement(selectedElementId);
           setSelectedElementId(null);
         }
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'd' && selectedElementId) {
+      // ─ Duplicate (Ctrl+D / Cmd+D)
+      else if ((e.metaKey || e.ctrlKey) && e.key === 'd' && selectedElementId) {
         e.preventDefault();
         usePortfolioStore.getState().duplicateCustomElement(selectedElementId);
       }
-      if (e.key === 'Escape') setSelectedElementId(null);
+      // ─ Copy element (Ctrl+C / Cmd+C)
+      else if ((e.metaKey || e.ctrlKey) && e.key === 'c' && selectedElementId) {
+        e.preventDefault();
+        const el = customElements.find(e2 => e2.id === selectedElementId);
+        if (el) {
+          clipboardRef.current = JSON.parse(JSON.stringify(el));
+        }
+      }
+      // ─ Paste element (Ctrl+V / Cmd+V)
+      else if ((e.metaKey || e.ctrlKey) && e.key === 'v' && clipboardRef.current) {
+        e.preventDefault();
+        pushHistory();
+        const pastedEl = JSON.parse(JSON.stringify(clipboardRef.current));
+        pastedEl.id = Math.random().toString(36).substring(2, 11);
+        pastedEl.x = (pastedEl.x || 0) + 20;
+        pastedEl.y = (pastedEl.y || 0) + 20;
+        usePortfolioStore.getState().addCustomElement(pastedEl);
+      }
+      // ─ Deselect (Escape)
+      else if (e.key === 'Escape') {
+        setSelectedElementId(null);
+      }
+      // ─ Arrow keys to move selected element
+      else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && selectedElementId) {
+        e.preventDefault();
+        const el = customElements.find(e2 => e2.id === selectedElementId);
+        if (el && !el.locked) {
+          pushHistory();
+          const step = e.shiftKey ? 10 : 1;
+          let dx = 0, dy = 0;
+          if (e.key === 'ArrowUp') dy = -step;
+          else if (e.key === 'ArrowDown') dy = step;
+          else if (e.key === 'ArrowLeft') dx = -step;
+          else if (e.key === 'ArrowRight') dx = step;
+          
+          usePortfolioStore.getState().updateCustomElement(selectedElementId, {
+            x: (el.x || 0) + dx,
+            y: (el.y || 0) + dy,
+          });
+        }
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);

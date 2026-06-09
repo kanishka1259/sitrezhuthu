@@ -13,6 +13,7 @@ export interface ICommunityTemplate extends Document {
   votes: number;
   views: number;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const CommunityTemplateSchema = new Schema<ICommunityTemplate>({
@@ -29,6 +30,9 @@ const CommunityTemplateSchema = new Schema<ICommunityTemplate>({
   views: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
+
+// P1: Compound index — approved-templates queries sort by votes+createdAt
+CommunityTemplateSchema.index({ status: 1, votes: -1, createdAt: -1 });
 
 export default mongoose.models.CommunityTemplate ||
   mongoose.model<ICommunityTemplate>('CommunityTemplate', CommunityTemplateSchema);

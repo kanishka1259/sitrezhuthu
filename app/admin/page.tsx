@@ -30,11 +30,13 @@ interface CommunityTemplate {
 }
 
 const ADMIN_EMAILS = ([
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@sitrezhuthu.com',
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL_2 || '',
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL_3 || '',
   'kanishka1259@gmail.com',
   'kanishkaa1302@gmail.com',
   'admin@sitrezhuthu.com',
-  'admin@portfolio-gen.com',
-  process.env.NEXT_PUBLIC_ADMIN_EMAIL
+  'admin@portfolio-gen.com'
 ].filter(Boolean) as string[]).map(e => e.toLowerCase());
 
 function StatusBadge({ status }: { status: string }) {

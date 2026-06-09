@@ -94,7 +94,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(serialize(portfolio));
   } catch (err: unknown) {
-    const error = err as Error;
+    const error = err as Error & { code?: number };
+    // MongoDB duplicate key — username or slug race condition
+    if (error.code === 11000) {
+      return NextResponse.json({ error: 'Username or URL slug is already taken. Please try again.' }, { status: 409 });
+    }
     const status = error.message?.includes('Authorization') ? 401 : 500;
     return NextResponse.json({ error: error.message || 'Failed to save portfolio' }, { status });
   }

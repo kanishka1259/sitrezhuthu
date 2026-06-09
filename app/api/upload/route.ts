@@ -17,10 +17,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Since we are storing directly as Base64 in the database to keep it 100% free,
-    // we restrict the file size to 1MB to prevent slowing down the database.
-    if (file.size > 1 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large (max 1 MB for free storage)' }, { status: 400 });
+    // Base64 encoding inflates file size by ~33%. With avatar + project images
+    // all stored inline in a single MongoDB document (16 MB hard limit), we cap
+    // each upload at 500 KB to leave headroom for portfolio data.
+    const MAX_FILE_BYTES = 500 * 1024; // 500 KB
+    if (file.size > MAX_FILE_BYTES) {
+      return NextResponse.json({ error: 'File too large (max 500 KB for inline storage)' }, { status: 400 });
     }
 
     if (!file.type.startsWith('image/')) {

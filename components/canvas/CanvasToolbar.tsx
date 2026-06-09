@@ -8,7 +8,7 @@ import {
   Image as ImageIcon, Minus, Star, LayoutTemplate, Undo2, Redo2,
   Grid3x3, Magnet, Shapes, Smile, Diamond,
   User, Briefcase, Code2, GraduationCap,
-  Hash, Globe, Layers
+  Hash, Globe, Layers, HelpCircle, X
 } from 'lucide-react';
 
 interface CanvasToolbarProps {
@@ -40,6 +40,7 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
   const { addCustomElement, templateStyles: s, undo, redo, name, bio, avatar, projects, education, contact } = usePortfolioStore();
   const [activeMenu, setActiveMenu] = useState<'shapes' | 'emoji' | 'portfolio' | null>(null);
   const [activeEmojiGroup, setActiveEmojiGroup] = useState<string>('Popular');
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const add = (type: CustomElement['type'], extra: Partial<CustomElement> = {}) => {
@@ -485,7 +486,48 @@ export function CanvasToolbar({ showGrid, snapToGrid, onToggleGrid, onToggleSnap
           onMouseLeave={e => { if (!snapToGrid) e.currentTarget.style.background = 'transparent'; }}>
           <Magnet size={15}/><span style={{ fontSize: '0.58rem', fontWeight: 600 }}>Snap</span>
         </button>
+        <button onClick={() => setShowShortcuts(!showShortcuts)}
+          style={{ ...TOOL_BTN, color: '#94a3b8' }} title="Keyboard Shortcuts (?)"
+          onMouseEnter={e => e.currentTarget.style.background  = 'rgba(61,170,122,0.06)'}
+          onMouseLeave={e => e.currentTarget.style.background  = 'transparent'}>
+          <HelpCircle size={15}/><span style={{ fontSize: '0.58rem', fontWeight: 600 }}>Help</span>
+        </button>
       </div>
+
+      {/* Shortcuts Modal */}
+      {showShortcuts && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={() => setShowShortcuts(false)}>
+          <div style={{ background: '#0D1510', border: '1px solid rgba(61,170,122,0.2)', borderRadius: 16, padding: '2rem', maxWidth: 500, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.8)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>Keyboard Shortcuts</h2>
+              <button onClick={() => setShowShortcuts(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+              {[
+                { key: 'Ctrl+Z', label: 'Undo' },
+                { key: 'Ctrl+Y', label: 'Redo' },
+                { key: 'Ctrl+D', label: 'Duplicate' },
+                { key: 'Ctrl+C', label: 'Copy' },
+                { key: 'Ctrl+V', label: 'Paste' },
+                { key: 'Ctrl+S', label: 'Save' },
+                { key: 'Delete', label: 'Delete Element' },
+                { key: 'Escape', label: 'Deselect' },
+                { key: '↑↓←→', label: 'Move (+Shift: 10px)' },
+              ].map(item => (
+                <div key={item.key}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#3DAA7A', marginBottom: '0.3rem' }}>{item.key}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(216,237,226,0.7)' }}>{item.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: '1.75rem', paddingTop: '1rem', borderTop: '1px solid rgba(61,170,122,0.1)' }}>
+              <p style={{ fontSize: '0.8rem', color: 'rgba(216,237,226,0.5)', margin: 0 }}>💡 Tip: Use keyboard shortcuts like professional designers for faster workflow!</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

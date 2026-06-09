@@ -13,7 +13,7 @@ import axios from 'axios';
 import {
   LayoutDashboard, LogOut, ExternalLink, Eye,
   Loader2, ChevronDown, User, Upload, X, Check, Link as LinkIcon,
-  Moon, Sun, AlertTriangle, RefreshCw
+  Moon, Sun, AlertTriangle, RefreshCw, Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PortfolioStore } from '@/store/usePortfolioStore';
@@ -239,6 +239,18 @@ function EditorContent() {
     };
   }, [autoSave]);
 
+  /* ── Ctrl+S keyboard shortcut to save ── */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSaveRef.current();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   /* ── Loading & guard states ── */
   if (loading || !user) {
     return (
@@ -416,15 +428,25 @@ function EditorContent() {
                 <motion.div initial={{ opacity: 0, y: -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.98 }} transition={{ duration: 0.15 }}
                   style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, minWidth: 200, background: 'var(--editor-panel-bg)', border: '1px solid var(--editor-border-strong)', borderRadius: 16, overflow: 'hidden', zIndex: 200, boxShadow: nightMode ? '0 12px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.12)', backdropFilter: 'blur(20px)' }}>
                   <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--editor-border)' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--editor-text)' }}>{user.displayName}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--editor-text)' }}>{user.displayName || 'User'}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--editor-text-muted)', marginTop: 4, fontWeight: 400 }}>{user.email}</div>
                   </div>
-                  <button onClick={() => { signOut(); router.push('/'); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '0.85rem 1.25rem', background: 'none', border: 'none', color: '#ef4444', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s', textAlign: 'left' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}>
-                    <LogOut size={14} /> Sign Out
-                  </button>
+                  {[{ icon: LayoutDashboard, label: 'My Projects', href: '/dashboard' }, { icon: Settings, label: 'Settings', href: '/settings' }].map(({ icon: Icon, label, href }) => (
+                    <Link key={href} href={href} onClick={() => setUserMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0.85rem 1.25rem', fontSize: '0.85rem', color: 'var(--editor-text-muted)', textDecoration: 'none', transition: 'all 0.15s' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--editor-btn-ghost-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--editor-text)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--editor-text-muted)'; }}
+                    >
+                      <Icon size={14} style={{ color: '#3DAA7A', opacity: 0.8 }} /> {label}
+                    </Link>
+                  ))}
+                  <div style={{ borderTop: '1px solid var(--editor-border)' }}>
+                    <button onClick={() => { signOut(); router.push('/'); }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '0.85rem 1.25rem', background: 'none', border: 'none', color: '#ef4444', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all .2s', textAlign: 'left' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}>
+                      <LogOut size={14} /> Sign Out
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

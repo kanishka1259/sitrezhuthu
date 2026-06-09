@@ -1,32 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/db';
 import CommunityTemplate from '@/lib/models/CommunityTemplate';
-
 import { verifyFirebaseToken } from '@/lib/firebase-admin';
 
-/** GET /api/templates/community — list templates (admin can pass ?status=all or ?status=pending) */
+// ── P1: Admin email list — moved from hardcoded values to env var ─────────────
+// Set ADMIN_EMAILS in .env.local as a comma-separated list:
+//   ADMIN_EMAILS=admin@sitrezhuthu.com,other@example.com
+const ADMIN_EMAILS: string[] = (
+  process.env.ADMIN_EMAILS || 'admin@sitrezhuthu.com,admin@portfolio-gen.com'
+)
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+function isAdmin(email?: string | null): boolean {
+  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+/** GET /api/templates/community
+ *  - Public (?status=approved, default): returns templates WITHOUT authorEmail.
+ *  - Admin (?status=pending|all): requires Firebase auth + admin role, returns full data.
+ */
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') || 'approved';
 
+    // Non-public queries require admin auth
     if (status !== 'approved') {
       try {
         const decoded = await verifyFirebaseToken(req.headers.get('authorization'));
-        const email = decoded?.email?.toLowerCase();
-        if (!email || !ADMIN_EMAILS.includes(email)) {
+        if (!isAdmin(decoded?.email)) {
           return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
       } catch {
-        return NextResponse.json({ error: 'Unauthorized or Forbidden' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
     }
 
     const query = status === 'all' ? {} : { status };
+
+    // P1: Strip authorEmail from public responses to prevent email harvesting
+    const projection = status === 'approved' ? '-authorEmail' : '';
+
     const templates = await CommunityTemplate.find(query)
+      .select(projection)
       .sort({ votes: -1, createdAt: -1 })
       .lean();
+
     return NextResponse.json(templates);
   } catch (err) {
     console.error(err);
@@ -42,18 +64,33 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const body = await req.json();
-    const { authorName, authorEmail, templateName, description, baseTemplate, templateStyles, previewData, customElements } = body;
+    const {
+      authorName, authorEmail, templateName, description,
+      baseTemplate, templateStyles, previewData, customElements,
+    } = body;
 
     if (!authorName || !authorEmail || !templateName) {
-      return NextResponse.json({ error: 'authorName, authorEmail and templateName are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'authorName, authorEmail and templateName are required' },
+        { status: 400 }
+      );
+    }
+
+    // Basic email format check on submission
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(authorEmail)) {
+      return NextResponse.json({ error: 'Invalid authorEmail format' }, { status: 400 });
     }
 
     const doc = await CommunityTemplate.create({
-      authorName, authorEmail, templateName, description,
-      baseTemplate: baseTemplate || 'minimal',
-      templateStyles: templateStyles || {},
-      customElements: customElements || [],
-      previewData: previewData || {},
+      authorName:     String(authorName).slice(0, 100),
+      authorEmail:    String(authorEmail).toLowerCase().slice(0, 200),
+      templateName:   String(templateName).slice(0, 100),
+      description:    description ? String(description).slice(0, 500) : '',
+      baseTemplate:   baseTemplate || 'minimal',
+      templateStyles: templateStyles  || {},
+      customElements: customElements  || [],
+      previewData:    previewData     || {},
       status: 'pending',
       votes: 0,
     });
@@ -65,42 +102,41 @@ export async function POST(req: NextRequest) {
   }
 }
 
-const ADMIN_EMAILS = ([
-  'kanishka1259@gmail.com',
-  'kanishkaa1302@gmail.com',
-  'admin@sitrezhuthu.com',
-  'admin@portfolio-gen.com',
-  process.env.ADMIN_EMAIL,
-].filter(Boolean) as string[]).map(e => e.toLowerCase());
-
 /** PATCH /api/templates/community — upvote, view increment, or admin-approve */
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
     const { id, action } = body;
-    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+
+    if (!id || !action) {
+      return NextResponse.json({ error: 'id and action are required' }, { status: 400 });
+    }
 
     await dbConnect();
     const doc = await CommunityTemplate.findById(id);
     if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+    // view is unauthenticated (passive tracking)
     if (action === 'view') {
       doc.views = (doc.views || 0) + 1;
       await doc.save();
       return NextResponse.json({ success: true, views: doc.views });
     }
 
-    // Other actions (vote, approve, reject) require verification
-    const decoded = await verifyFirebaseToken(req.headers.get('authorization'));
-    if (!decoded) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // All other actions require a valid Firebase token
+    let decoded;
+    try {
+      decoded = await verifyFirebaseToken(req.headers.get('authorization'));
+    } catch {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     if (action === 'vote') {
       doc.votes = (doc.votes || 0) + 1;
     } else if (action === 'unvote') {
       doc.votes = Math.max(0, (doc.votes || 0) - 1);
     } else if (action === 'approve' || action === 'reject') {
-      const email = decoded.email?.toLowerCase();
-      if (!email || !ADMIN_EMAILS.includes(email)) {
+      if (!isAdmin(decoded?.email)) {
         return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
       }
       doc.status = action === 'approve' ? 'approved' : 'rejected';

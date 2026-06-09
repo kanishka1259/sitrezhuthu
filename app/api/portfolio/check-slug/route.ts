@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ available: !existing, slug });
   } catch (err: unknown) {
     const error = err as Error;
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const status = error.message?.includes('Authorization') || error.message?.includes('Missing') ? 401 : 500;
+    return NextResponse.json({ error: error.message || 'Failed to check slug' }, { status });
   }
 }
