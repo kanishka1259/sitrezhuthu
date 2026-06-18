@@ -408,7 +408,7 @@ export default function TemplatesPage() {
   const [activePreview, setActivePreview] = useState<TemplateMeta | Record<string, unknown> | null>(null);
 
   // Community State
-  const [communityTemplates, setCommunityTemplates] = useState<Record<string, unknown>[]>([]);
+  const [communityTemplates, setCommunityTemplates] = useState<Array<Record<string, unknown> & { _id?: string }>>([]);
   const [communityLoading, setCommunityLoading] = useState(true);
   const [showSubmit, setShowSubmit] = useState(false);
 
