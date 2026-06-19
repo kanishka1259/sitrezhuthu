@@ -1,4 +1,4 @@
-# 🎨 Portfolio Generator
+# Portfolio Generator
 
 A full-stack web application that empowers users to create, customize, and share stunning professional portfolios with zero coding required. Choose from 9+ professionally designed templates, customize with ease, and export as PDF or share publicly.
 
@@ -337,9 +337,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Kanishka**  
 - GitHub: [@kanishka1259](https://github.com/kanishka1259)
-- Portfolio: [sitrezhuthu.vercel.app](https://sitrezhuthu.vercel.app)
-
----
 
 ## 🙏 Acknowledgments
 
@@ -350,16 +347,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Anthropic Claude](https://www.anthropic.com) - AI capabilities
 - [Cloudinary](https://cloudinary.com) - Image hosting
 
----
-
-## 📞 Support
-
-If you encounter any issues:
-
-1. Check the [documentation](./DEPLOYMENT.md)
-2. Review existing [GitHub issues](https://github.com/kanishka1259/sitrezhuthu/issues)
-3. Create a new issue with detailed information
-
----
-
-**Built with ❤️ using Next.js and modern web technologies.**
